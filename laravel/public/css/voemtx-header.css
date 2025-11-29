@@ -1,0 +1,117 @@
+/* Estilo para o ícone do usuário no cabeçalho */
+.user-panel .image img {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #fff;
+    padding: 2px;
+    border: 2px solid #e4b944;
+}
+
+/* Estilo para a primeira letra do nome do usuário */
+.user-panel .info {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Estilo para o quadradinho do usuário */
+.user-panel {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.user-panel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajuste para o menu de usuário */
+.navbar-nav .user-menu .dropdown-menu {
+    border-radius: 0 0 4px 4px;
+    padding: 0;
+    border-top: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-nav .user-menu .user-header {
+    background: #003057;
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+}
+
+.navbar-nav .user-menu .user-header p {
+    margin: 5px 0;
+    color: #fff;
+}
+
+/* Ajuste para o dropdown do usuário */
+.user-menu > .dropdown-menu > li.user-header {
+    height: auto;
+    padding: 10px;
+    text-align: center;
+    background: #003057;
+}
+
+/* Estilo para os itens do menu do usuário */
+.user-menu .dropdown-menu > li > a {
+    padding: 8px 15px;
+    color: #444;
+    transition: background 0.2s;
+}
+
+.user-menu .dropdown-menu > li > a:hover {
+    background: #f4f6f9;
+    color: #003057;
+}
+
+/* Ajuste para o rodapé do menu do usuário */
+.user-menu .dropdown-menu > .user-footer {
+    background: #f8f9fa;
+    padding: 8px 15px;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Estilo para o botão de sair */
+.user-menu .dropdown-menu > .user-footer .btn {
+    margin: 0;
+    width: 100%;
+    background: #e4b944;
+    color: #003057;
+    border: none;
+    font-weight: 600;
+}
+
+.user-menu .dropdown-menu > .user-footer .btn:hover {
+    background: #d4a93c;
+}
+
+/* Ajuste para o ícone de dropdown */
+.user-menu .dropdown-toggle::after {
+    display: none;
+}
+
+/* Ajuste para o nome do usuário no menu */
+.user-panel .info {
+    padding: 0 10px;
+    font-weight: 500;
+    color: #fff;
+}
+
+/* Ajuste para o ícone de usuário */
+.user-panel .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #e4b944;
+    border-radius: 50%;
+    color: #003057;
+    font-weight: bold;
+    font-size: 1.2rem;
+}

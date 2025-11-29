@@ -1,0 +1,152 @@
+/* Cores institucionais Voemtx */
+
+/* Alerta de sucesso: some após 3s e não sobrepõe botões */
+.alert-success {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.5s;
+}
+.alert-success.voemtx-fadeout {
+    opacity: 0;
+    pointer-events: none;
+}
+/* Botões institucionais Voemtx para ações */
+.voemtx-btn {
+    display: inline-block;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 0.97rem;
+    border: none;
+    border-radius: 22px;
+    padding: 6px 22px;
+    margin: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background .2s, color .2s, box-shadow .2s;
+    outline: none;
+    box-shadow: none;
+    text-decoration: none;
+    min-width: 80px;
+    text-align: center;
+}
+
+.voemtx-btn-view {
+    background: #e4b944;
+    color: #003057;
+}
+.voemtx-btn-edit {
+    background: #fff3cd;
+    color: #856404;
+}
+.voemtx-btn-delete {
+    background: #f8d7da;
+    color: #721c24;
+}
+.voemtx-btn:hover, .voemtx-btn:focus {
+    filter: brightness(0.97);
+    box-shadow: 0 2px 8px #0001;
+    opacity: 0.92;
+    text-decoration: none;
+}
+.voemtx-btn:active {
+    filter: brightness(0.93);
+}
+
+
+body, .main-header, .main-sidebar, .brand-link {
+    font-family: 'Montserrat', Arial, sans-serif !important;
+}
+.main-header {
+    background: #003057 !important;
+    color: #fff !important;
+}
+.main-header .navbar-nav .nav-link, .main-header .navbar-brand {
+    color: #fff !important;
+}
+
+.main-sidebar {
+    background: #fff !important;
+    color: #003057 !important;
+    border-right: 1px solid #e4e8f0;
+}
+.brand-link {
+    background: #fff !important;
+    color: #003057 !important;
+    border-bottom: 1px solid #e4e8f0;
+    display: flex;
+    align-items: center;
+    height: 56px;
+}
+.brand-link img {
+    background: transparent !important;
+    padding: 0 8px 0 0;
+    border-radius: 0;
+    box-shadow: none;
+    max-height: 40px;
+    margin-right: 8px;
+}
+.sidebar .nav-link {
+    color: #003057 !important;
+    font-weight: 500;
+    border-radius: 6px;
+    margin: 2px 0;
+    transition: background .2s, color .2s;
+}
+.sidebar .nav-link.active, .sidebar .nav-link:active, .sidebar .nav-link:focus {
+    background: #e4b944 !important;
+    color: #003057 !important;
+    font-weight: 700;
+}
+.sidebar .nav-link:hover {
+    background: #e4b944 !important;
+    color: #003057 !important;
+}
+.sidebar .nav-icon {
+    color: #e4b944 !important;
+}
+
+.brand-link img {
+    background: #fff !important;
+    padding: 4px 12px 4px 0;
+    border-radius: 0;
+    box-shadow: none;
+    max-height: 44px;
+}
+.btn-primary, .bg-primary, .sidebar-dark-primary {
+    background-color: #003057 !important;
+    border-color: #003057 !important;
+}
+.btn-warning, .bg-warning {
+    background-color: #e4b944 !important;
+    border-color: #e4b944 !important;
+    color: #003057 !important;
+}
+.text-primary {
+    color: #003057 !important;
+}
+.text-warning {
+    color: #e4b944 !important;
+}
+.brand-link img {
+    max-height: 40px;
+    margin-right: 10px;
+}
+/* Ajustes para links ativos */
+.nav-sidebar .nav-link.active, .nav-sidebar .nav-link.active:focus, .nav-sidebar .nav-link.active:hover {
+    background-color: #003057 !important;
+    color: #fff !important;
+    border-radius: 6px;
+}
+.nav-sidebar .nav-link {
+    color: #003057 !important;
+    border-radius: 6px;
+    margin: 3px 6px;
+    font-weight: 500;
+}
+.nav-sidebar .nav-link:hover {
+    background: #e4b944 !important;
+    color: #003057 !important;
+}
+.sidebar {
+    box-shadow: 2px 0 8px #0001;
+}
+

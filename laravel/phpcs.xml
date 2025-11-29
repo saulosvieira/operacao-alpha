@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<ruleset name="Voemtx Laravel">
+    <description>PHP_CodeSniffer configuration for Laravel project</description>
+
+    <!-- Base path: the root of the Laravel project -->
+    <file>.</file>
+
+    <!-- Exclude directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/storage/*</exclude-pattern>
+    <exclude-pattern>*/bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>*/public/*</exclude-pattern>
+    <exclude-pattern>*/database/migrations/*</exclude-pattern>
+    <exclude-pattern>*/database/seeders/*</exclude-pattern>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+
+    <!-- Colors in output -->
+    <arg name="colors"/>
+
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+
+    <!-- Include the whole PSR-12 standard -->
+    <rule ref="PSR12">
+        <!-- Exclude some PSR-12 rules that are not compatible with Laravel -->
+        <exclude name="PSR12.Files.ImportStatement.LeadingSlash"/>
+        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
+        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
+        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
+        <exclude name="PSR12.Operators.OperatorSpacing.SpacedAfter"/>
+    </rule>
+
+    <!-- Include PSR-1 -->
+    <rule ref="PSR1">
+        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+    </rule>
+
+    <!-- Configure line length -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="120"/>
+        </properties>
+    </rule>
+
+    <!-- Configure function call signature rules -->
+    <rule ref="PEAR.Functions.FunctionCallSignature">
+        <properties>
+            <property name="allowMultipleArguments" value="true"/>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+            <property name="indent" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- Disable some PEAR standards that conflict with PSR-12 -->
+    <rule ref="PEAR.Commenting.FileComment">
+        <exclude name="PEAR.Commenting.FileComment.MissingVersion"/>
+        <exclude name="PEAR.Commenting.FileComment.MissingCategoryTag"/>
+        <exclude name="PEAR.Commenting.FileComment.MissingPackageTag"/>
+        <exclude name="PEAR.Commenting.FileComment.MissingAuthorTag"/>
+        <exclude name="PEAR.Commenting.FileComment.MissingLicenseTag"/>
+        <exclude name="PEAR.Commenting.FileComment.MissingLinkTag"/>
+    </rule>
+
+    <!-- Configure array formatting -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration">
+        <exclude name="Squiz.Arrays.ArrayDeclaration.KeyNotAligned"/>
+        <exclude name="Squiz.Arrays.ArrayDeclaration.ValueNotAligned"/>
+        <exclude name="Squiz.Arrays.ArrayDeclaration.DoubleArrowNotAligned"/>
+    </rule>
+
+    <!-- Configure method argument spacing -->
+    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
+        <properties>
+            <property name="equalsSpacing" value="1"/>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure method declaration spacing -->
+    <rule ref="Squiz.Functions.FunctionDeclaration">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure method spacing -->
+    <rule ref="Squiz.WhiteSpace.FunctionSpacing">
+        <properties>
+            <property name="spacing" value="1"/>
+            <property name="spacingBeforeFirst" value="0"/>
+            <property name="spacingAfterLast" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure class member spacing -->
+    <rule ref="Squiz.WhiteSpace.MemberVarSpacing">
+        <properties>
+            <property name="spacing" value="1"/>
+            <property name="spacingBeforeFirst" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Configure operator spacing -->
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing">
+        <properties>
+            <property name="ignoreNewlines" value="true"/>
+            <property name="ignoreSpacingBeforeAssignments" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Configure control structure spacing -->
+    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing">
+        <properties>
+            <property name="ignoreNewlines" value="true"/>
+        </properties>
+    </rule>
+
+    <!-- Configure scope keyword spacing -->
+    <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/>
+
+    <!-- Configure Laravel-specific rules -->
+    <rule ref="PSR12.Classes.ClassInstantiation">
+        <exclude name="PSR12.Classes.ClassInstantiation.MissingParentheses"/>
+    </rule>
+
+    <!-- Configure Laravel-specific docblock rules -->
+    <rule ref="Squiz.Commenting.FunctionComment">
+        <exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+        <exclude name="Squiz.Commenting.FunctionComment.MissingReturn"/>
+        <exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch"/>
+        <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType"/>
+    </rule>
+
+    <!-- Configure Laravel-specific variable naming -->
+    <rule ref="Squiz.NamingConventions.ValidVariableName">
+        <exclude name="Squiz.NamingConventions.ValidVariableName.NotCamelCaps"/>
+        <exclude name="Squiz.NamingConventions.ValidVariableName.MemberVarNotCamelCaps"/>
+        <exclude name="Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore"/>
+    </rule>
+
+    <!-- Configure Laravel-specific method naming -->
+    <rule ref="Squiz.NamingConventions.ValidFunctionName">
+        <exclude name="Squiz.NamingConventions.ValidFunctionName.NotCamelCaps"/>
+    </rule>
+
+    <!-- Configure Laravel-specific class naming -->
+    <rule ref="Squiz.Classes.ValidClassName">
+        <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps"/>
+    </rule>
+
+    <!-- Configure Laravel-specific interface naming -->
+    <rule ref="Squiz.Classes.ValidClassName">
+        <exclude name="Squiz.Classes.ValidClassName.Invalid"/>
+    </rule>
+
+    <!-- Configure Laravel-specific trait naming -->
+    <rule ref="Squiz.Classes.ValidClassName">
+        <exclude name="Squiz.Classes.ValidClassName.Invalid"/>
+    </rule>
+
+    <!-- Configure Laravel-specific file naming -->
+    <rule ref="Squiz.Classes.ClassFileName">
+        <exclude name="Squiz.Classes.ClassFileName.NoMatch"/>
+    </rule>
+
+    <!-- Configure Laravel-specific function spacing -->
+    <rule ref="Squiz.WhiteSpace.FunctionSpacing">
+        <properties>
+            <property name="spacing" value="1"/>
+            <property name="spacingBeforeFirst" value="1"/>
+            <property name="spacingAfterLast" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific method argument spacing -->
+    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
+        <properties>
+            <property name="equalsSpacing" value="1"/>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific method declaration spacing -->
+    <rule ref="Squiz.Functions.FunctionDeclaration">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific method call spacing -->
+    <rule ref="Squiz.Functions.FunctionCallSignature">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific array declaration -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration">
+        <properties>
+            <property name="indent" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific control structure spacing -->
+    <rule ref="Squiz.ControlStructures.ControlSignature">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific switch statement spacing -->
+    <rule ref="Squiz.ControlStructures.SwitchDeclaration">
+        <properties>
+            <property name="indent" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific try-catch spacing -->
+    <rule ref="Squiz.Exceptions.CatchDeclaration">
+        <properties>
+            <property name="indent" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific comment spacing -->
+    <rule ref="Squiz.Commenting.DocCommentAlignment">
+        <properties>
+            <property name="spacing" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific inline comment spacing -->
+    <rule ref="Squiz.Commenting.InlineComment">
+        <properties>
+            <property name="spacing" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific variable spacing -->
+    <rule ref="Squiz.WhiteSpace.MemberVarSpacing">
+        <properties>
+            <property name="spacing" value="1"/>
+            <property name="spacingBeforeFirst" value="1"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific operator spacing -->
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing">
+        <properties>
+            <property name="ignoreNewlines" value="true"/>
+            <property name="ignoreSpacingBeforeAssignments" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Configure Laravel-specific scope keyword spacing -->
+    <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/>
+</ruleset>
