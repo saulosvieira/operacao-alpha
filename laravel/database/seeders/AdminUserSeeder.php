@@ -12,7 +12,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::updateOrCreate(
+        \App\Domain\Auth\Models\User::updateOrCreate(
             ['email' => 'admin@simulados.com'],
             [
                 'name' => 'Administrador',
@@ -24,7 +24,7 @@ class AdminUserSeeder extends Seeder
         );
 
         // Usuário de teste assinante
-        \App\Models\User::updateOrCreate(
+        \App\Domain\Auth\Models\User::updateOrCreate(
             ['email' => 'usuario@teste.com'],
             [
                 'name' => 'Usuário Teste',
@@ -36,7 +36,7 @@ class AdminUserSeeder extends Seeder
         );
 
         // Usuário de teste não assinante
-        \App\Models\User::updateOrCreate(
+        \App\Domain\Auth\Models\User::updateOrCreate(
             ['email' => 'gratuito@teste.com'],
             [
                 'name' => 'Usuário Gratuito',

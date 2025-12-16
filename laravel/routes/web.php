@@ -15,105 +15,75 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Públicas
+| Rotas do Painel Admin (Blade/Laravel)
 |--------------------------------------------------------------------------
 */
 
-// Redirecionamento raiz para o dashboard
-Route::redirect('/', '/dashboard');
+// Rotas de autenticação do admin
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [
+            LoginController::class,
+            'showLoginForm',
+        ])->name('login');
 
-// Rotas de autenticação
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [
-        LoginController::class,
-        'showLoginForm',
-    ])->name('login');
+        Route::post('/login', [
+            LoginController::class,
+            'login',
+        ])->name('login.submit');
+    });
 
-    Route::post('/login', [
-        LoginController::class,
-        'login',
-    ])->name('login.submit');
+    // Rotas protegidas do admin
+    Route::middleware(['auth'])->group(function () {
+        // Logout
+        Route::post('/logout', [
+            LoginController::class,
+            'logout',
+        ])->name('logout');
+
+        // Dashboard
+        Route::get('/dashboard', [
+            DashboardController::class,
+            'index',
+        ])->name('dashboard');
+
+        // Users Module
+        Route::prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('/create', [UserController::class, 'create'])->name('create');
+                Route::post('/', [UserController::class, 'store'])->name('store');
+                Route::get('/{user}', [UserController::class, 'show'])->name('show');
+                Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
+                Route::put('/{user}', [UserController::class, 'update'])->name('update');
+                Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+                Route::get('/{id}/modal', [UserController::class, 'showModal'])->name('modal');
+            });
+
+        // Careers
+        Route::resource('careers', \App\Http\Controllers\Admin\CareerController::class);
+        // Notices
+        Route::resource('notices', \App\Http\Controllers\Admin\NoticeController::class);
+        // Exams
+        Route::resource('exams', \App\Http\Controllers\Admin\ExamController::class);
+    });
 });
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (Requerem autenticação)
+| Rotas do PWA (React SPA)
 |--------------------------------------------------------------------------
+| 
+| Todas as rotas que não começam com /admin ou /api serão servidas pelo PWA.
+| O React Router gerencia a navegação client-side.
+|
 */
-Route::middleware(['auth'])->group(function () {
-    // Logout
-    Route::post('/logout', [
-        LoginController::class,
-        'logout',
-    ])->name('logout');
 
-    // Dashboard
-    Route::get('/dashboard', [
-        DashboardController::class,
-        'index',
-    ])->name('dashboard');
-
-    // Módulo de Usuários
-    Route::prefix('usuarios')
-        ->name('usuarios.')
-        ->group(function () {
-            // Listagem de usuários
-            Route::get('/', [
-                UserController::class,
-                'index',
-            ])->name('index');
-
-            // Criação de usuário
-            Route::get('/create', [
-                UserController::class,
-                'create',
-            ])->name('create');
-
-            Route::post('/', [
-                UserController::class,
-                'store',
-            ])->name('store');
-
-            // Visualização de usuário
-            Route::get('/{user}', [
-                UserController::class,
-                'show',
-            ])->name('show');
-
-            // Edição de usuário
-            Route::get('/{user}/edit', [
-                UserController::class,
-                'edit',
-            ])->name('edit');
-
-            Route::put('/{user}', [
-                UserController::class,
-                'update',
-            ])->name('update');
-
-            // Exclusão de usuário
-            Route::delete('/{user}', [
-                UserController::class,
-                'destroy',
-            ])->name('destroy');
-
-            // Modal de visualização
-            Route::get('/{id}/modal', [
-                UserController::class,
-                'showModal',
-            ])->name('modal');
-        });
-
-    // Rotas Admin
-    Route::prefix('admin')->name('admin.')->group(function () {
-        // Carreiras
-        Route::resource('carreiras', \App\Http\Controllers\Admin\CarreiraController::class);
-        // Editais
-        Route::resource('editais', \App\Http\Controllers\Admin\EditalController::class);
-        // Simulados
-        Route::resource('simulados', \App\Http\Controllers\Admin\SimuladoController::class);
-    });
-});
+// Rota catch-all para o PWA React (deve ser a última)
+Route::get('/{any}', function () {
+    return view('app'); // View Blade que carrega o React
+})->where('any', '^(?!admin|api).*$')->name('pwa');
 
 // Rota alternativa para servir arquivos do storage em DirectAdmin
 // Usa /files/ ao invés de /storage/ para evitar conflito com Apache

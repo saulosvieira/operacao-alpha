@@ -40,5 +40,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('table.helper', function ($app) {
             return new \App\Helpers\TableHelper();
         });
+
+        // Define Gate for admin access
+        \Illuminate\Support\Facades\Gate::define('admin', function ($user) {
+            return $user->role === \App\Domain\Auth\Enums\UserRole::ADMIN->value;
+        });
+
+        // Configure rate limiting for login
+        \Illuminate\Support\Facades\RateLimiter::for('login', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+        });
     }
 }

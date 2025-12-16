@@ -13,7 +13,7 @@
             {{ $errors->first() }}
         </div>
     @endif
-    <form action="{{ route('login') }}" method="POST">
+    <form action="{{ route('admin.login.submit') }}" method="POST">
         @csrf
         <div class="input-group mb-3">
             <input type="email" name="email" class="form-control" placeholder="Email" required autofocus value="{{ old('email', '') }}">

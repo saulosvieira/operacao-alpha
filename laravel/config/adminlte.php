@@ -69,12 +69,12 @@ return [
     |
     */
 
-    'logo' => '<b>Operação</b> Alpha',
-    'logo_img' => null,
+    'logo' => '',
+    'logo_img' => 'images/logo-oficial.png',
     'logo_img_class' => 'brand-image',
-    'logo_img_xl' => null,
-    'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Operação Alpha',
+    'logo_img_xl' => 'images/logo-oficial.png',
+    'logo_img_xl_class' => 'brand-image-xl',
+    'logo_img_alt' => 'Operação Alfa',
 
     /*
     |--------------------------------------------------------------------------
@@ -90,13 +90,13 @@ return [
     */
 
     'auth_logo' => [
-        'enabled' => false,
+        'enabled' => true,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'Auth Logo',
-            'class' => '',
-            'width' => 50,
-            'height' => 50,
+            'path' => 'images/logo-oficial.png',
+            'alt' => 'Operação Alfa',
+            'class' => 'img-fluid',
+            'width' => 200,
+            'height' => 200,
         ],
     ],
 
@@ -318,33 +318,33 @@ return [
         // Sidebar items (principal menu):
         [
             'text' => 'Dashboard',
-            'url' => 'dashboard',
+            'url' => 'admin/dashboard',
             'icon' => 'fas fa-tachometer-alt',
         ],
         [
             'text' => 'Usuários',
-            'url' => 'usuarios',
+            'url' => 'admin/users',
             'icon' => 'fas fa-user-cog',
-            'active' => ['usuarios', 'usuarios/*'],
+            'active' => ['admin/users', 'admin/users/*'],
         ],
         ['header' => 'GESTÃO DE SIMULADOS'],
         [
             'text' => 'Carreiras',
-            'url' => 'admin/carreiras',
+            'url' => 'admin/careers',
             'icon' => 'fas fa-graduation-cap',
-            'active' => ['admin/carreiras', 'admin/carreiras/*'],
+            'active' => ['admin/careers', 'admin/careers/*'],
         ],
         [
             'text' => 'Editais',
-            'url' => 'admin/editais',
+            'url' => 'admin/notices',
             'icon' => 'fas fa-file-alt',
-            'active' => ['admin/editais', 'admin/editais/*'],
+            'active' => ['admin/notices', 'admin/notices/*'],
         ],
         [
             'text' => 'Simulados',
-            'url' => 'admin/simulados',
+            'url' => 'admin/exams',
             'icon' => 'fas fa-clipboard-list',
-            'active' => ['admin/simulados', 'admin/simulados/*'],
+            'active' => ['admin/exams', 'admin/exams/*'],
         ],
     ],
 

@@ -12,41 +12,41 @@ class CarreiraSeeder extends Seeder
      */
     public function run(): void
     {
-        $carreiras = [
+        $careers = [
             [
-                'nome' => 'Polícia Federal',
-                'descricao' => 'Concursos para Polícia Federal',
-                'slug' => 'policia-federal',
-                'ativa' => true,
+                'name' => 'Polícia Militar - SP',
+                'slug' => 'policia-militar-sp',
+                'description' => 'Carreira militar estadual focada em policiamento ostensivo e preservação da ordem pública no estado de São Paulo.',
+                'active' => true,
             ],
             [
-                'nome' => 'Polícia Rodoviária Federal',
-                'descricao' => 'Concursos para PRF',
-                'slug' => 'prf',
-                'ativa' => true,
+                'name' => 'Corpo de Bombeiros - RJ',
+                'slug' => 'bombeiros-rj',
+                'description' => 'Carreira militar estadual especializada em combate a incêndios, salvamento e atendimento pré-hospitalar no Rio de Janeiro.',
+                'active' => true,
             ],
             [
-                'nome' => 'Polícia Civil',
-                'descricao' => 'Concursos para Polícia Civil',
-                'slug' => 'policia-civil',
-                'ativa' => true,
+                'name' => 'Exército Brasileiro',
+                'slug' => 'exercito',
+                'description' => 'Força terrestre das Forças Armadas do Brasil, responsável pela defesa do território nacional.',
+                'active' => true,
             ],
             [
-                'nome' => 'Receita Federal',
-                'descricao' => 'Concursos para Receita Federal',
-                'slug' => 'receita-federal',
-                'ativa' => true,
+                'name' => 'Marinha do Brasil',
+                'slug' => 'marinha',
+                'description' => 'Força naval das Forças Armadas do Brasil, responsável pela defesa das águas jurisdicionais brasileiras.',
+                'active' => true,
             ],
             [
-                'nome' => 'Tribunais',
-                'descricao' => 'Concursos para Tribunais (TJ, TRF, TST, etc)',
-                'slug' => 'tribunais',
-                'ativa' => true,
+                'name' => 'Força Aérea Brasileira',
+                'slug' => 'fab',
+                'description' => 'Força aérea das Forças Armadas do Brasil, responsável pela defesa do espaço aéreo nacional.',
+                'active' => true,
             ],
         ];
 
-        foreach ($carreiras as $carreira) {
-            \App\Models\Carreira::create($carreira);
+        foreach ($careers as $career) {
+            \App\Domain\Career\Models\Career::create($career);
         }
     }
 }

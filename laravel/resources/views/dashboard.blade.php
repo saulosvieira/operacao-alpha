@@ -24,7 +24,7 @@
                                 <h3><i class="fas fa-graduation-cap"></i></h3>
                                 <p>Carreiras</p>
                             </div>
-                            <a href="{{ route('admin.carreiras.index') }}" class="small-box-footer">
+                            <a href="{{ route('admin.careers.index') }}" class="small-box-footer">
                                 Acessar <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -66,10 +66,10 @@
         <div class="card shadow h-100">
             <div class="card-body d-flex flex-column justify-content-center align-items-center">
                 <h5 class="mb-3">Atalhos Rápidos</h5>
-                <a href="{{ route('admin.carreiras.index') }}" class="btn btn-outline-primary btn-block mb-2 w-100">
+                <a href="{{ route('admin.careers.index') }}" class="btn btn-outline-primary btn-block mb-2 w-100">
                     <i class="fas fa-graduation-cap"></i> Carreiras
                 </a>
-                <a href="{{ route('usuarios.index') }}" class="btn btn-outline-info btn-block mb-2 w-100">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-info btn-block mb-2 w-100">
                     <i class="fas fa-users"></i> Usuários
                 </a>
                 <a href="#" class="btn btn-outline-success btn-block w-100">
@@ -86,7 +86,7 @@
             <span class="info-box-icon bg-info"><i class="fas fa-graduation-cap"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Carreiras</span>
-                <span class="info-box-number">{{ \App\Models\Carreira::count() }}</span>
+                <span class="info-box-number">{{ \App\Domain\Career\Models\Career::count() }}</span>
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@
             <span class="info-box-icon bg-success"><i class="fas fa-users"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Usuários</span>
-                <span class="info-box-number">{{ \App\Models\User::count() }}</span>
+                <span class="info-box-number">{{ \App\Domain\Auth\Models\User::count() }}</span>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@
             <span class="info-box-icon bg-warning"><i class="fas fa-file-alt"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Simulados</span>
-                <span class="info-box-number">{{ \App\Models\Simulado::count() }}</span>
+                <span class="info-box-number">{{ \App\Domain\Exam\Models\Exam::count() }}</span>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
             <span class="info-box-icon bg-danger"><i class="fas fa-question-circle"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Questões</span>
-                <span class="info-box-number">{{ \App\Models\Questao::count() }}</span>
+                <span class="info-box-number">{{ \App\Domain\Exam\Models\Question::count() }}</span>
             </div>
         </div>
     </div>

@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="card">
-        <form action="{{ route('usuarios.update', $user) }}" method="POST">
+        <form action="{{ route('admin.users.update', $user) }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -85,7 +85,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Atualizar
                 </button>
-                <a href="{{ route('usuarios.index') }}" class="btn btn-default">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-default">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
             </div>

@@ -3,18 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    protected $authService;
-
-    public function __construct(AuthService $authService)
-    {
-        $this->authService = $authService;
-    }
-
     public function showLoginForm()
     {
         return view('auth.login');
@@ -23,8 +16,10 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-        if ($this->authService->login($credentials['email'], $credentials['password'])) {
-            return redirect()->intended('/dashboard');
+        
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/admin/dashboard');
         }
 
         return back()->withErrors(['email' => 'Credenciais inválidas'])->withInput();
@@ -32,10 +27,10 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        \Auth::logout();
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/admin/login');
     }
 }

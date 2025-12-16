@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="card">
-        <form action="{{ route('usuarios.store') }}" method="POST">
+        <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
             
             <div class="card-body">
@@ -85,7 +85,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Salvar
                 </button>
-                <a href="{{ route('usuarios.index') }}" class="btn btn-default">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-default">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
             </div>

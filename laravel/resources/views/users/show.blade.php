@@ -93,10 +93,10 @@
         </div>
 
         <div class="card-footer">
-            <a href="{{ route('usuarios.edit', $user) }}" class="btn btn-primary">
+            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Editar
             </a>
-            <a href="{{ route('usuarios.index') }}" class="btn btn-default">
+            <a href="{{ route('admin.users.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
         </div>

@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Exam\Actions\Admin;
+
+use App\Domain\Career\DTOs\CareerData;
+use App\Domain\Exam\DTOs\ExamData;
+use App\Domain\Exam\Models\Exam;
+
+final class CreateExamAction
+{
+    /**
+     * Execute the action to create a new exam
+     *
+     * @param int $careerId
+     * @param string $title
+     * @param string|null $description
+     * @param int $timeLimitMinutes
+     * @param bool $active
+     * @param bool $isFree
+     * @return ExamData
+     */
+    public function execute(
+        int $careerId,
+        string $title,
+        ?string $description = null,
+        int $timeLimitMinutes = 60,
+        bool $active = true,
+        bool $isFree = false
+    ): ExamData {
+        $exam = Exam::create([
+            'career_id' => $careerId,
+            'title' => $title,
+            'description' => $description,
+            'time_limit_minutes' => $timeLimitMinutes,
+            'active' => $active,
+            'is_free' => $isFree,
+        ]);
+
+        $exam->load('career');
+
+        $careerData = null;
+        if ($exam->career) {
+            $careerData = new CareerData(
+                id: $exam->career->id,
+                name: $exam->career->name,
+                description: $exam->career->description,
+                active: $exam->career->active,
+                createdAt: $exam->career->created_at->toIso8601String(),
+                updatedAt: $exam->career->updated_at->toIso8601String(),
+                slug: $exam->career->slug ?? '',
+                examsCount: 0,
+            );
+        }
+
+        return new ExamData(
+            id: (string) $exam->id,
+            careerId: (string) $exam->career_id,
+            title: $exam->title,
+            description: $exam->description,
+            timeLimitMinutes: $exam->time_limit_minutes,
+            active: $exam->active,
+            totalQuestions: 0,
+            career: $careerData,
+        );
+    }
+}

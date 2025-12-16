@@ -7,8 +7,11 @@ services:
     container_name: simulados-app
     restart: unless-stopped
     working_dir: /var/www/laravel
+    environment:
+      - NODE_ENV=production
     volumes:
       - ./laravel:/var/www/laravel
+      - /var/www/laravel/node_modules
     networks:
       - simulados-network
     depends_on:
@@ -56,6 +59,23 @@ services:
       - "63790:6379"
     networks:
       - simulados-network
+
+  simulados-vite:
+    image: node:20-alpine
+    container_name: simulados-vite
+    working_dir: /var/www/laravel
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./laravel:/var/www/laravel
+      - /var/www/laravel/node_modules
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - simulados-network
+    profiles:
+      - dev
 
 networks:
   simulados-network:

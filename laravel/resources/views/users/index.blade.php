@@ -23,7 +23,7 @@
 
     <div class="card">
         <div class="card-header">
-            <a href="{{ route('usuarios.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Novo Usuário
             </a>
         </div>
@@ -54,17 +54,17 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('usuarios.show', $user) }}" 
+                                <a href="{{ route('admin.users.show', $user) }}" 
                                    class="btn btn-sm btn-secondary" 
                                    title="Visualizar">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('usuarios.edit', $user) }}" 
+                                <a href="{{ route('admin.users.edit', $user) }}" 
                                    class="btn btn-sm btn-info" 
                                    title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('usuarios.destroy', $user) }}" 
+                                <form action="{{ route('admin.users.destroy', $user) }}" 
                                       method="POST" 
                                       style="display: inline-block;"
                                       onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
