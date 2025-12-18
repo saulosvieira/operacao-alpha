@@ -43,6 +43,8 @@ final class GetExamForEditAction
             active: $exam->active,
             totalQuestions: $exam->questions_count ?? 0,
             career: $careerData,
+            isFree: $exam->is_free,
+            feedbackMode: $exam->feedback_mode?->value ?? 'final',
         );
     }
 }

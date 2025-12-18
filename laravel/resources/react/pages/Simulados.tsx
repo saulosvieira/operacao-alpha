@@ -2,15 +2,26 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, BookOpen, Star, Play, Lock } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useSimuladosStore } from '@/stores/simuladosStore';
+import { useExamsStore } from '@/stores/examsStore';
 import { useAuthStore } from '@/stores/authStore';
 import { mockCarreiras } from '@/mocks/data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Simulado } from '@/types';
 
-function SimuladoCard({ simulado }: { simulado: Simulado }) {
+// Local interface for display purposes
+interface SimuladoDisplay {
+  id: string;
+  titulo: string;
+  carreiraId: string;
+  duracaoMin: number;
+  numQuestoes: number;
+  modo: 'fixo' | 'sorteio';
+  ordemAleatoria: boolean;
+  isFree: boolean;
+}
+
+function SimuladoCard({ simulado }: { simulado: SimuladoDisplay }) {
   const user = useAuthStore(state => state.user);
   const carreira = mockCarreiras.find(c => c.id === simulado.carreiraId);
   const isSubscribed = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trial';
@@ -24,7 +35,7 @@ function SimuladoCard({ simulado }: { simulado: Simulado }) {
             {simulado.titulo}
           </h3>
           <p className="text-sm text-muted-foreground">
-            {carreira?.nome}
+            {carreira?.name}
           </p>
         </div>
         
@@ -76,12 +87,24 @@ function SimuladoCard({ simulado }: { simulado: Simulado }) {
 }
 
 export default function Simulados() {
-  const { simulados, fetchSimulados, isLoading } = useSimuladosStore();
+  const { exams, fetchExams, isLoading } = useExamsStore();
   const [activeTab, setActiveTab] = useState('todos');
 
   useEffect(() => {
-    fetchSimulados();
-  }, [fetchSimulados]);
+    fetchExams();
+  }, [fetchExams]);
+
+  // Map exams to simulados format for display
+  const simulados: SimuladoDisplay[] = (exams ?? []).map(exam => ({
+    id: exam.id,
+    titulo: exam.title,
+    carreiraId: exam.careerId,
+    duracaoMin: exam.durationMin,
+    numQuestoes: exam.numQuestions,
+    modo: 'fixo' as const,
+    ordemAleatoria: true,
+    isFree: exam.isFree ?? false,
+  }));
 
   if (isLoading) {
     return (

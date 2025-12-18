@@ -34,6 +34,24 @@
                     @error('time_limit_minutes')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group">
+                    <label>Modo de Feedback *</label>
+                    <div class="@error('feedback_mode') is-invalid @enderror">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" id="feedback_mode_final" name="feedback_mode" value="final" {{ old('feedback_mode', 'final') === 'final' ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="feedback_mode_final">
+                                <strong>Ao Finalizar</strong> - Exibe resultados apenas ao concluir o simulado
+                            </label>
+                        </div>
+                        <div class="custom-control custom-radio mt-2">
+                            <input type="radio" class="custom-control-input" id="feedback_mode_immediate" name="feedback_mode" value="immediate" {{ old('feedback_mode', 'final') === 'immediate' ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="feedback_mode_immediate">
+                                <strong>Imediato</strong> - Exibe resposta correta após cada questão
+                            </label>
+                        </div>
+                    </div>
+                    @error('feedback_mode')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="hidden" name="active" value="0">
                         <input type="checkbox" class="custom-control-input" id="active" name="active" value="1" {{ old('active', true) ? 'checked' : '' }}>

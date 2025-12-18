@@ -4,15 +4,19 @@ namespace App\Domain\Exam\Actions;
 
 use App\Domain\Exam\Repositories\AttemptRepository;
 use App\Domain\Exam\Repositories\QuestionRepository;
+use App\Domain\Exam\Repositories\ExamRepository;
 use App\Domain\Exam\Repositories\AnswerRepository;
 use App\Domain\Exam\DTOs\AnswerData;
+use App\Domain\Exam\DTOs\SubmitAnswerResultData;
 use App\Domain\Exam\Enums\AnswerOption;
+use App\Domain\Exam\Enums\FeedbackMode;
 
 class SubmitAnswerAction
 {
     public function __construct(
         private AttemptRepository $attemptRepository,
         private QuestionRepository $questionRepository,
+        private ExamRepository $examRepository,
         private AnswerRepository $answerRepository,
     ) {}
     
@@ -21,7 +25,7 @@ class SubmitAnswerAction
         string $questionId,
         string $answer,
         int $timeSeconds
-    ): AnswerData {
+    ): SubmitAnswerResultData {
         $attempt = $this->attemptRepository->findById($attemptId);
         
         if (!$attempt) {
@@ -47,12 +51,24 @@ class SubmitAnswerAction
         
         $correct = $question->correctAnswer === $answer;
         
-        return $this->answerRepository->createOrUpdate([
+        $answerData = $this->answerRepository->createOrUpdate([
+            'user_id' => $attempt->userId,
             'attempt_id' => $attemptId,
             'question_id' => $questionId,
             'chosen_answer' => $answer,
             'correct' => $correct,
             'time_seconds' => $timeSeconds,
         ]);
+        
+        // Check exam feedback mode for immediate feedback
+        $exam = $this->examRepository->findById($attempt->examId);
+        $showFeedback = $exam && $exam->feedbackMode === FeedbackMode::IMMEDIATE->value;
+        
+        return new SubmitAnswerResultData(
+            answer: $answerData,
+            correctAnswer: $showFeedback ? $question->correctAnswer : null,
+            explanation: $showFeedback ? $question->explanation : null,
+            showFeedback: $showFeedback,
+        );
     }
 }

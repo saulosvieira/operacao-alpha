@@ -10,11 +10,14 @@ class ExamRepository
 {
     public function findAll(): Collection
     {
+        $self = $this;
         return Exam::with('career')
             ->where('active', true)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(fn($exam) => $this->toDTO($exam));
+            ->map(function ($exam) use ($self) {
+                return $self->toDTO($exam);
+            });
     }
     
     public function findById(string $id): ?ExamData
@@ -24,13 +27,30 @@ class ExamRepository
         return $exam ? $this->toDTO($exam) : null;
     }
     
+    /**
+     * Find an exam by ID with questions eager loaded.
+     * Returns the Exam model directly for use with Resources.
+     *
+     * @param string $id
+     * @return Exam|null
+     */
+    public function findByIdWithQuestions(string $id): ?Exam
+    {
+        return Exam::with(['questions' => function ($query) {
+            $query->orderBy('question_number');
+        }])->find($id);
+    }
+    
     public function findByCareer(string $careerId): Collection
     {
+        $self = $this;
         return Exam::where('career_id', $careerId)
             ->where('active', true)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(fn($exam) => $this->toDTO($exam));
+            ->map(function ($exam) use ($self) {
+                return $self->toDTO($exam);
+            });
     }
     
     public function create(array $data): ExamData
@@ -66,11 +86,13 @@ class ExamRepository
         return $exam->delete();
     }
     
-    private function toDTO(Exam $exam): ExamData
+    public function toDTO(Exam $exam): ExamData
     {
         $career = $exam->relationLoaded('career') && $exam->career 
             ? (object)['id' => $exam->career->id, 'nome' => $exam->career->name]
             : null;
+        
+        $feedbackMode = $exam->feedback_mode ? $exam->feedback_mode->value : 'final';
             
         return ExamData::fromArray([
             'id' => $exam->id,
@@ -79,8 +101,10 @@ class ExamRepository
             'description' => $exam->description,
             'time_limit_minutes' => $exam->time_limit_minutes,
             'active' => $exam->active,
+            'is_free' => $exam->is_free,
             'total_questions' => $exam->questions_count ?? $exam->questions->count(),
             'career' => $career,
+            'feedback_mode' => $feedbackMode,
         ]);
     }
 }

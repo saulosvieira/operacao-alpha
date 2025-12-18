@@ -17,11 +17,14 @@ class RankingRepository
     ): Collection {
         $dateFilter = $this->getDateFilterForType($type);
 
+        // Use MAX score for ranking (requirement 8.4: best score for ranking)
+        // Order by score descending, then by time ascending for tie-breaking (requirement 8.3)
         $query = ExamResult::query()
             ->select([
                 'exam_results.user_id',
                 DB::raw('users.name as user_name'),
-                DB::raw('AVG(exam_results.score) as score'),
+                DB::raw('MAX(exam_results.score) as score'),
+                DB::raw('MIN(exam_results.total_time_seconds) as best_time'),
                 DB::raw('COUNT(DISTINCT exam_results.exam_id) as total_exams'),
                 DB::raw('SUM(exam_results.correct_answers) as correct_answers'),
             ])
@@ -36,7 +39,7 @@ class RankingRepository
         $results = $query
             ->groupBy('exam_results.user_id', 'users.name')
             ->orderByDesc('score')
-            ->orderByDesc('total_exams')
+            ->orderBy('best_time') // Ascending for tie-breaking (faster is better)
             ->limit($limit)
             ->get();
 
@@ -61,12 +64,15 @@ class RankingRepository
     ): ?RankingEntryData {
         $dateFilter = $this->getDateFilterForType($type);
 
+        // Use MAX score for ranking (requirement 8.4: best score for ranking)
+        // Order by score descending, then by time ascending for tie-breaking (requirement 8.3)
         $query = ExamResult::query()
             ->select([
                 'exam_results.user_id',
                 DB::raw('users.name as user_name'),
                 DB::raw('users.avatar_url as user_avatar'),
-                DB::raw('AVG(exam_results.score) as score'),
+                DB::raw('MAX(exam_results.score) as score'),
+                DB::raw('MIN(exam_results.total_time_seconds) as best_time'),
                 DB::raw('COUNT(DISTINCT exam_results.exam_id) as total_exams'),
                 DB::raw('SUM(exam_results.correct_answers) as correct_answers'),
             ])
@@ -81,11 +87,11 @@ class RankingRepository
         $allResults = $query
             ->groupBy('exam_results.user_id', 'users.name', 'users.avatar_url')
             ->orderByDesc('score')
-            ->orderByDesc('total_exams')
+            ->orderBy('best_time') // Ascending for tie-breaking (faster is better)
             ->get();
 
         $userIndex = $allResults->search(function ($result) use ($userId) {
-            return $result->user_id === $userId;
+            return $result->user_id == $userId;
         });
 
         if ($userIndex === false) {

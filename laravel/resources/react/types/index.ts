@@ -23,12 +23,13 @@ export interface Question {
   statement: string;
   statementImage?: string;
   options: Option[];
-  correctAnswer?: AnswerOption;
-  explanation?: string;
+  correctAnswer?: AnswerOption; // Optional - only included based on feedback mode and attempt state
+  explanation?: string; // Optional - only included when correctAnswer is included
 }
 
 // Exam Types
 export type ExamStatus = 'draft' | 'published' | 'archived';
+export type FeedbackMode = 'immediate' | 'final';
 
 export interface Exam {
   id: string;
@@ -38,7 +39,8 @@ export interface Exam {
   durationMin: number;
   numQuestions: number;
   active: boolean;
-  isFree: boolean;
+  isFree?: boolean;
+  feedbackMode: FeedbackMode; // Controls when answers are revealed
 }
 
 // Attempt Types
@@ -51,6 +53,7 @@ export interface Attempt {
   durationSeconds?: number;
   correctAnswers?: number;
   score?: number;
+  questions?: Question[]; // Questions with conditional correctAnswer/explanation based on feedback mode
   answers?: Record<string, AnswerOption>; // questionId -> chosen answer
 }
 
@@ -148,6 +151,21 @@ export interface AuthState {
   clearError: () => void;
 }
 
+export interface SubmitAnswerResponse {
+  success: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: AnswerOption;
+  explanation?: string;
+}
+
+export interface ExamResult {
+  attemptId: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  finalScore: number;
+  totalTimeSeconds: number;
+}
+
 export interface ExamsState {
   exams: Exam[];
   currentAttempt: Attempt | null;
@@ -156,8 +174,8 @@ export interface ExamsState {
   fetchExams: (careerId?: string) => Promise<void>;
   fetchExam: (examId: string) => Promise<Exam | null>;
   startAttempt: (examId: string) => Promise<Attempt>;
-  submitAnswer: (attemptId: string, questionId: string, answer: AnswerOption) => Promise<void>;
-  finishAttempt: (attemptId: string) => Promise<void>;
+  submitAnswer: (attemptId: string, questionId: string, answer: AnswerOption) => Promise<SubmitAnswerResponse>;
+  finishAttempt: (attemptId: string) => Promise<ExamResult>;
   clearError: () => void;
 }
 
@@ -170,16 +188,41 @@ export interface RankingState {
   clearError: () => void;
 }
 
-// Legacy type aliases for backward compatibility (to be removed gradually)
+// Legacy types for backward compatibility (to be removed gradually)
 /** @deprecated Use Career instead */
 export type Carreira = Career;
 /** @deprecated Use AnswerOption instead */
 export type AlternativaLetra = AnswerOption;
+
 /** @deprecated Use Question instead */
-export type Questao = Question;
+export interface Questao {
+  id: string;
+  enunciado: string;
+  imagemUrl?: string;
+  alternativas: Array<{
+    letra: AlternativaLetra;
+    texto: string;
+    correta?: boolean;
+  }>;
+  dificuldade?: string;
+  explicacao?: string;
+}
 /** @deprecated Use Exam instead */
 export type Simulado = Exam;
 /** @deprecated Use Attempt instead */
 export type Tentativa = Attempt;
 /** @deprecated Use User instead */
 export type Usuario = User;
+
+// Legacy state type for backward compatibility
+/** @deprecated Use ExamsState instead */
+export interface SimuladosState {
+  simulados: Simulado[];
+  tentativas: Tentativa[];
+  tentativaAtiva: Tentativa | null;
+  isLoading: boolean;
+  fetchSimulados: () => Promise<void>;
+  iniciarTentativa: (simuladoId: string) => Promise<string>;
+  responderQuestao: (tentativaId: string, questaoId: string, resposta: AlternativaLetra) => Promise<void>;
+  finalizarTentativa: (tentativaId: string) => Promise<void>;
+}

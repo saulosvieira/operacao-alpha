@@ -1,35 +1,35 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useSimuladosStore } from '@/stores/simuladosStore';
+import { useExamsStore } from '@/stores/examsStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Clock, BookOpen, ChevronLeft, Play, Lock } from 'lucide-react';
-import type { Simulado as SimuladoType } from '@/types';
+import type { Exam } from '@/types';
 import { toast } from 'sonner';
 
 export default function Simulado() {
   const { simuladoId } = useParams();
   const navigate = useNavigate();
-  const { simulados, fetchSimulados, isLoading, iniciarTentativa } = useSimuladosStore();
+  const { exams, fetchExams, isLoading, startAttempt } = useExamsStore();
   const user = useAuthStore((s) => s.user);
   const isSubscribed = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trial';
 
   useEffect(() => {
-    if (simulados.length === 0) {
-      fetchSimulados();
+    if (exams.length === 0) {
+      fetchExams();
     }
-  }, [simulados.length, fetchSimulados]);
+  }, [exams.length, fetchExams]);
 
-  const simulado = useMemo<SimuladoType | undefined>(() =>
-    simulados.find((s) => s.id === simuladoId),
-  [simulados, simuladoId]);
+  const simulado = useMemo<Exam | undefined>(() =>
+    exams.find((s) => s.id === simuladoId),
+  [exams, simuladoId]);
 
   // Basic SEO
   useEffect(() => {
     document.title = simulado
-      ? `Simulado ${simulado.titulo} | Operação Alfa`
+      ? `Simulado ${simulado.title} | Operação Alfa`
       : 'Simulado | Operação Alfa';
 
     let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
@@ -47,11 +47,12 @@ export default function Simulado() {
   const handleIniciar = async () => {
     if (!simulado || !simuladoId) return;
     try {
-      const tentativaId = await iniciarTentativa(simuladoId);
+      const attempt = await startAttempt(simuladoId);
       toast.success('Simulado iniciado!');
-      navigate(`/simulado/${simuladoId}/executar/${tentativaId}`);
-    } catch (e) {
-      toast.error('Não foi possível iniciar. Tente novamente.');
+      navigate(`/simulado/${simuladoId}/tentativa/${attempt.id}`);
+    } catch (e: any) {
+      console.error('Error starting attempt:', e);
+      toast.error(e.response?.data?.message || 'Não foi possível iniciar. Tente novamente.');
     }
   };
 
@@ -66,7 +67,7 @@ export default function Simulado() {
             </Link>
           </nav>
           <h1 className="text-2xl font-bold text-foreground">
-            {simulado ? simulado.titulo : 'Simulado'}
+            {simulado ? simulado.title : 'Simulado'}
           </h1>
           {simulado && (
             <p className="text-muted-foreground mt-1">Detalhes do simulado e informações antes de começar.</p>
@@ -110,20 +111,20 @@ export default function Simulado() {
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock size={16} />
-                  <span>{simulado.duracaoMin}min</span>
+                  <span>{simulado.durationMin}min</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <BookOpen size={16} />
-                  <span>{simulado.numQuestoes} questões</span>
+                  <span>{simulado.numQuestions} questões</span>
                 </div>
                 <Badge variant="secondary" className="ml-auto text-xs">
-                  {simulado.modo === 'fixo' ? 'Fixo' : 'Sorteio'}
+                  {simulado.feedbackMode === 'immediate' ? 'Feedback Imediato' : 'Feedback Final'}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm text-muted-foreground">
-                  {simulado.ordemAleatoria ? 'Ordem das questões aleatória' : 'Ordem das questões fixa'}
+                  {simulado.description || 'Simulado de preparação'}
                 </div>
                 {isBlocked ? (
                   <Link to="/assinar">

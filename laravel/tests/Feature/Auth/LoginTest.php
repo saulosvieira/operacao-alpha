@@ -7,12 +7,12 @@ use Tests\TestCase;
 class LoginTest extends TestCase
 {
     /**
-     * A basic feature test example.
+     * Test that the login page is accessible.
      */
-    public function test_example(): void
+    public function test_login_page_is_accessible(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/login');
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
     }
 }

@@ -49,9 +49,16 @@ class FinishAttemptAction
             'total_questions' => $result->totalQuestions,
             'correct_answers' => $result->totalCorrect,
             'score' => $result->finalScore,
-            'total_time_seconds' => $result->totalTimeSeconds,
+            'total_time_seconds' => $durationSeconds,
+            'finished_at' => $finishedAt,
         ]);
         
-        return $result;
+        // Return result with actual duration
+        return new ResultData(
+            totalQuestions: $result->totalQuestions,
+            totalCorrect: $result->totalCorrect,
+            finalScore: $result->finalScore,
+            totalTimeSeconds: $durationSeconds,
+        );
     }
 }

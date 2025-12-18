@@ -43,6 +43,17 @@ class AttemptRepository
         return $attempt ? $this->toDTO($attempt) : null;
     }
     
+    public function findActiveByUserAndExam(string $userId, string $examId): ?AttemptData
+    {
+        $attempt = Attempt::where('user_id', $userId)
+            ->where('exam_id', $examId)
+            ->whereNull('finished_at')
+            ->with(['exam', 'answers'])
+            ->first();
+        
+        return $attempt ? $this->toDTO($attempt) : null;
+    }
+    
     public function create(array $data): AttemptData
     {
         $attempt = Attempt::create($data);
@@ -67,6 +78,15 @@ class AttemptRepository
     
     private function toDTO(Attempt $attempt): AttemptData
     {
+        // Build answers map if answers relation is loaded
+        $answersMap = null;
+        if ($attempt->relationLoaded('answers') && $attempt->answers->isNotEmpty()) {
+            $answersMap = [];
+            foreach ($attempt->answers as $answer) {
+                $answersMap[(string) $answer->question_id] = $answer->chosen_answer;
+            }
+        }
+        
         return AttemptData::fromArray([
             'id' => $attempt->id,
             'user_id' => $attempt->user_id,
@@ -76,6 +96,7 @@ class AttemptRepository
             'duration_seconds' => $attempt->duration_seconds,
             'correct_answers' => $attempt->correct_answers,
             'score' => $attempt->score,
+            'answers' => $answersMap,
         ]);
     }
 }

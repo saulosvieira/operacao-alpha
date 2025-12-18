@@ -35,8 +35,9 @@ class ExamController extends Controller
             'title' => 'required|string|max:200',
             'description' => 'nullable|string',
             'time_limit_minutes' => 'required|integer|min:1|max:300',
-            'active' => 'boolean',
-            'is_free' => 'boolean',
+            'feedback_mode' => 'required|in:immediate,final',
+            'active' => 'nullable|boolean',
+            'is_free' => 'nullable|boolean',
         ]);
         
         $action->execute(
@@ -44,13 +45,14 @@ class ExamController extends Controller
             title: $validated['title'],
             description: $validated['description'] ?? null,
             timeLimitMinutes: $validated['time_limit_minutes'],
-            active: $request->has('active'),
-            isFree: $request->has('is_free')
+            feedbackMode: $validated['feedback_mode'],
+            active: (bool) ($validated['active'] ?? false),
+            isFree: (bool) ($validated['is_free'] ?? false)
         );
         
         return redirect()
             ->route('admin.exams.index')
-            ->with('success', 'Exam created successfully!');
+            ->with('success', 'Simulado criado com sucesso!');
     }
     
     public function edit(Exam $exam, GetExamForEditAction $getExamAction, ListActiveCareersAction $listCareersAction)
@@ -68,8 +70,9 @@ class ExamController extends Controller
             'title' => 'required|string|max:200',
             'description' => 'nullable|string',
             'time_limit_minutes' => 'required|integer|min:1|max:300',
-            'active' => 'boolean',
-            'is_free' => 'boolean',
+            'feedback_mode' => 'required|in:immediate,final',
+            'active' => 'nullable|boolean',
+            'is_free' => 'nullable|boolean',
         ]);
         
         $action->execute(
@@ -78,13 +81,14 @@ class ExamController extends Controller
             title: $validated['title'],
             description: $validated['description'] ?? null,
             timeLimitMinutes: $validated['time_limit_minutes'],
-            active: $request->has('active'),
-            isFree: $request->has('is_free')
+            feedbackMode: $validated['feedback_mode'],
+            active: (bool) ($validated['active'] ?? false),
+            isFree: (bool) ($validated['is_free'] ?? false)
         );
         
         return redirect()
             ->route('admin.exams.index')
-            ->with('success', 'Exam updated successfully!');
+            ->with('success', 'Simulado atualizado com sucesso!');
     }
     
     public function destroy(Exam $exam, DeleteExamAction $action)
@@ -94,9 +98,9 @@ class ExamController extends Controller
             
             return redirect()
                 ->route('admin.exams.index')
-                ->with('success', 'Exam deleted successfully!');
+                ->with('success', 'Simulado excluído com sucesso!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Cannot delete exam with associated questions.');
+            return back()->with('error', 'Não é possível excluir simulado com questões associadas.');
         }
     }
 }

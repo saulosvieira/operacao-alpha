@@ -2,40 +2,39 @@
 
 namespace App\Domain\Exam\Actions;
 
+use App\Domain\Exam\Models\Exam;
 use App\Domain\Exam\Repositories\ExamRepository;
-use App\Domain\Exam\Repositories\QuestionRepository;
-use App\Domain\Exam\DTOs\ExamData;
 
 class GetExamDetailsAction
 {
-    public function __construct(
-        private ExamRepository $examRepository,
-        private QuestionRepository $questionRepository
-    ) {}
-    
-    public function execute(string $examId, bool $includeAnswers = false): ?array
+    /**
+     * @var ExamRepository
+     */
+    private $examRepository;
+
+    public function __construct(ExamRepository $examRepository)
     {
-        $exam = $this->examRepository->findById($examId);
+        $this->examRepository = $examRepository;
+    }
+    
+    /**
+     * Get exam details with questions eager loaded.
+     *
+     * @param string $examId
+     * @param bool $includeAnswers Whether to include correct answers and explanations
+     * @return Exam|null
+     */
+    public function execute(string $examId, bool $includeAnswers = false): ?Exam
+    {
+        $exam = $this->examRepository->findByIdWithQuestions($examId);
         
         if (!$exam) {
             return null;
         }
         
-        $questions = $this->questionRepository->findByExam($examId);
+        // The includeAnswers flag is now handled by the Resource layer
+        // via QuestionResource->showAnswer() method
         
-        // Se não incluir respostas, remover correct_answer e explanation
-        if (!$includeAnswers) {
-            $questions = $questions->map(function ($question) {
-                $data = $question->toArray();
-                $data['correctAnswer'] = null;
-                $data['explanation'] = null;
-                return $data;
-            });
-        }
-        
-        return [
-            'exam' => $exam->toArray(),
-            'questions' => $questions->toArray(),
-        ];
+        return $exam;
     }
 }

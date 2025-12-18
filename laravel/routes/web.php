@@ -67,6 +67,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('notices', \App\Http\Controllers\Admin\NoticeController::class);
         // Exams
         Route::resource('exams', \App\Http\Controllers\Admin\ExamController::class);
+        // Questions (nested under exams)
+        Route::resource('exams.questions', \App\Http\Controllers\Admin\QuestionController::class)
+            ->except(['show']);
     });
 });
 

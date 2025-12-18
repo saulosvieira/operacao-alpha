@@ -1,196 +1,256 @@
-# Plano de Implementação - MVP Simulados
+# Implementation Plan
 
-- [ ] 1. Configurar estrutura base do projeto Laravel
-  - Instalar Laravel 12 com AdminLTE
-  - Configurar banco de dados MySQL
-  - Configurar ambiente de desenvolvimento
-  - _Requisitos: 2.2, 7.1_
+## Notas de Desenvolvimento
+- Todos os comandos PHP/Artisan/Composer devem ser executados dentro do container: `docker exec -it laravel-app <comando>`
+- O frontend React está em `laravel/resources/react/`
 
-- [ ] 2. Implementar modelos de dados e migrações
-  - [ ] 2.1 Criar modelo User com campos de assinatura
-    - Implementar modelo User com subscription_status e subscription_expires_at
-    - Criar migration para tabela users
-    - Adicionar validações e mutators
-    - _Requisitos: 9.1, 5.1_
+---
 
-  - [ ] 2.2 Criar modelos para sistema de simulados
-    - Implementar modelos Simulado, Questao, Resposta
-    - Criar migrations para tabelas de simulados
-    - Definir relacionamentos entre modelos
-    - _Requisitos: 3.1, 3.2, 3.3_
+- [x] 1. Database and Model Updates
+  - [x] 1.1 Create migration to add feedback_mode column to exams table
+    - Add ENUM column 'feedback_mode' with values 'immediate', 'final' and default 'final'
+    - Run migration inside container
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 1.2 Update Exam model to include feedback_mode
+    - Add feedback_mode to fillable array
+    - Add cast for feedback_mode
+    - _Requirements: 2.1_
+  - [ ]* 1.3 Write property test for feedback mode persistence
+    - **Property 5: Feedback mode persistence**
+    - **Validates: Requirements 2.2, 2.3**
 
-  - [ ] 2.3 Criar modelos para ranking e gestão
-    - Implementar modelos Ranking, Carreira, Edital, Aprovado
-    - Criar migrations correspondentes
-    - Definir relacionamentos e índices
-    - _Requisitos: 4.1, 2.1_
+- [x] 2. Question Management - Backend Actions
+  - [x] 2.1 Create QuestionData DTO
+    - Define all question fields as readonly properties
+    - Add static fromRequest method for validation
+    - _Requirements: 1.2, 1.3_
+  - [x] 2.2 Create CreateQuestionAction
+    - Accept examId and QuestionData
+    - Handle image upload and storage
+    - Return created Question model
+    - _Requirements: 1.3_
+  - [x] 2.3 Create UpdateQuestionAction
+    - Accept questionId and QuestionData
+    - Handle image replacement/removal
+    - Return updated Question model
+    - _Requirements: 1.4_
+  - [x] 2.4 Create DeleteQuestionAction
+    - Accept questionId
+    - Delete associated images from storage
+    - Return boolean success
+    - _Requirements: 1.5_
+  - [x] 2.5 Create ListQuestionsForExamAction
+    - Accept examId
+    - Return questions ordered by question_number
+    - _Requirements: 1.1_
+  - [ ]* 2.6 Write property test for question ordering
+    - **Property 1: Questions are ordered by question number**
+    - **Validates: Requirements 1.1**
+  - [ ]* 2.7 Write property test for question creation
+    - **Property 2: Question creation associates with exam**
+    - **Validates: Requirements 1.3**
+  - [ ]* 2.8 Write property test for question edit round-trip
+    - **Property 3: Question edit round-trip preserves data**
+    - **Validates: Requirements 1.4**
+  - [ ]* 2.9 Write property test for question deletion
+    - **Property 4: Question deletion decreases count**
+    - **Validates: Requirements 1.5**
 
-- [ ] 3. Desenvolver sistema de importação de questões
-  - [ ] 3.1 Implementar importação de CSV/Excel
-    - Instalar e configurar biblioteca maatwebsite/excel
-    - Criar classe QuestaoImportService
-    - Implementar validação de arquivo e estrutura
-    - Criar método de importação em lote
-    - _Requisitos: 8.1, 8.2_
+- [x] 3. Question Management - Admin Controller and Views
+  - [x] 3.1 Create QuestionController for Admin
+    - Implement index, create, store, edit, update, destroy methods
+    - Use dependency injection for Actions
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [x] 3.2 Create StoreQuestionRequest with validation rules
+    - Validate statement required
+    - Validate all 5 options required
+    - Validate correct_answer required and in A-E
+    - Validate unique question_number per exam
+    - Validate image size max 2MB
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 3.3 Create question index view (list questions for exam)
+    - Display questions table with number, statement preview, correct answer
+    - Add edit/delete action buttons
+    - Add "Add Question" button
+    - _Requirements: 1.1_
+  - [x] 3.4 Create question create/edit form view
+    - Form fields for all question data
+    - Image upload with preview
+    - Correct answer selector (A-E radio buttons)
+    - _Requirements: 1.2, 1.4, 1.6_
+  - [x] 3.5 Register routes for question management
+    - Nested resource routes under exams
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [ ]* 3.6 Write property test for duplicate question number rejection
+    - **Property 7: Duplicate question number rejection**
+    - **Validates: Requirements 3.4**
 
-  - [ ] 3.2 Desenvolver sistema de upload de imagens
-    - Instalar intervention/image e spatie/image-optimizer
-    - Criar sistema de upload em lote
-    - Implementar nomenclatura padronizada
-    - Configurar otimização automática de imagens
-    - _Requisitos: 8.1, 8.2_
+- [x] 4. Update Exam Admin Forms
+  - [x] 4.1 Update exam create view with feedback_mode selector
+    - Add radio buttons for 'immediate' and 'final'
+    - Default to 'final'
+    - _Requirements: 2.1_
+  - [x] 4.2 Update exam edit view with feedback_mode selector
+    - Load current value
+    - Add radio buttons for 'immediate' and 'final'
+    - _Requirements: 2.1_
+  - [x] 4.3 Update ExamController store/update to handle feedback_mode
+    - Add feedback_mode to validation
+    - Pass to CreateExamAction/UpdateExamAction
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 4.4 Update CreateExamAction and UpdateExamAction
+    - Add feedback_mode parameter
+    - _Requirements: 2.2, 2.3_
+  - [x] 4.5 Add link to manage questions from exam edit page
+    - Button "Gerenciar Questões" linking to questions index
+    - _Requirements: 1.1_
+  - [ ]* 4.6 Write property test for time limit validation
+    - **Property 6: Time limit validation**
+    - **Validates: Requirements 2.4**
 
-  - [ ] 3.3 Criar interface de preview e validação
-    - Desenvolver preview de questões antes de importar
-    - Implementar exibição de erros por linha
-    - Criar sistema de correção de dados
-    - Adicionar validação de campos obrigatórios
-    - _Requisitos: 8.1, 8.3_
+- [x] 5. Checkpoint - Backend Admin Complete
+  - Ensure all tests pass, ask the user if questions arise.
 
-  - [ ] 3.4 Implementar relatório de importação
-    - Criar relatório de sucessos e erros
-    - Implementar estatísticas de importação
-    - Adicionar opção de exportar relatório
-    - Desenvolver template CSV de exemplo
-    - _Requisitos: 8.4_
+- [x] 6. API Updates - Question Serialization
+  - [x] 6.1 Create QuestionResource for API
+    - Serialize all question fields
+    - Conditionally include correctAnswer and explanation
+    - Generate complete URLs for images
+    - _Requirements: 7.1, 7.5_
+  - [x] 6.2 Update ExamResource to include feedbackMode and questions
+    - Add feedbackMode field
+    - Include QuestionResource collection
+    - _Requirements: 7.1_
+  - [x] 6.3 Update AttemptResource to include questions with conditional visibility
+    - Check attempt finished status
+    - Check exam feedback mode
+    - Check which questions are answered (for immediate mode)
+    - _Requirements: 7.2, 7.3, 7.4_
+  - [x] 6.4 Update GetExamDetailsAction to load questions
+    - Eager load questions relationship
+    - _Requirements: 7.1_
+  - [ ]* 6.5 Write property test for image URL completeness
+    - **Property 20: Image URL completeness**
+    - **Validates: Requirements 7.5**
+  - [ ]* 6.6 Write property test for conditional answer visibility
+    - **Property 21: Conditional answer visibility based on mode and state**
+    - **Validates: Requirements 7.2, 7.3, 7.4**
 
-- [ ] 4. Implementar painel administrativo
-  - [ ] 4.1 Configurar AdminLTE e autenticação admin
-    - Instalar e configurar AdminLTE
-    - Implementar sistema de autenticação para admins
-    - Criar middleware de autorização
-    - _Requisitos: 2.1, 9.1_
+- [x] 7. API Updates - Attempt Flow
+  - [x] 7.1 Update StartAttemptAction to return questions
+    - Load exam with questions
+    - Return attempt with questions data
+    - _Requirements: 4.1_
+  - [x] 7.2 Update SubmitAnswerAction for immediate feedback
+    - Check exam feedback mode
+    - If immediate, include correctAnswer and explanation in response
+    - _Requirements: 5.1_
+  - [x] 7.3 Update FinishAttemptAction to calculate and return results
+    - Calculate score percentage
+    - Return correct count, total, time spent
+    - _Requirements: 6.1, 8.1_
+  - [x] 7.4 Update FinishAttemptAction to update ranking
+    - Create or update ranking entry
+    - Use best score if multiple attempts
+    - _Requirements: 6.4, 8.2, 8.4_
+  - [ ]* 7.5 Write property test for attempt initialization
+    - **Property 8: Attempt initialization with timer**
+    - **Validates: Requirements 4.1**
+  - [ ]* 7.6 Write property test for answer persistence
+    - **Property 9: Answer persistence and retrieval**
+    - **Validates: Requirements 4.4, 4.5**
+  - [ ]* 7.7 Write property test for immediate mode feedback
+    - **Property 12: Immediate mode reveals answer on submission**
+    - **Validates: Requirements 5.1**
+  - [ ]* 7.8 Write property test for final mode hiding
+    - **Property 13: Final mode hides answer until completion**
+    - **Validates: Requirements 5.3**
+  - [ ]* 7.9 Write property test for finished attempt visibility
+    - **Property 14: Finished attempt reveals all answers**
+    - **Validates: Requirements 5.4, 7.4**
+  - [ ]* 7.10 Write property test for result completeness
+    - **Property 15: Result completeness**
+    - **Validates: Requirements 6.1**
+  - [ ]* 7.11 Write property test for score calculation
+    - **Property 17: Score calculation accuracy**
+    - **Validates: Requirements 8.1**
+  - [ ]* 7.12 Write property test for ranking entry creation
+    - **Property 16: Ranking entry creation on finish**
+    - **Validates: Requirements 6.4, 8.2**
+  - [ ]* 7.13 Write property test for ranking order
+    - **Property 18: Ranking order correctness**
+    - **Validates: Requirements 8.3**
+  - [ ]* 7.14 Write property test for best score ranking
+    - **Property 19: Best score for ranking**
+    - **Validates: Requirements 8.4**
 
-  - [ ] 4.2 Desenvolver CRUD de simulados
-    - Criar controller SimuladoController
-    - Implementar views para listagem, criação e edição
-    - Adicionar validações de formulário
-    - _Requisitos: 2.1, 3.1_
+- [x] 8. Checkpoint - Backend API Complete
+  - Ensure all tests pass, ask the user if questions arise.
 
-  - [ ] 4.3 Implementar gestão de banco de questões
-    - Criar controller QuestaoController
-    - Desenvolver interface para importação CSV/Excel
-    - Implementar cadastro manual de questões
-    - Criar visualização de questões com imagens
-    - Adicionar upload de imagens por questão
-    - _Requisitos: 2.2, 8.1, 8.2_
+- [x] 9. PWA - TypeScript Types and Services
+  - [x] 9.1 Update TypeScript types for Question and Exam
+    - Add feedbackMode to Exam type
+    - Ensure Question type has optional correctAnswer and explanation
+    - _Requirements: 7.1_
+  - [x] 9.2 Update exams service to handle new API responses
+    - Update startAttempt to return questions
+    - Update submitAnswer to handle feedback response
+    - _Requirements: 4.1, 5.1_
 
-  - [ ] 4.4 Criar gestão de carreiras, editais e aprovados
-    - Implementar CRUDs para Carreira, Edital, Aprovado
-    - Criar relacionamentos entre entidades
-    - Desenvolver interfaces administrativas
-    - _Requisitos: 2.1_
+- [x] 10. PWA - Timer Component
+  - [x] 10.1 Create Timer component
+    - Accept initialSeconds and onExpire callback
+    - Display countdown in MM:SS or HH:MM:SS format
+    - Show warning state (red) when < 5 minutes
+    - _Requirements: 4.6, 4.8_
+  - [ ]* 10.2 Write property test for timer format
+    - **Property 10: Timer format validation**
+    - **Validates: Requirements 4.6**
+  - [ ]* 10.3 Write property test for timer warning threshold
+    - **Property 11: Timer warning threshold**
+    - **Validates: Requirements 4.8**
 
-- [ ] 5. Desenvolver sistema de simulados para usuários
-  - [ ] 5.1 Implementar interface de simulados
-    - Criar controller público SimuladoController
-    - Desenvolver tela de listagem de simulados
-    - Implementar seleção e início de simulado
-    - _Requisitos: 3.1, 7.1_
+- [x] 11. PWA - ExecuteExam Page Updates
+  - [x] 11.1 Update ExecuteExam to load questions from API
+    - Fetch questions on attempt start
+    - Store in local state
+    - _Requirements: 4.1_
+  - [x] 11.2 Integrate Timer component
+    - Initialize with exam time limit
+    - Handle expiration (auto-finish)
+    - _Requirements: 4.6, 4.7_
+  - [x] 11.3 Implement answer submission with feedback handling
+    - Submit answer to API
+    - Handle immediate feedback response
+    - Update UI based on feedback mode
+    - _Requirements: 4.4, 5.1, 5.3_
+  - [x] 11.4 Implement question navigation with answer preservation
+    - Store answers in local state
+    - Display previously selected answers
+    - _Requirements: 4.5_
 
-  - [ ] 5.2 Criar sistema de cronômetro e questões
-    - Implementar cronômetro JavaScript em tempo real
-    - Desenvolver interface de questões com navegação
-    - Criar sistema de salvamento automático de respostas
-    - Implementar finalização automática por tempo
-    - _Requisitos: 3.1, 3.2, 3.5_
+- [x] 12. PWA - QuestaoCard Component Updates
+  - [x] 12.1 Update QuestaoCard to display images
+    - Show statement image if present
+    - Show option images if present
+    - _Requirements: 4.2_
+  - [x] 12.2 Implement feedback display for immediate mode
+    - Show correct/incorrect indicator after answer
+    - Highlight correct answer in green
+    - Highlight wrong answer in red
+    - Show explanation
+    - _Requirements: 5.1, 5.2_
 
-  - [ ] 5.3 Desenvolver sistema de resultados
-    - Implementar cálculo de pontuação em tempo real
-    - Criar tela de resultados imediatos
-    - Desenvolver histórico básico de simulados
-    - _Requisitos: 3.3, 3.4_
+- [x] 13. PWA - Results Page
+  - [x] 13.1 Create or update ExamResult page
+    - Display score, correct count, total, time spent
+    - _Requirements: 6.1_
+  - [x] 13.2 Implement question review section
+    - List all questions with user answer and correct answer
+    - Show explanations
+    - Color code correct (green) vs incorrect (red)
+    - _Requirements: 6.2, 6.3_
 
-- [ ] 6. Implementar sistema de ranking
-  - [ ] 6.1 Criar cálculo de pontuações
-    - Implementar lógica de pontuação por simulado
-    - Criar sistema de atualização de rankings
-    - Desenvolver cálculos diários e semanais
-    - _Requisitos: 4.1, 4.3_
+- [ ] 14. Final Checkpoint - All Tests Pass
+  - Ensure all tests pass, ask the user if questions arise.
 
-  - [ ] 6.2 Desenvolver interface de ranking
-    - Criar tela de ranking global
-    - Implementar filtros diário/semanal
-    - Desenvolver exibição de posições e pontuações
-    - _Requisitos: 4.1, 4.2_
-
-- [ ] 7. Implementar sistema de assinaturas
-  - [ ] 7.1 Criar controle de acesso por assinatura
-    - Implementar middleware de verificação de assinatura
-    - Criar sistema de restrições para não-assinantes
-    - Desenvolver lógica de liberação para assinantes
-    - _Requisitos: 5.1, 5.2_
-
-  - [ ] 7.2 Desenvolver processamento de webhooks
-    - Criar controller WebhookController
-    - Implementar handlers para diferentes plataformas
-    - Desenvolver sistema de ativação/desativação automática
-    - Criar logs e monitoramento de webhooks
-    - _Requisitos: 6.1, 6.2, 6.3_
-
-- [ ] 8. Desenvolver responsividade e otimização web
-  - [ ] 8.1 Implementar design responsivo
-    - Otimizar CSS para diferentes tamanhos de tela
-    - Implementar breakpoints para mobile/tablet/desktop
-    - Testar compatibilidade com WebView
-    - _Requisitos: 7.1, 7.2, 7.3_
-
-  - [ ] 8.2 Otimizar performance para WebView
-    - Minimizar JavaScript e CSS
-    - Implementar lazy loading de imagens
-    - Otimizar queries de banco de dados
-    - _Requisitos: 1.1, 1.2, 7.2_
-
-- [ ] 9. Criar aplicativos móveis WebView
-  - [ ] 9.1 Desenvolver app Android
-    - Criar projeto Android Studio
-    - Implementar WebView com configurações de segurança
-    - Adicionar deep links e compartilhamento
-    - Configurar splash screen e ícones
-    - _Requisitos: 1.1, 1.3_
-
-  - [ ] 9.2 Desenvolver app iOS
-    - Criar projeto Xcode
-    - Implementar WKWebView com configurações adequadas
-    - Adicionar Universal Links
-    - Implementar funcionalidades nativas mínimas para App Store
-    - _Requisitos: 1.2, 1.3_
-
-- [ ] 10. Implementar testes automatizados
-  - [ ] 10.1 Criar testes unitários
-    - Implementar testes para modelos e relacionamentos
-    - Criar testes para lógica de importação CSV/Excel
-    - Desenvolver testes para cálculos de ranking
-    - _Requisitos: Todos os requisitos_
-
-  - [ ] 10.2 Desenvolver testes de integração
-    - Criar testes para fluxo completo de simulados
-    - Implementar testes de webhook
-    - Desenvolver testes de importação CSV
-    - _Requisitos: 3.1-3.5, 6.1-6.3, 8.1-8.4_
-
-- [ ] 11. Preparar para publicação nas lojas
-  - [ ] 11.1 Configurar builds de produção
-    - Configurar assinatura de apps
-    - Otimizar tamanhos de aplicativos
-    - Preparar metadados para lojas
-    - _Requisitos: 1.1, 1.2_
-
-  - [ ] 11.2 Submeter para Google Play e App Store
-    - Criar listings nas lojas
-    - Submeter aplicativos para revisão
-    - Implementar ajustes solicitados pelas lojas
-    - _Requisitos: 1.1, 1.2_
-
-- [ ] 12. Configurar ambiente de produção
-  - [ ] 12.1 Configurar servidor e banco de dados
-    - Configurar ambiente Laravel em produção
-    - Otimizar configurações de banco MySQL
-    - Implementar backups automatizados
-    - _Requisitos: Todos os requisitos_
-
-  - [ ] 12.2 Configurar monitoramento e logs
-    - Implementar sistema de logs estruturados
-    - Configurar monitoramento de performance
-    - Criar alertas para erros críticos
-    - _Requisitos: Todos os requisitos_

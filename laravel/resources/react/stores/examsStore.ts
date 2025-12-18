@@ -1,134 +1,129 @@
 import { create } from 'zustand';
-import type { SimuladosState, Simulado, Tentativa, AlternativaLetra } from '@/types';
+import type { ExamsState, Exam, Attempt, AnswerOption, Question } from '@/types';
 import * as examsService from '@/services/exams';
 
-// Map API Exam to local Simulado type
-const mapExamToSimulado = (exam: examsService.Exam): Simulado => ({
-  id: exam.id,
-  titulo: exam.title,
-  carreiraId: exam.careerId,
-  duracaoMin: exam.durationMin,
-  numQuestoes: exam.numQuestions,
-  modo: 'fixo', // Default mode
-  ordemAleatoria: true, // Default
-  status: exam.active ? 'publicado' : 'rascunho',
-});
-
-// Map API Attempt to local Tentativa type
-const mapAttemptToTentativa = (attempt: examsService.Attempt): Tentativa => ({
-  id: attempt.id,
-  simuladoId: attempt.examId,
-  userId: attempt.userId,
-  iniciadoEm: attempt.startedAt,
-  concluidoEm: attempt.finishedAt,
-  duracaoSeg: attempt.durationSeconds,
-  acertos: attempt.correctAnswers,
-  nota: attempt.score,
-  respostas: attempt.answers as Record<string, AlternativaLetra> | undefined,
-});
-
-export const useExamsStore = create<SimuladosState>((set, get) => ({
-  simulados: [],
-  tentativas: [],
-  tentativaAtiva: null,
+export const useExamsStore = create<ExamsState>((set, get) => ({
+  exams: [],
+  currentAttempt: null,
   isLoading: false,
+  error: null,
 
-  fetchSimulados: async () => {
-    set({ isLoading: true });
+  fetchExams: async (careerId?: string) => {
+    set({ isLoading: true, error: null });
     
     try {
-      const exams = await examsService.listExams();
-      const simulados = exams.map(mapExamToSimulado);
+      const exams = await examsService.listExams(careerId);
       
       set({ 
-        simulados,
+        exams,
         isLoading: false 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch exams:', error);
+      set({ 
+        isLoading: false,
+        error: error.response?.data?.message || 'Erro ao carregar simulados'
+      });
+    }
+  },
+
+  fetchExam: async (examId: string): Promise<Exam | null> => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const exam = await examsService.getExam(examId);
       set({ isLoading: false });
+      return exam;
+    } catch (error: any) {
+      console.error('Failed to fetch exam:', error);
+      set({ 
+        isLoading: false,
+        error: error.response?.data?.message || 'Erro ao carregar simulado'
+      });
+      return null;
     }
   },
 
-  iniciarTentativa: async (simuladoId: string): Promise<string> => {
+  startAttempt: async (examId: string): Promise<Attempt> => {
+    set({ isLoading: true, error: null });
+    
     try {
-      const attempt = await examsService.startAttempt(simuladoId);
-      const novaTentativa = mapAttemptToTentativa(attempt);
+      const attempt = await examsService.startAttempt(examId);
 
-      set(state => ({
-        tentativas: [...state.tentativas, novaTentativa],
-        tentativaAtiva: novaTentativa,
-      }));
-
-      return novaTentativa.id;
-    } catch (error) {
-      console.error('Failed to start attempt:', error);
-      throw error;
-    }
-  },
-
-  responderQuestao: async (tentativaId: string, questaoId: string, resposta: AlternativaLetra) => {
-    try {
-      // Submit answer to API
-      await examsService.submitAnswer(tentativaId, {
-        questionId: questaoId,
-        answer: resposta,
+      set({
+        currentAttempt: attempt,
+        isLoading: false,
       });
 
-      // Update local state
-      set(state => ({
-        tentativas: state.tentativas.map(tentativa =>
-          tentativa.id === tentativaId
-            ? {
-                ...tentativa,
-                respostas: {
-                  ...tentativa.respostas,
-                  [questaoId]: resposta,
-                },
-              }
-            : tentativa
-        ),
-        tentativaAtiva: state.tentativaAtiva?.id === tentativaId
-          ? {
-              ...state.tentativaAtiva,
-              respostas: {
-                ...state.tentativaAtiva.respostas,
-                [questaoId]: resposta,
-              },
-            }
-          : state.tentativaAtiva,
-      }));
-    } catch (error) {
-      console.error('Failed to submit answer:', error);
+      return attempt;
+    } catch (error: any) {
+      console.error('Failed to start attempt:', error);
+      set({ 
+        isLoading: false,
+        error: error.response?.data?.message || 'Erro ao iniciar tentativa'
+      });
       throw error;
     }
   },
 
-  finalizarTentativa: async (tentativaId: string) => {
+  submitAnswer: async (attemptId: string, questionId: string, answer: AnswerOption) => {
     try {
-      const result = await examsService.finishAttempt(tentativaId);
-      
-      const tentativa = get().tentativas.find(t => t.id === tentativaId);
-      if (!tentativa) return;
+      const response = await examsService.submitAnswer(attemptId, {
+        questionId,
+        answer,
+      });
 
-      const tentativaFinalizada: Tentativa = {
-        ...tentativa,
-        concluidoEm: new Date().toISOString(),
-        duracaoSeg: result.totalTimeSeconds,
-        acertos: result.correctAnswers,
-        nota: result.finalScore,
-      };
+      // Update local state with the answer
+      set(state => {
+        if (!state.currentAttempt || state.currentAttempt.id !== attemptId) {
+          return state;
+        }
 
-      set(state => ({
-        tentativas: state.tentativas.map(t =>
-          t.id === tentativaId ? tentativaFinalizada : t
-        ),
-        tentativaAtiva: null,
-      }));
-    } catch (error) {
-      console.error('Failed to finish attempt:', error);
+        return {
+          currentAttempt: {
+            ...state.currentAttempt,
+            answers: {
+              ...state.currentAttempt.answers,
+              [questionId]: answer,
+            },
+          },
+        };
+      });
+
+      return response;
+    } catch (error: any) {
+      console.error('Failed to submit answer:', error);
+      set({ 
+        error: error.response?.data?.message || 'Erro ao salvar resposta'
+      });
       throw error;
     }
+  },
+
+  finishAttempt: async (attemptId: string) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const result = await examsService.finishAttempt(attemptId);
+      
+      set({
+        currentAttempt: null,
+        isLoading: false,
+      });
+
+      return result;
+    } catch (error: any) {
+      console.error('Failed to finish attempt:', error);
+      set({ 
+        isLoading: false,
+        error: error.response?.data?.message || 'Erro ao finalizar tentativa'
+      });
+      throw error;
+    }
+  },
+
+  clearError: () => {
+    set({ error: null });
   },
 }));
 

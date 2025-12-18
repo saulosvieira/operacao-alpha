@@ -11,6 +11,8 @@ use App\Domain\Exam\Repositories\AttemptRepository;
 use App\Http\Requests\Exam\StartAttemptRequest;
 use App\Http\Requests\Exam\SubmitAnswerRequest;
 use App\Http\Resources\Exam\AttemptResource;
+use App\Http\Resources\Exam\ExamResource;
+use App\Http\Resources\Exam\StartAttemptResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,10 +24,10 @@ class AttemptController extends Controller
         StartAttemptAction $action
     ): JsonResponse {
         try {
-            $attempt = $action->execute($examId, $request->user()->id);
+            $result = $action->execute($examId, $request->user()->id);
             
             return response()->json([
-                'data' => new AttemptResource($attempt),
+                'data' => new StartAttemptResource($result),
                 'message' => 'Attempt started successfully',
             ], 201);
         } catch (\Exception $e) {
@@ -49,7 +51,7 @@ class AttemptController extends Controller
         }
         
         // Verificar se o usuário é dono da tentativa
-        if ($attempt->userId !== auth()->id()) {
+        if ($attempt->userId != auth()->id()) {
             return response()->json([
                 'message' => 'Unauthorized',
             ], 403);
@@ -57,12 +59,17 @@ class AttemptController extends Controller
         
         // Buscar detalhes do exame (sem respostas se ainda não finalizou)
         $includeAnswers = $attempt->finishedAt !== null;
-        $examData = $examAction->execute($attempt->examId, $includeAnswers);
+        $exam = $examAction->execute($attempt->examId, $includeAnswers);
+        
+        // Use ExamResource with proper answer visibility
+        $examResource = (new ExamResource($exam))
+            ->includeQuestions(true)
+            ->showAnswers($includeAnswers);
         
         return response()->json([
             'data' => [
                 'attempt' => new AttemptResource($attempt),
-                'exam' => $examData,
+                'exam' => $examResource,
             ],
         ]);
     }
@@ -73,7 +80,7 @@ class AttemptController extends Controller
         SubmitAnswerAction $action
     ): JsonResponse {
         try {
-            $answer = $action->execute(
+            $result = $action->execute(
                 $id,
                 $request->input('question_id'),
                 $request->input('answer'),
@@ -81,7 +88,7 @@ class AttemptController extends Controller
             );
             
             return response()->json([
-                'data' => $answer->toArray(),
+                'data' => $result->toArray(),
                 'message' => 'Answer submitted successfully',
             ]);
         } catch (\Exception $e) {

@@ -21,6 +21,8 @@ const Conta = lazy(() => import("./pages/Conta"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Simulado = lazy(() => import("./pages/Simulado"));
 const ExecutarSimulado = lazy(() => import("./pages/ExecutarSimulado"));
+const ExecuteExam = lazy(() => import("./pages/ExecuteExam"));
+const ExamResult = lazy(() => import("./pages/ExamResult"));
 
 // Loading fallback component
 function PageLoader() {
@@ -79,6 +81,16 @@ const App = () => (
             <Route path="/simulado/:simuladoId/executar/:tentativaId" element={
               <ProtectedRoute>
                 <ExecutarSimulado />
+              </ProtectedRoute>
+            } />
+            <Route path="/simulado/:examId/tentativa/:attemptId" element={
+              <ProtectedRoute>
+                <ExecuteExam />
+              </ProtectedRoute>
+            } />
+            <Route path="/simulado/:examId/resultado/:attemptId" element={
+              <ProtectedRoute>
+                <ExamResult />
               </ProtectedRoute>
             } />
             <Route path="/ranking" element={

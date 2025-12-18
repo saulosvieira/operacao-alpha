@@ -13,6 +13,7 @@ readonly class AttemptData
         public ?int $durationSeconds,
         public ?int $correctAnswers,
         public ?float $score,
+        public ?array $answers = null, // Map of questionId => chosenAnswer
     ) {}
     
     public static function fromArray(array $data): self
@@ -26,12 +27,13 @@ readonly class AttemptData
             durationSeconds: $data['duration_seconds'] ?? null,
             correctAnswers: $data['correct_answers'] ?? null,
             score: $data['score'] ?? null,
+            answers: $data['answers'] ?? null,
         );
     }
     
     public function toArray(): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'userId' => $this->userId,
             'examId' => $this->examId,
@@ -41,5 +43,11 @@ readonly class AttemptData
             'correctAnswers' => $this->correctAnswers,
             'score' => $this->score,
         ];
+        
+        if ($this->answers !== null) {
+            $data['answers'] = $this->answers;
+        }
+        
+        return $data;
     }
 }

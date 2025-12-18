@@ -37,6 +37,7 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <!-- Vite Assets -->
+    @viteReactRefresh
     @vite(['resources/react/main.tsx', 'resources/react/index.css'])
   </head>
 

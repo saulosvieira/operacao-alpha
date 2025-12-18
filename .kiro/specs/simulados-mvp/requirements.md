@@ -1,110 +1,120 @@
-# Documento de Requisitos - MVP Simulados
+# Requirements Document
 
-## Introdução
+## Introduction
 
-Este projeto visa desenvolver um MVP (Produto Mínimo Viável) para uma plataforma de simulados educacionais, composto por aplicativos móveis Android e iOS (wrappers WebView), painel administrativo expandido em Laravel 12 + AdminLTE, e integração com plataforma de pagamento/assinatura. O sistema permitirá que usuários realizem simulados cronometrados, vejam rankings globais e tenham acesso completo mediante assinatura.
+Este documento especifica os requisitos para a implementação completa da funcionalidade de Simulados no sistema Operação Alfa. O sistema permite que administradores criem e gerenciem simulados com questões de múltipla escolha, incluindo suporte a imagens complementares. Os usuários do PWA podem realizar esses simulados, respondendo questões e recebendo feedback sobre seu desempenho.
 
-## Requisitos
+O sistema já possui a estrutura básica de simulados (exams) implementada, mas falta a funcionalidade de gerenciamento de questões no painel administrativo e a integração completa no PWA para exibição e resposta das questões.
 
-### Requisito 1 - Aplicação Web Progressiva (PWA)
+## Glossary
 
-**User Story:** Como usuário, eu quero acessar os simulados através de uma aplicação web responsiva que funcione como app, para que eu tenha uma experiência móvel otimizada tanto no navegador quanto em wrappers WebView.
+- **Exam (Simulado)**: Conjunto de questões de múltipla escolha associado a uma carreira militar
+- **Question (Questão)**: Item de avaliação com enunciado, 5 alternativas (A-E), resposta correta e explicação opcional
+- **Attempt (Tentativa)**: Registro de uma execução de simulado por um usuário
+- **UserAnswer (Resposta do Usuário)**: Registro da resposta escolhida pelo usuário para uma questão
+- **Statement (Enunciado)**: Texto da pergunta que pode incluir uma imagem complementar
+- **Option (Alternativa)**: Uma das 5 opções de resposta (A, B, C, D, E) que pode incluir texto e/ou imagem
+- **Admin Panel**: Painel administrativo Laravel/Blade para gerenciamento do sistema
+- **PWA**: Progressive Web App React para usuários finais
+- **Feedback Mode (Modo de Feedback)**: Configuração que define quando o usuário recebe feedback sobre suas respostas - imediato (ao responder cada questão) ou final (ao concluir o simulado)
+- **Time Limit (Tempo Limite)**: Duração máxima em minutos para completar um simulado
+- **Ranking**: Classificação de usuários baseada em seus desempenhos nos simulados
 
-#### Critérios de Aceitação
+## Requirements
 
-1. QUANDO o usuário acessar via navegador móvel ENTÃO o sistema DEVE oferecer instalação como PWA
-2. QUANDO o usuário instalar o PWA ENTÃO o sistema DEVE funcionar offline para funcionalidades básicas
-3. QUANDO o app WebView for criado ENTÃO o sistema DEVE carregar a aplicação web responsiva
-4. QUANDO o usuário abrir o app ENTÃO o sistema DEVE funcionar de forma responsiva em diferentes tamanhos de tela
-5. QUANDO necessário para publicação nas lojas ENTÃO wrappers WebView simples serão criados (Android/iOS)
+### Requirement 1
 
-### Requisito 2 - Painel Administrativo
+**User Story:** As an administrator, I want to manage questions for each exam, so that I can create complete exams with all necessary content.
 
-**User Story:** Como administrador, eu quero gerenciar simulados, questões, carreiras, editais e aprovados através de um painel web, para que eu possa manter o conteúdo atualizado e organizado.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN an administrator accesses an exam's edit page THEN the Admin_Panel SHALL display a list of all questions associated with that exam ordered by question number
+2. WHEN an administrator clicks "Add Question" THEN the Admin_Panel SHALL display a form with fields for question number, statement, statement image, five options (A-E) with text and optional images, correct answer, and explanation
+3. WHEN an administrator submits a valid question form THEN the Admin_Panel SHALL create the question and associate it with the exam
+4. WHEN an administrator edits an existing question THEN the Admin_Panel SHALL load all current values and allow modification of any field
+5. WHEN an administrator deletes a question THEN the Admin_Panel SHALL remove the question and update the question count for the exam
+6. WHEN an administrator uploads an image for statement or options THEN the Admin_Panel SHALL store the image and display a preview
 
-1. QUANDO o administrador acessar o painel ENTÃO o sistema DEVE permitir gestão completa de Simulados
-2. QUANDO o administrador importar um CSV ENTÃO o sistema DEVE processar e adicionar questões ao Banco de Questões
-3. QUANDO o administrador gerenciar Carreiras ENTÃO o sistema DEVE permitir criar, editar e excluir carreiras
-4. QUANDO o administrador gerenciar Editais ENTÃO o sistema DEVE permitir criar, editar e excluir editais
-5. QUANDO o administrador gerenciar Aprovados ENTÃO o sistema DEVE permitir adicionar e gerenciar lista de aprovados
-6. QUANDO o administrador usar o painel ENTÃO o sistema DEVE utilizar Laravel 12 + AdminLTE como base
+### Requirement 2
 
-### Requisito 3 - Sistema de Simulados
+**User Story:** As an administrator, I want to configure exam settings including feedback mode, so that I can customize the exam experience for users.
 
-**User Story:** Como usuário, eu quero realizar simulados cronometrados com feedback imediato, para que eu possa praticar e acompanhar meu desempenho.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN an administrator creates or edits an exam THEN the Admin_Panel SHALL display a feedback mode selector with options "immediate" (ao responder) and "final" (ao finalizar)
+2. WHEN an administrator sets feedback mode to "immediate" THEN the Exam SHALL be configured to show correct answer and explanation after each question is answered
+3. WHEN an administrator sets feedback mode to "final" THEN the Exam SHALL be configured to show all results only after the exam is completed
+4. WHEN an administrator sets a time limit THEN the Admin_Panel SHALL validate that the value is between 1 and 300 minutes
 
-1. QUANDO o usuário iniciar um simulado ENTÃO o sistema DEVE ativar um cronômetro visível
-2. QUANDO o usuário responder questões ENTÃO o sistema DEVE permitir envio das respostas
-3. QUANDO o usuário finalizar o simulado ENTÃO o sistema DEVE mostrar resultado imediato
-4. QUANDO o usuário acessar histórico ENTÃO o sistema DEVE mostrar histórico básico de simulados realizados
-5. QUANDO o tempo do simulado esgotar ENTÃO o sistema DEVE finalizar automaticamente e mostrar resultados
+### Requirement 3
 
-### Requisito 4 - Sistema de Ranking
+**User Story:** As an administrator, I want to validate question data before saving, so that all exams have consistent and complete content.
 
-**User Story:** Como usuário, eu quero ver minha posição em rankings globais, para que eu possa me comparar com outros usuários e me motivar a melhorar.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN an administrator submits a question without a statement THEN the Admin_Panel SHALL display a validation error and prevent submission
+2. WHEN an administrator submits a question without all five option texts THEN the Admin_Panel SHALL display a validation error and prevent submission
+3. WHEN an administrator submits a question without selecting a correct answer THEN the Admin_Panel SHALL display a validation error and prevent submission
+4. WHEN an administrator submits a question with a duplicate question number THEN the Admin_Panel SHALL display a validation error and prevent submission
+5. WHEN an administrator uploads an image larger than 2MB THEN the Admin_Panel SHALL display a validation error and prevent upload
 
-1. QUANDO o usuário acessar o ranking ENTÃO o sistema DEVE mostrar placar diário atualizado
-2. QUANDO o usuário acessar o ranking ENTÃO o sistema DEVE mostrar placar semanal atualizado
-3. QUANDO o usuário completar simulados ENTÃO o sistema DEVE atualizar sua posição no ranking global
-4. QUANDO o ranking for exibido ENTÃO o sistema DEVE mostrar posição, nome e pontuação dos usuários
+### Requirement 4
 
-### Requisito 5 - Sistema de Assinatura
+**User Story:** As a user, I want to view and answer exam questions in the PWA with a visible timer, so that I can practice for military career exams under realistic conditions.
 
-**User Story:** Como usuário, eu quero assinar o sistema para ter acesso completo aos simulados, para que eu possa utilizar todas as funcionalidades disponíveis.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN a user starts an exam attempt THEN the PWA SHALL load all questions for that exam from the API and start a countdown timer based on the exam's time limit
+2. WHEN a user views a question THEN the PWA SHALL display the statement, statement image (if present), and all five options with their respective images (if present)
+3. WHEN a user selects an answer option THEN the PWA SHALL visually highlight the selected option and enable navigation to the next question
+4. WHEN a user submits an answer THEN the PWA SHALL send the answer to the API and store it for the current attempt
+5. WHEN a user navigates between questions THEN the PWA SHALL preserve previously selected answers and display them correctly
+6. WHILE an exam is in progress THEN the PWA SHALL display a countdown timer showing remaining time in MM:SS or HH:MM:SS format
+7. WHEN the timer reaches zero THEN the PWA SHALL automatically finish the attempt and display results
+8. WHEN the timer has less than 5 minutes remaining THEN the PWA SHALL display the timer in red color to alert the user
 
-1. QUANDO o usuário não for assinante ENTÃO o sistema DEVE restringir acesso a funcionalidades completas
-2. QUANDO o usuário for assinante ativo ENTÃO o sistema DEVE liberar acesso completo
-3. QUANDO a assinatura for processada ENTÃO o sistema DEVE ativar automaticamente o acesso do usuário
-4. QUANDO a assinatura expirar ENTÃO o sistema DEVE desativar automaticamente o acesso do usuário
+### Requirement 5
 
-### Requisito 6 - Integração com Plataforma de Pagamento
+**User Story:** As a user, I want to receive feedback on my answers based on the exam's feedback mode, so that I can learn effectively.
 
-**User Story:** Como administrador, eu quero que o sistema se integre automaticamente com a plataforma de pagamento escolhida, para que as assinaturas sejam gerenciadas sem intervenção manual.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN feedback mode is "immediate" and a user submits an answer THEN the PWA SHALL immediately display whether the answer is correct or incorrect, highlight the correct answer, and show the explanation
+2. WHEN feedback mode is "immediate" and a user answers incorrectly THEN the PWA SHALL highlight the user's answer in red and the correct answer in green
+3. WHEN feedback mode is "final" and a user submits an answer THEN the PWA SHALL only confirm the answer was recorded without revealing correctness
+4. WHEN feedback mode is "final" and a user finishes the exam THEN the PWA SHALL display all results including correct/incorrect status for each question
 
-1. QUANDO um webhook de pagamento for recebido ENTÃO o sistema DEVE ativar o acesso do usuário assinante
-2. QUANDO um webhook de cancelamento for recebido ENTÃO o sistema DEVE desativar o acesso do usuário
-3. QUANDO a integração for configurada ENTÃO o sistema DEVE suportar plataformas como Kiwify/Hotmart
-4. QUANDO houver erro na integração ENTÃO o sistema DEVE registrar logs para diagnóstico
+### Requirement 6
 
-### Requisito 7 - Responsividade e Compatibilidade
+**User Story:** As a user, I want to see my exam results with explanations, so that I can learn from my mistakes.
 
-**User Story:** Como usuário, eu quero acessar o sistema tanto pelo app quanto pelo navegador web, para que eu tenha flexibilidade de uso em diferentes dispositivos.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN a user finishes an exam THEN the PWA SHALL display the total score, number of correct answers, total questions, and time spent
+2. WHEN a user reviews a completed exam THEN the PWA SHALL show each question with the user's answer, correct answer, and explanation (if available)
+3. WHEN displaying results THEN the PWA SHALL visually distinguish correct answers (green) from incorrect answers (red)
+4. WHEN a user finishes an exam THEN the System SHALL update the user's ranking position based on the score achieved
 
-1. QUANDO o usuário acessar via navegador web ENTÃO o sistema DEVE funcionar de forma responsiva
-2. QUANDO o usuário acessar via app móvel ENTÃO o sistema DEVE carregar corretamente no WebView
-3. QUANDO o sistema for usado em diferentes resoluções ENTÃO o sistema DEVE adaptar a interface adequadamente
-4. QUANDO o usuário navegar entre telas ENTÃO o sistema DEVE manter consistência visual
+### Requirement 7
 
-### Requisito 8 - Importação de Dados
+**User Story:** As a developer, I want the API to properly serialize question data, so that the PWA can display questions correctly.
 
-**User Story:** Como administrador, eu quero importar questões via arquivo CSV, para que eu possa adicionar conteúdo em lote de forma eficiente.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN the API returns exam details THEN the API SHALL include all questions with their complete data (statement, images, options) and the exam's feedback mode and time limit
+2. WHEN the API returns questions for an ongoing attempt with "final" feedback mode THEN the API SHALL exclude the correct answer and explanation fields
+3. WHEN the API returns questions for an ongoing attempt with "immediate" feedback mode THEN the API SHALL include correct answer and explanation only for already answered questions
+4. WHEN the API returns questions for a finished attempt THEN the API SHALL include the correct answer and explanation fields for all questions
+5. WHEN the API returns image URLs THEN the API SHALL return complete accessible URLs for all images
 
-1. QUANDO o administrador enviar um CSV ENTÃO o sistema DEVE validar o formato do arquivo
-2. QUANDO o CSV estiver válido ENTÃO o sistema DEVE importar todas as questões
-3. QUANDO houver erro no CSV ENTÃO o sistema DEVE mostrar mensagens de erro específicas
-4. QUANDO a importação for concluída ENTÃO o sistema DEVE confirmar quantas questões foram adicionadas
+### Requirement 8
 
-### Requisito 9 - Autenticação e Autorização
+**User Story:** As a system, I want to integrate exam results with the ranking system, so that users can compete and track their progress.
 
-**User Story:** Como usuário, eu quero fazer login no sistema de forma segura, para que meus dados e progresso sejam protegidos.
+#### Acceptance Criteria
 
-#### Critérios de Aceitação
+1. WHEN a user finishes an exam THEN the System SHALL calculate the final score as a percentage of correct answers
+2. WHEN a user finishes an exam THEN the System SHALL create or update a ranking entry with the user's score and time
+3. WHEN calculating ranking position THEN the System SHALL order users by score (descending) and then by time (ascending) for tie-breaking
+4. WHEN a user completes multiple attempts of the same exam THEN the System SHALL use the best score for ranking purposes
 
-1. QUANDO o usuário fizer login ENTÃO o sistema DEVE autenticar credenciais
-2. QUANDO o usuário estiver logado ENTÃO o sistema DEVE manter sessão ativa
-3. QUANDO o usuário não estiver autorizado ENTÃO o sistema DEVE restringir acesso a funcionalidades premium
-4. QUANDO o usuário fizer logout ENTÃO o sistema DEVE encerrar a sessão de forma segura

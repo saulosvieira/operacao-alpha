@@ -1,7 +1,7 @@
 // Service Worker for Alfa Quest PWA
 // Handles push notifications and basic caching
 
-const CACHE_NAME = 'alfa-quest-v4';
+const CACHE_NAME = 'alfa-quest-v5';
 const urlsToCache = [
   '/manifest.json',
   '/icons/icon-192x192.png',

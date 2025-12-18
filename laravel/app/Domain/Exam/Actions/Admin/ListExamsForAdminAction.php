@@ -47,6 +47,7 @@ final class ListExamsForAdminAction
                     active: $exam->active,
                     totalQuestions: $exam->questions_count ?? 0,
                     career: $careerData,
+                    isFree: $exam->is_free,
                 );
             });
     }

@@ -3,6 +3,7 @@
 namespace App\Domain\Exam\Models;
 
 use App\Domain\Career\Models\Career;
+use App\Domain\Exam\Enums\FeedbackMode;
 use App\Domain\Exam\Models\Question;
 use App\Domain\Exam\Models\ExamResult;
 use App\Domain\Exam\Models\UserAnswer;
@@ -21,12 +22,14 @@ class Exam extends Model
         'time_limit_minutes',
         'active',
         'is_free',
+        'feedback_mode',
     ];
 
     protected $casts = [
         'time_limit_minutes' => 'integer',
         'active' => 'boolean',
         'is_free' => 'boolean',
+        'feedback_mode' => FeedbackMode::class,
     ];
 
     public function career(): BelongsTo

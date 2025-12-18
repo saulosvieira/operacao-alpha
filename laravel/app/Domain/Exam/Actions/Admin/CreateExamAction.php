@@ -17,6 +17,7 @@ final class CreateExamAction
      * @param string $title
      * @param string|null $description
      * @param int $timeLimitMinutes
+     * @param string $feedbackMode
      * @param bool $active
      * @param bool $isFree
      * @return ExamData
@@ -26,6 +27,7 @@ final class CreateExamAction
         string $title,
         ?string $description = null,
         int $timeLimitMinutes = 60,
+        string $feedbackMode = 'final',
         bool $active = true,
         bool $isFree = false
     ): ExamData {
@@ -34,6 +36,7 @@ final class CreateExamAction
             'title' => $title,
             'description' => $description,
             'time_limit_minutes' => $timeLimitMinutes,
+            'feedback_mode' => $feedbackMode,
             'active' => $active,
             'is_free' => $isFree,
         ]);
@@ -63,6 +66,8 @@ final class CreateExamAction
             active: $exam->active,
             totalQuestions: 0,
             career: $careerData,
+            isFree: $exam->is_free,
+            feedbackMode: $exam->feedback_mode?->value ?? 'final',
         );
     }
 }

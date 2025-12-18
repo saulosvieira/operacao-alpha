@@ -6,12 +6,12 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [
-        react(),
-        tailwindcss(),
         laravel({
             input: ['resources/react/main.tsx', 'resources/react/index.css'],
             refresh: true,
         }),
+        react(),
+        tailwindcss(),
     ],
     server: {
         host: '0.0.0.0',

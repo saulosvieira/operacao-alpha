@@ -13,6 +13,8 @@ class ExamData
         public bool $active,
         public int $totalQuestions,
         public ?object $career = null,
+        public bool $isFree = false,
+        public string $feedbackMode = 'final',
     ) {}
     
     public static function fromArray(array $data): self
@@ -26,6 +28,8 @@ class ExamData
             active: $data['active'],
             totalQuestions: $data['total_questions'] ?? 0,
             career: isset($data['career']) ? (object)$data['career'] : null,
+            isFree: $data['is_free'] ?? false,
+            feedbackMode: $data['feedback_mode'] ?? 'final',
         );
     }
     
@@ -39,6 +43,8 @@ class ExamData
             'timeLimitMinutes' => $this->timeLimitMinutes,
             'active' => $this->active,
             'totalQuestions' => $this->totalQuestions,
+            'isFree' => $this->isFree,
+            'feedbackMode' => $this->feedbackMode,
         ];
     }
     

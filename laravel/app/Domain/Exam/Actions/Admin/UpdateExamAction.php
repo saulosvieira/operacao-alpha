@@ -18,6 +18,7 @@ final class UpdateExamAction
      * @param string $title
      * @param string|null $description
      * @param int $timeLimitMinutes
+     * @param string $feedbackMode
      * @param bool $active
      * @param bool $isFree
      * @return ExamData
@@ -28,6 +29,7 @@ final class UpdateExamAction
         string $title,
         ?string $description = null,
         int $timeLimitMinutes = 60,
+        string $feedbackMode = 'final',
         bool $active = true,
         bool $isFree = false
     ): ExamData {
@@ -38,6 +40,7 @@ final class UpdateExamAction
             'title' => $title,
             'description' => $description,
             'time_limit_minutes' => $timeLimitMinutes,
+            'feedback_mode' => $feedbackMode,
             'active' => $active,
             'is_free' => $isFree,
         ]);
@@ -68,6 +71,8 @@ final class UpdateExamAction
             active: $exam->active,
             totalQuestions: $exam->questions_count ?? 0,
             career: $careerData,
+            isFree: $exam->is_free,
+            feedbackMode: $exam->feedback_mode?->value ?? 'final',
         );
     }
 }
