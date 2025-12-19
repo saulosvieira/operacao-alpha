@@ -31,11 +31,16 @@ class StartAttemptAction
         $activeAttempt = $this->attemptRepository->findActiveByUserAndExam($userId, $examId);
         
         if ($activeAttempt) {
+            // Calculate remaining time based on when attempt started
+            $totalSeconds = $exam->time_limit_minutes * 60;
+            $elapsedSeconds = now()->diffInSeconds($activeAttempt->startedAt);
+            $remainingSeconds = max(0, $totalSeconds - $elapsedSeconds);
+            
             // Se já existe uma tentativa ativa para este simulado, retornar ela ao invés de criar nova
             return new StartAttemptResultData(
                 attempt: $activeAttempt,
                 exam: $exam,
-                initialTimerSeconds: $exam->time_limit_minutes * 60,
+                initialTimerSeconds: $remainingSeconds,
             );
         }
         

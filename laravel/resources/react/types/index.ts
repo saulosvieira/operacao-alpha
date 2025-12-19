@@ -43,6 +43,14 @@ export interface Exam {
   feedbackMode: FeedbackMode; // Controls when answers are revealed
 }
 
+// Feedback data for immediate mode
+export interface FeedbackDataItem {
+  isCorrect: boolean;
+  correctAnswer: AnswerOption;
+  explanation?: string;
+  chosenAnswer?: AnswerOption;
+}
+
 // Attempt Types
 export interface Attempt {
   id: string;
@@ -55,6 +63,8 @@ export interface Attempt {
   score?: number;
   questions?: Question[]; // Questions with conditional correctAnswer/explanation based on feedback mode
   answers?: Record<string, AnswerOption>; // questionId -> chosen answer
+  feedbackData?: Record<string, FeedbackDataItem>; // For immediate mode - feedback for answered questions
+  initialTimerSeconds?: number; // Remaining time in seconds for the attempt
 }
 
 // Ranking Types
@@ -174,6 +184,7 @@ export interface ExamsState {
   fetchExams: (careerId?: string) => Promise<void>;
   fetchExam: (examId: string) => Promise<Exam | null>;
   startAttempt: (examId: string) => Promise<Attempt>;
+  loadAttempt: (attemptId: string) => Promise<Attempt>;
   submitAnswer: (attemptId: string, questionId: string, answer: AnswerOption) => Promise<SubmitAnswerResponse>;
   finishAttempt: (attemptId: string) => Promise<ExamResult>;
   clearError: () => void;

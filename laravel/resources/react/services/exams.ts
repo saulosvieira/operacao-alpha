@@ -118,10 +118,22 @@ export const startAttempt = async (examId: string): Promise<Attempt> => {
   };
 };
 
+export interface FeedbackDataItem {
+  isCorrect: boolean;
+  correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
+  explanation?: string;
+  chosenAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
+}
+
+export interface AttemptWithFeedback extends Attempt {
+  feedbackData?: Record<string, FeedbackDataItem>;
+  initialTimerSeconds?: number;
+}
+
 /**
  * Get attempt details with questions
  */
-export const getAttempt = async (attemptId: string): Promise<Attempt> => {
+export const getAttempt = async (attemptId: string): Promise<AttemptWithFeedback> => {
   const response = await api.get<{ 
     data: {
       attempt: {
@@ -136,10 +148,12 @@ export const getAttempt = async (attemptId: string): Promise<Attempt> => {
         answers?: Record<string, 'A' | 'B' | 'C' | 'D' | 'E'>;
       };
       exam: Exam & { questions?: Question[] };
+      feedbackData?: Record<string, FeedbackDataItem>;
+      initialTimerSeconds?: number;
     }
   }>(`/exams/attempts/${attemptId}`);
   
-  const { attempt, exam } = response.data.data;
+  const { attempt, exam, feedbackData, initialTimerSeconds } = response.data.data;
   
   return {
     id: attempt.id,
@@ -152,6 +166,8 @@ export const getAttempt = async (attemptId: string): Promise<Attempt> => {
     score: attempt.score,
     questions: exam.questions,
     answers: attempt.answers,
+    feedbackData,
+    initialTimerSeconds,
   };
 };
 

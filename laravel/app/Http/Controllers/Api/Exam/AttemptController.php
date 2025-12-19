@@ -40,7 +40,9 @@ class AttemptController extends Controller
     public function show(
         string $id,
         AttemptRepository $repository,
-        GetExamDetailsAction $examAction
+        GetExamDetailsAction $examAction,
+        \App\Domain\Exam\Repositories\AnswerRepository $answerRepository,
+        \App\Domain\Exam\Repositories\QuestionRepository $questionRepository
     ): JsonResponse {
         $attempt = $repository->findById($id);
         
@@ -57,20 +59,51 @@ class AttemptController extends Controller
             ], 403);
         }
         
-        // Buscar detalhes do exame (sem respostas se ainda não finalizou)
+        // Buscar detalhes do exame
+        $exam = $examAction->execute($attempt->examId, false);
+        
+        // Check if immediate feedback mode - if so, include feedback for answered questions
+        $isImmediateMode = $exam && $exam->feedback_mode === \App\Domain\Exam\Enums\FeedbackMode::IMMEDIATE;
         $includeAnswers = $attempt->finishedAt !== null;
-        $exam = $examAction->execute($attempt->examId, $includeAnswers);
         
         // Use ExamResource with proper answer visibility
         $examResource = (new ExamResource($exam))
             ->includeQuestions(true)
             ->showAnswers($includeAnswers);
         
+        // Calculate remaining time
+        $totalSeconds = $exam->time_limit_minutes * 60;
+        $elapsedSeconds = now()->diffInSeconds($attempt->startedAt);
+        $remainingSeconds = max(0, $totalSeconds - $elapsedSeconds);
+        
+        $responseData = [
+            'attempt' => new AttemptResource($attempt),
+            'exam' => $examResource,
+            'initialTimerSeconds' => $remainingSeconds,
+        ];
+        
+        // For immediate mode, include feedback data for answered questions
+        if ($isImmediateMode && !$attempt->finishedAt) {
+            $answers = $answerRepository->findByAttempt($id);
+            $feedbackData = [];
+            
+            foreach ($answers as $answer) {
+                $question = $questionRepository->findById($answer->questionId);
+                if ($question) {
+                    $feedbackData[$answer->questionId] = [
+                        'isCorrect' => $answer->correct,
+                        'correctAnswer' => $question->correctAnswer,
+                        'explanation' => $question->explanation,
+                        'chosenAnswer' => $answer->chosenAnswer,
+                    ];
+                }
+            }
+            
+            $responseData['feedbackData'] = $feedbackData;
+        }
+        
         return response()->json([
-            'data' => [
-                'attempt' => new AttemptResource($attempt),
-                'exam' => $examResource,
-            ],
+            'data' => $responseData,
         ]);
     }
     

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { QuestaoCard } from '@/components/QuestaoCard';
@@ -9,7 +9,6 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, Flag, AlertCircle, Loader2 } from 'lucide-react';
 import type { AnswerOption, Question, Exam } from '@/types';
-import { getAttempt } from '@/services/exams';
 import { toast } from 'sonner';
 
 export default function ExecuteExam() {
@@ -17,7 +16,8 @@ export default function ExecuteExam() {
   const navigate = useNavigate();
   const { 
     currentAttempt, 
-    startAttempt, 
+    startAttempt,
+    loadAttempt,
     submitAnswer, 
     finishAttempt, 
     fetchExam,
@@ -31,9 +31,19 @@ export default function ExecuteExam() {
   const [exam, setExam] = useState<Exam | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [feedbackData, setFeedbackData] = useState<Record<string, { isCorrect: boolean; correctAnswer: string; explanation?: string }>>({});
+  const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
+  const initializedRef = useRef(false);
+  
+  // Helper to get localStorage key for current question
+  const getStorageKey = (attId: string) => `attempt_${attId}_currentQuestion`;
 
-  // Initialize attempt and load questions
+  // Initialize attempt and load questions - runs only once per examId/attemptId combination
   useEffect(() => {
+    // Prevent re-initialization when currentAttempt changes (e.g., after submitting answer)
+    if (initializedRef.current) {
+      return;
+    }
+    
     const initAttempt = async () => {
       if (!examId) {
         navigate('/simulados');
@@ -57,38 +67,47 @@ export default function ExecuteExam() {
           return;
         }
         
-        // If we have attemptId but no currentAttempt, or currentAttempt doesn't match
-        if (attemptId && (!currentAttempt || currentAttempt.id !== attemptId)) {
-          // Load the specific attempt
-          const attemptData = await getAttempt(attemptId);
-          if (attemptData && attemptData.questions) {
-            setQuestions(attemptData.questions);
+        // Load the attempt
+        const attemptData = await loadAttempt(attemptId);
+        if (attemptData && attemptData.questions) {
+          setQuestions(attemptData.questions);
+          
+          // Set timer from API (remaining time)
+          if (attemptData.initialTimerSeconds !== undefined) {
+            setTimerSeconds(attemptData.initialTimerSeconds);
+          } else if (examData) {
+            // Fallback to full duration
+            setTimerSeconds(examData.durationMin * 60);
           }
           
-          // For immediate feedback mode, mark already answered questions as having feedback
-          // This prevents re-answering when resuming an attempt
-          if (examData?.feedbackMode === 'immediate' && attemptData?.answers) {
+          // Restore current question from localStorage
+          const savedQuestion = localStorage.getItem(getStorageKey(attemptId));
+          if (savedQuestion) {
+            const questionIndex = parseInt(savedQuestion, 10);
+            if (!isNaN(questionIndex) && questionIndex >= 0 && questionIndex < attemptData.questions.length) {
+              setCurrentQuestion(questionIndex);
+            }
+          }
+        }
+        
+        // For immediate feedback mode, use feedbackData from API if available
+        if (examData?.feedbackMode === 'immediate') {
+          if (attemptData?.feedbackData) {
+            // Use feedback data from API (includes correct answers)
             const existingFeedback: Record<string, { isCorrect: boolean; correctAnswer: string; explanation?: string }> = {};
-            Object.keys(attemptData.answers).forEach(questionId => {
-              // Mark as answered - we don't have the actual feedback data, but we know it was answered
-              // The question will be locked and show the selected answer
-              existingFeedback[questionId] = {
-                isCorrect: false, // We don't know, but it doesn't matter for locking
-                correctAnswer: '', // We don't have this info when resuming
-                explanation: undefined,
+            Object.entries(attemptData.feedbackData).forEach(([questionId, feedback]) => {
+              existingFeedback[String(questionId)] = {
+                isCorrect: feedback.isCorrect,
+                correctAnswer: feedback.correctAnswer,
+                explanation: feedback.explanation,
               };
             });
             setFeedbackData(existingFeedback);
-          }
-        } else if (currentAttempt && currentAttempt.questions) {
-          // Use current attempt questions
-          setQuestions(currentAttempt.questions);
-          
-          // For immediate feedback mode, mark already answered questions
-          if (examData?.feedbackMode === 'immediate' && currentAttempt.answers) {
+          } else if (attemptData?.answers) {
+            // Fallback: mark as answered but without feedback details
             const existingFeedback: Record<string, { isCorrect: boolean; correctAnswer: string; explanation?: string }> = {};
-            Object.keys(currentAttempt.answers).forEach(questionId => {
-              existingFeedback[questionId] = {
+            Object.entries(attemptData.answers).forEach(([questionId]) => {
+              existingFeedback[String(questionId)] = {
                 isCorrect: false,
                 correctAnswer: '',
                 explanation: undefined,
@@ -97,6 +116,9 @@ export default function ExecuteExam() {
             setFeedbackData(existingFeedback);
           }
         }
+        
+        // Mark as initialized
+        initializedRef.current = true;
         
       } catch (err: any) {
         toast.error(err.response?.data?.message || 'Erro ao iniciar simulado');
@@ -109,7 +131,7 @@ export default function ExecuteExam() {
     initAttempt();
     
     return () => clearError();
-  }, [examId, attemptId, currentAttempt, startAttempt, fetchExam, navigate, clearError]);
+  }, [examId, attemptId, startAttempt, loadAttempt, fetchExam, navigate, clearError]);
 
   // SEO
   useEffect(() => {
@@ -117,9 +139,15 @@ export default function ExecuteExam() {
   }, []);
 
   const handleAnswer = async (letter: AnswerOption) => {
-    if (!currentAttempt || !questions[currentQuestion]) return;
+    console.log('handleAnswer called with:', letter);
+    
+    if (!currentAttempt || !questions[currentQuestion]) {
+      console.log('No currentAttempt or question, returning');
+      return;
+    }
     
     const questionId = questions[currentQuestion].id;
+    console.log('Question ID:', questionId, 'feedbackData keys:', Object.keys(feedbackData));
     
     // Check if question already has feedback (prevent re-answering in immediate mode)
     if (exam?.feedbackMode === 'immediate' && feedbackData[questionId]) {
@@ -128,47 +156,55 @@ export default function ExecuteExam() {
     }
     
     try {
+      console.log('Submitting answer...');
       const response = await submitAnswer(currentAttempt.id, questionId, letter);
-      
-      console.log('Submit answer response:', response);
-      console.log('Exam feedback mode:', exam?.feedbackMode);
-      console.log('Response has feedback data:', response?.isCorrect !== undefined);
+      console.log('Submit response:', response);
       
       // Handle immediate feedback mode
       if (exam?.feedbackMode === 'immediate' && response && response.isCorrect !== undefined) {
-        console.log('Setting feedback data for question:', questionId);
-        console.log('Feedback data:', {
-          isCorrect: response.isCorrect,
-          correctAnswer: response.correctAnswer,
+        const key = String(questionId);
+        console.log('Setting feedback for key:', key, 'response:', response);
+        console.log('response.correctAnswer:', response.correctAnswer, 'type:', typeof response.correctAnswer);
+        
+        const newFeedback = {
+          isCorrect: response.isCorrect || false,
+          correctAnswer: response.correctAnswer || '',
           explanation: response.explanation,
-        });
+        };
+        console.log('New feedback item:', newFeedback);
+        
         setFeedbackData(prev => {
-          const newData = {
+          const newState = {
             ...prev,
-            [questionId]: {
-              isCorrect: response.isCorrect || false,
-              correctAnswer: response.correctAnswer || '',
-              explanation: response.explanation,
-            },
+            [key]: newFeedback,
           };
-          console.log('New feedbackData state:', newData);
-          return newData;
+          console.log('New feedbackData state:', newState);
+          return newState;
         });
       }
     } catch (err: any) {
+      console.error('Error submitting answer:', err);
       toast.error('Erro ao salvar resposta');
     }
   };
 
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      const newIndex = currentQuestion + 1;
+      setCurrentQuestion(newIndex);
+      if (attemptId) {
+        localStorage.setItem(getStorageKey(attemptId), String(newIndex));
+      }
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+      const newIndex = currentQuestion - 1;
+      setCurrentQuestion(newIndex);
+      if (attemptId) {
+        localStorage.setItem(getStorageKey(attemptId), String(newIndex));
+      }
     }
   };
 
@@ -177,6 +213,8 @@ export default function ExecuteExam() {
     
     try {
       const result = await finishAttempt(currentAttempt.id);
+      // Clean up localStorage
+      localStorage.removeItem(getStorageKey(currentAttempt.id));
       toast.success('Simulado finalizado!');
       // Navigate to results page with result data
       navigate(`/simulado/${examId}/resultado/${currentAttempt.id}`, {
@@ -192,7 +230,7 @@ export default function ExecuteExam() {
     handleFinish();
   };
 
-  if (isInitializing || isLoading) {
+  if (isInitializing) {
     return (
       <AppLayout>
         <div className="p-4 flex items-center justify-center min-h-[50vh]">
@@ -228,8 +266,16 @@ export default function ExecuteExam() {
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const currentQuestionObj = questions[currentQuestion];
-  const selectedAnswer = currentAttempt.answers?.[currentQuestionObj?.id];
-  const questionFeedback = feedbackData[currentQuestionObj?.id];
+  const questionIdStr = String(currentQuestionObj?.id);
+  const selectedAnswer = currentAttempt.answers?.[questionIdStr];
+  const questionFeedback = feedbackData[questionIdStr];
+  
+  console.log('ExecuteExam render:', { 
+    questionIdStr, 
+    feedbackDataKeys: Object.keys(feedbackData), 
+    questionFeedback,
+    feedbackCorrectAnswer: questionFeedback?.correctAnswer
+  });
 
   return (
     <AppLayout>
@@ -240,10 +286,12 @@ export default function ExecuteExam() {
             <h1 className="text-lg font-semibold text-foreground">
               {exam.title}
             </h1>
-            <Timer 
-              initialSeconds={exam.durationMin * 60}
-              onExpire={handleTimerExpire}
-            />
+            {timerSeconds !== null && (
+              <Timer 
+                initialSeconds={timerSeconds}
+                onExpire={handleTimerExpire}
+              />
+            )}
           </div>
           
           <div className="space-y-2">
@@ -292,7 +340,7 @@ export default function ExecuteExam() {
             onAnswer={handleAnswer}
             showFeedback={exam.feedbackMode === 'immediate' && !!questionFeedback}
             feedbackMode={exam.feedbackMode}
-            feedbackCorrectAnswer={questionFeedback?.correctAnswer as AnswerOption | undefined}
+            feedbackCorrectAnswer={questionFeedback?.correctAnswer ? questionFeedback.correctAnswer as AnswerOption : undefined}
             feedbackExplanation={questionFeedback?.explanation}
           />
         )}

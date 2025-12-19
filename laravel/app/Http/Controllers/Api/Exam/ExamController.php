@@ -22,16 +22,16 @@ class ExamController extends Controller
     
     public function show(string $id, GetExamDetailsAction $action): JsonResponse
     {
-        $examData = $action->execute($id, includeAnswers: false);
+        $exam = $action->execute($id, includeAnswers: false);
         
-        if (!$examData) {
+        if (!$exam) {
             return response()->json([
                 'message' => 'Exam not found'
             ], 404);
         }
         
         return response()->json([
-            'data' => $examData,
+            'data' => new ExamResource($exam),
         ]);
     }
 }

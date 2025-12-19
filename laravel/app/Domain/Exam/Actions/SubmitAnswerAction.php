@@ -49,6 +49,18 @@ class SubmitAnswerAction
             throw new \Exception('Invalid answer option');
         }
         
+        // Check exam feedback mode
+        $exam = $this->examRepository->findById($attempt->examId);
+        $isImmediateMode = $exam && $exam->feedbackMode === FeedbackMode::IMMEDIATE->value;
+        
+        // In immediate mode, check if question was already answered (no changes allowed)
+        if ($isImmediateMode) {
+            $existingAnswer = $this->answerRepository->findByAttemptAndQuestion($attemptId, $questionId);
+            if ($existingAnswer) {
+                throw new \Exception('Question already answered. In immediate feedback mode, answers cannot be changed.');
+            }
+        }
+        
         $correct = $question->correctAnswer === $answer;
         
         $answerData = $this->answerRepository->createOrUpdate([
@@ -60,9 +72,8 @@ class SubmitAnswerAction
             'time_seconds' => $timeSeconds,
         ]);
         
-        // Check exam feedback mode for immediate feedback
-        $exam = $this->examRepository->findById($attempt->examId);
-        $showFeedback = $exam && $exam->feedbackMode === FeedbackMode::IMMEDIATE->value;
+        // Return feedback data if in immediate mode
+        $showFeedback = $isImmediateMode;
         
         return new SubmitAnswerResultData(
             answer: $answerData,

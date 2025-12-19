@@ -22,24 +22,22 @@ export function QuestaoCard({
   feedbackCorrectAnswer,
   feedbackExplanation,
 }: QuestaoCardProps) {
-  // Debug logs
-  console.log('QuestaoCard render:', {
-    questionId: question.id,
-    showFeedback,
-    feedbackMode,
-    feedbackCorrectAnswer,
-    selectedAnswer,
-  });
-
   // For immediate mode, use feedback data; for final mode or results, use question data
   const correctAnswer = showFeedback ? (feedbackCorrectAnswer || question.correctAnswer) : question.correctAnswer;
   const explanation = showFeedback ? (feedbackExplanation || question.explanation) : question.explanation;
   
-  console.log('QuestaoCard computed:', { correctAnswer, shouldShow: showFeedback && correctAnswer !== undefined });
-  
   // Determine if we should show the correct answer (only if we have the actual answer)
   const hasCorrectAnswerData = correctAnswer !== undefined && (correctAnswer as string) !== '';
   const shouldShowCorrectAnswer = showFeedback && hasCorrectAnswerData;
+  
+  console.log('QuestaoCard:', { 
+    questionId: question.id, 
+    showFeedback, 
+    feedbackCorrectAnswer, 
+    correctAnswer, 
+    hasCorrectAnswerData, 
+    shouldShowCorrectAnswer 
+  });
   const isAnswered = selectedAnswer !== undefined;
   
   // In immediate mode, lock the question after answering (even if we don't have feedback data)

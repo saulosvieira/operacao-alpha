@@ -66,6 +66,28 @@ export const useExamsStore = create<ExamsState>((set, get) => ({
     }
   },
 
+  loadAttempt: async (attemptId: string): Promise<Attempt> => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const attempt = await examsService.getAttempt(attemptId);
+
+      set({
+        currentAttempt: attempt,
+        isLoading: false,
+      });
+
+      return attempt;
+    } catch (error: any) {
+      console.error('Failed to load attempt:', error);
+      set({ 
+        isLoading: false,
+        error: error.response?.data?.message || 'Erro ao carregar tentativa'
+      });
+      throw error;
+    }
+  },
+
   submitAnswer: async (attemptId: string, questionId: string, answer: AnswerOption) => {
     try {
       const response = await examsService.submitAnswer(attemptId, {
