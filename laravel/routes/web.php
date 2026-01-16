@@ -70,6 +70,56 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Questions (nested under exams)
         Route::resource('exams.questions', \App\Http\Controllers\Admin\QuestionController::class)
             ->except(['show']);
+
+        // Question Import - Admin only with enhanced security
+        Route::prefix('import')
+            ->name('import.')
+            ->middleware(['admin'])
+            ->group(function () {
+                // Import dashboard
+                Route::get('/questions', [\App\Http\Controllers\Admin\QuestionImportController::class, 'index'])
+                    ->name('questions.index');
+                
+                // File upload and processing - with file size limits
+                Route::post('/upload', [\App\Http\Controllers\Admin\QuestionImportController::class, 'uploadFile'])
+                    ->name('upload')
+                    ->middleware(['validate.file.upload', 'throttle:10,1']); // Validate file uploads and limit to 10 per minute
+                
+                // Career mapping workflow
+                Route::get('/sessions/{session}/mapping', [\App\Http\Controllers\Admin\QuestionImportController::class, 'showMapping'])
+                    ->name('sessions.mapping');
+                Route::post('/sessions/{session}/mapping', [\App\Http\Controllers\Admin\QuestionImportController::class, 'processMapping'])
+                    ->name('sessions.mapping.process');
+                
+                // Preview and execution workflow
+                Route::get('/sessions/{session}/preview', [\App\Http\Controllers\Admin\QuestionImportController::class, 'showPreview'])
+                    ->name('sessions.preview');
+                Route::post('/sessions/{session}/execute', [\App\Http\Controllers\Admin\QuestionImportController::class, 'executeImport'])
+                    ->name('sessions.execute')
+                    ->middleware(['throttle:5,1']); // Limit import execution to 5 per minute
+                
+                // Session management
+                Route::delete('/sessions/{session}/cancel', [\App\Http\Controllers\Admin\QuestionImportController::class, 'cancelSession'])
+                    ->name('sessions.cancel');
+                
+                // AJAX endpoints for dynamic data
+                Route::get('/career-exams', [\App\Http\Controllers\Admin\QuestionImportController::class, 'getCareerExams'])
+                    ->name('career-exams');
+                Route::get('/sessions/{session}/progress', [\App\Http\Controllers\Admin\QuestionImportController::class, 'getImportProgress'])
+                    ->name('sessions.progress');
+                
+                // Reports and downloads
+                Route::get('/sessions/{session}/report', [\App\Http\Controllers\Admin\QuestionImportController::class, 'showReport'])
+                    ->name('sessions.report');
+                Route::get('/sessions/{session}/download-error-log', [\App\Http\Controllers\Admin\QuestionImportController::class, 'downloadErrorLog'])
+                    ->name('download-error-log');
+                Route::get('/sessions/{session}/affected-exams', [\App\Http\Controllers\Admin\QuestionImportController::class, 'getAffectedExams'])
+                    ->name('affected-exams');
+                Route::get('/sessions/{session}/export-report', [\App\Http\Controllers\Admin\QuestionImportController::class, 'exportReport'])
+                    ->name('export-report');
+                Route::get('/statistics', [\App\Http\Controllers\Admin\QuestionImportController::class, 'getImportStatistics'])
+                    ->name('statistics');
+            });
     });
 });
 

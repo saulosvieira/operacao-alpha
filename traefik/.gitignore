@@ -1,0 +1,5 @@
+# Ignore actual certificates (contains sensitive data)
+# Only keep the empty template
+# acme.json
+
+# Note: On VPS, run: chmod 600 traefik/acme.json

@@ -346,6 +346,12 @@ return [
             'icon' => 'fas fa-clipboard-list',
             'active' => ['admin/exams', 'admin/exams/*'],
         ],
+        [
+            'text' => 'Importar Questões',
+            'url' => 'admin/import/questions',
+            'icon' => 'fas fa-file-import',
+            'active' => ['admin/import', 'admin/import/*'],
+        ],
     ],
 
     /*

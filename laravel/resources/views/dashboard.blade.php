@@ -72,6 +72,9 @@
                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline-info btn-block mb-2 w-100">
                     <i class="fas fa-users"></i> Usuários
                 </a>
+                <a href="{{ route('admin.import.questions.index') }}" class="btn btn-outline-warning btn-block mb-2 w-100">
+                    <i class="fas fa-file-import"></i> Importar Questões
+                </a>
                 <a href="#" class="btn btn-outline-success btn-block w-100">
                     <i class="fas fa-chart-line"></i> Relatórios
                 </a>
@@ -121,4 +124,64 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-purple"><i class="fas fa-file-import"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Importações</span>
+                <span class="info-box-number">{{ \App\Domain\Import\Models\ImportSession::where('status', 'completed')->count() }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Estatísticas de Importação (Últimos 30 dias)
+                </h3>
+            </div>
+            <div class="card-body" id="import-stats">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Carregando estatísticas...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
+
+@section('js')
+<script>
+$(document).ready(function() {
+    // Load import statistics
+    loadImportStatistics();
+});
+
+function loadImportStatistics() {
+    $.get('{{ route("admin.import.statistics") }}', function(data) {
+        let html = '<div class="row">';
+        html += '<div class="col-md-3"><div class="info-box bg-info"><span class="info-box-icon"><i class="fas fa-upload"></i></span><div class="info-box-content"><span class="info-box-text">Total Imports</span><span class="info-box-number">' + data.total_imports + '</span></div></div></div>';
+        html += '<div class="col-md-3"><div class="info-box bg-success"><span class="info-box-icon"><i class="fas fa-check"></i></span><div class="info-box-content"><span class="info-box-text">Questions Imported</span><span class="info-box-number">' + data.total_successful_questions + '</span></div></div></div>';
+        html += '<div class="col-md-3"><div class="info-box bg-danger"><span class="info-box-icon"><i class="fas fa-times"></i></span><div class="info-box-content"><span class="info-box-text">Failed Questions</span><span class="info-box-number">' + data.total_failed_questions + '</span></div></div></div>';
+        html += '<div class="col-md-3"><div class="info-box bg-warning"><span class="info-box-icon"><i class="fas fa-percentage"></i></span><div class="info-box-content"><span class="info-box-text">Avg Success Rate</span><span class="info-box-number">' + Math.round(data.average_success_rate) + '%</span></div></div></div>';
+        html += '</div>';
+        
+        if (data.recent_imports && data.recent_imports.length > 0) {
+            html += '<div class="mt-3"><h6>Recent Imports</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>File</th><th>Date</th><th>Success Rate</th><th>Questions</th></tr></thead><tbody>';
+            data.recent_imports.slice(0, 5).forEach(function(session) {
+                html += '<tr><td>' + session.filename + '</td><td>' + session.created_at + '</td><td><span class="badge badge-' + (session.success_rate >= 80 ? 'success' : (session.success_rate >= 50 ? 'warning' : 'danger')) + '">' + session.success_rate + '%</span></td><td>' + session.total_processed + '</td></tr>';
+            });
+            html += '</tbody></table></div></div>';
+        }
+        
+        $('#import-stats').html(html);
+    }).fail(function() {
+        $('#import-stats').html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Unable to load import statistics.</div>');
+    });
+}
+</script>

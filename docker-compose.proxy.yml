@@ -1,0 +1,49 @@
+# Traefik Reverse Proxy - Standalone Configuration
+# This file should be deployed independently on the VPS
+# Usage: docker compose -f docker-compose.proxy.yml up -d
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik-proxy
+    restart: unless-stopped
+    command:
+      # API and Dashboard (disabled by default for security)
+      - "--api.dashboard=false"
+      - "--api.insecure=false"
+      
+      # Docker provider configuration
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=web"
+      
+      # Entrypoints configuration
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      
+      # HTTP to HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      
+      # Let's Encrypt certificate resolver
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.le.acme.email=${ACME_EMAIL:-admin@mydev.com.br}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      
+      # Logging
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/acme.json:/letsencrypt/acme.json
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: web

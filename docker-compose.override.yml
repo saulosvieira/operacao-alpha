@@ -1,0 +1,16 @@
+# Local Development Override
+# This file is automatically loaded by docker compose
+# Usage: docker compose up -d (no extra flags needed)
+
+services:
+  simulados-webserver:
+    ports:
+      - "8090:80"
+
+  simulados-db:
+    ports:
+      - "33090:3306"
+
+  simulados-redis:
+    ports:
+      - "63790:6379"

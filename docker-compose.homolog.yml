@@ -1,0 +1,43 @@
+# Homolog/Staging Environment Override
+# This file adds Traefik integration for VPS deployment
+# Usage: docker compose -f docker-compose.yml -f docker-compose.homolog.yml up -d
+#
+# Prerequisites:
+# 1. Create external network: docker network create web
+# 2. Start Traefik: docker compose -f docker-compose.proxy.yml up -d
+# 3. Copy .env.homolog.example to .env and configure
+
+services:
+  simulados-webserver:
+    networks:
+      - simulados-network
+      - web
+    labels:
+      - "traefik.enable=true"
+      # Router configuration
+      - "traefik.http.routers.operacao-alfa.rule=Host(`operacao-alfa.homolog.mydev.com.br`)"
+      - "traefik.http.routers.operacao-alfa.entrypoints=websecure"
+      - "traefik.http.routers.operacao-alfa.tls.certresolver=le"
+      # Service configuration (nginx listens on port 80)
+      - "traefik.http.services.operacao-alfa.loadbalancer.server.port=80"
+      # Network to use for routing
+      - "traefik.docker.network=web"
+
+  # Database - NO port exposure in homolog (security)
+  simulados-db:
+    # Ports intentionally not exposed - internal network only
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-simulados_db}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME:-simulados_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+  # Redis - NO port exposure in homolog (security)
+  simulados-redis:
+    # Ports intentionally not exposed - internal network only
+    command: redis-server --appendonly yes
+
+networks:
+  web:
+    external: true
+    name: web

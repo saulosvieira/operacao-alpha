@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->throttleApi('60,1'); // 60 req/min
+        
+        // Register custom middleware aliases
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'validate.file.upload' => \App\Http\Middleware\ValidateFileUpload::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

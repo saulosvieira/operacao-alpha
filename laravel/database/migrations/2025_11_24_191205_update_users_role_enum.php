@@ -12,7 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'consultor', 'user') DEFAULT 'user'");
+        // SQLite doesn't support MODIFY COLUMN, so we'll use a different approach
+        if (DB::getDriverName() === 'sqlite') {
+            // For SQLite, we'll recreate the table with the new enum values
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role_temp')->default('user');
+            });
+            
+            DB::statement("UPDATE users SET role_temp = role");
+            
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('role');
+            });
+            
+            Schema::table('users', function (Blueprint $table) {
+                $table->renameColumn('role_temp', 'role');
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'consultor', 'user') DEFAULT 'user'");
+        }
     }
 
     /**
@@ -20,6 +38,23 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'consultor') DEFAULT 'consultor'");
+        if (DB::getDriverName() === 'sqlite') {
+            // For SQLite, reverse the process
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role_temp')->default('consultor');
+            });
+            
+            DB::statement("UPDATE users SET role_temp = role WHERE role IN ('admin', 'consultor')");
+            
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('role');
+            });
+            
+            Schema::table('users', function (Blueprint $table) {
+                $table->renameColumn('role_temp', 'role');
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'consultor') DEFAULT 'consultor'");
+        }
     }
 };

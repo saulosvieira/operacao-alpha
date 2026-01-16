@@ -18,6 +18,9 @@ final class CareerRepository
     public function getAllActive(): Collection
     {
         return Career::where('active', true)
+            ->withCount(['exams' => function ($query) {
+                $query->where('active', true);
+            }])
             ->orderBy('name')
             ->get()
             ->map(fn (Career $career) => $this->toDTO($career));
@@ -52,6 +55,9 @@ final class CareerRepository
     {
         $career = Career::where('id', $id)
             ->where('active', true)
+            ->withCount(['exams' => function ($query) {
+                $query->where('active', true);
+            }])
             ->first();
 
         return $career ? $this->toDTO($career) : null;
@@ -70,7 +76,7 @@ final class CareerRepository
             createdAt: $career->created_at->toIso8601String(),
             updatedAt: $career->updated_at->toIso8601String(),
             slug: $career->slug ?? '',
-            examsCount: $career->exams_count ?? $career->exams()->count(),
+            examsCount: $career->exams_count ?? 0,
         );
     }
 }

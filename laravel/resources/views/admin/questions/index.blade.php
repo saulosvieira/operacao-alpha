@@ -21,6 +21,9 @@
             <a href="{{ route('admin.exams.questions.create', $exam) }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Nova Questão
             </a>
+            <a href="{{ route('admin.import.questions.index') }}" class="btn btn-success ml-2">
+                <i class="fas fa-file-import"></i> Importar Questões
+            </a>
             <a href="{{ route('admin.exams.edit', $exam) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-arrow-left"></i> Voltar ao Simulado
             </a>

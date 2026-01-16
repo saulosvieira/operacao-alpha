@@ -7,12 +7,24 @@ use App\Domain\Exam\Enums\FeedbackMode;
 use App\Domain\Exam\Models\Question;
 use App\Domain\Exam\Models\ExamResult;
 use App\Domain\Exam\Models\UserAnswer;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exam extends Model
 {
+    /** @use HasFactory<\Database\Factories\ExamFactory> */
+    use HasFactory;
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\ExamFactory::new();
+    }
+
     protected $table = 'exams';
 
     protected $fillable = [

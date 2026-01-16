@@ -60,6 +60,14 @@ return [
             'report' => false,
         ],
 
+        'temp_imports' => [
+            'driver' => 'local',
+            'root' => storage_path('app/temp/imports'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

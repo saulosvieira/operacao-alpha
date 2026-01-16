@@ -63,9 +63,9 @@ docker-compose up -d
 
 5. Instale as dependências e configure o Laravel:
 ```bash
-docker exec -it simulados-app composer install
-docker exec -it simulados-app php artisan key:generate
-docker exec -it simulados-app php artisan migrate:fresh --seed
+docker compose exec simulados-app composer install
+docker compose exec simulados-app php artisan key:generate
+docker compose exec simulados-app php artisan migrate:fresh --seed
 ```
 
 6. Acesse a aplicação:
@@ -166,38 +166,52 @@ O servidor Vite estará disponível em:
 Para compilar os assets para produção dentro do container:
 
 ```bash
-docker exec -it simulados-app npm run build
+docker compose exec simulados-app npm run build
 ```
 
 Os arquivos compilados serão gerados em `public/build/`.
 
 ### Comandos Úteis do Laravel
 
+**IMPORTANTE**: Todos os comandos artisan devem ser executados dentro do container usando `docker compose exec simulados-app`.
+
 ```bash
 # Executar migrations
-docker exec -it simulados-app php artisan migrate
+docker compose exec simulados-app php artisan migrate
 
 # Resetar banco e executar seeders
-docker exec -it simulados-app php artisan migrate:fresh --seed
+docker compose exec simulados-app php artisan migrate:fresh --seed
 
 # Limpar cache
-docker exec -it simulados-app php artisan cache:clear
-docker exec -it simulados-app php artisan config:clear
-docker exec -it simulados-app php artisan view:clear
+docker compose exec simulados-app php artisan cache:clear
+docker compose exec simulados-app php artisan config:clear
+docker compose exec simulados-app php artisan view:clear
 
 # Gerar chaves VAPID para notificações push
-docker exec -it simulados-app php artisan vapid:generate
+docker compose exec simulados-app php artisan vapid:generate
+
+# Criar migrations
+docker compose exec simulados-app php artisan make:migration create_example_table
+
+# Criar models
+docker compose exec simulados-app php artisan make:model Example
+
+# Criar controllers
+docker compose exec simulados-app php artisan make:controller ExampleController
+
+# Executar testes
+docker compose exec simulados-app php artisan test
 
 # Acessar shell do container
-docker exec -it simulados-app bash
+docker compose exec simulados-app bash
 
 # Executar Composer
-docker exec -it simulados-app composer install
-docker exec -it simulados-app composer update
+docker compose exec simulados-app composer install
+docker compose exec simulados-app composer update
 
 # Executar npm
-docker exec -it simulados-app npm install
-docker exec -it simulados-app npm run build
+docker compose exec simulados-app npm install
+docker compose exec simulados-app npm run build
 ```
 
 ### Estrutura dos Containers
@@ -440,7 +454,7 @@ Para configurar notificações push:
 
 1. **Gere chaves VAPID:**
 ```bash
-php artisan vapid:generate
+docker compose exec simulados-app php artisan vapid:generate
 ```
 
 2. **Configure no `.env`:**
@@ -456,13 +470,10 @@ VAPID_SUBJECT=mailto:seu-email@example.com
 
 ```bash
 # Executar todos os testes
-php artisan test
+docker compose exec simulados-app php artisan test
 
 # Executar testes específicos
-php artisan test --filter=ExamTest
-
-# Com Docker
-docker exec -it simulados-app php artisan test
+docker compose exec simulados-app php artisan test --filter=ExamTest
 ```
 
 ## Troubleshooting
@@ -471,16 +482,16 @@ docker exec -it simulados-app php artisan test
 
 **Erro de permissão no Docker:**
 ```bash
-docker exec -it simulados-app chown -R www-data:www-data /var/www/laravel
-docker exec -it simulados-app chmod -R 755 /var/www/laravel/storage
-docker exec -it simulados-app chmod -R 755 /var/www/laravel/bootstrap/cache
+docker compose exec simulados-app chown -R www-data:www-data /var/www/laravel
+docker compose exec simulados-app chmod -R 755 /var/www/laravel/storage
+docker compose exec simulados-app chmod -R 755 /var/www/laravel/bootstrap/cache
 ```
 
 **Assets não carregam:**
 ```bash
 # Limpe o cache e recompile
-docker exec -it simulados-app php artisan cache:clear
-docker exec -it simulados-app npm run build
+docker compose exec simulados-app php artisan cache:clear
+docker compose exec simulados-app npm run build
 ```
 
 **Vite não conecta (HMR):**
@@ -500,9 +511,9 @@ docker exec -it simulados-app npm run build
 **Build de produção falha:**
 ```bash
 # Limpe node_modules e reinstale
-docker exec -it simulados-app rm -rf node_modules
-docker exec -it simulados-app npm install
-docker exec -it simulados-app npm run build
+docker compose exec simulados-app rm -rf node_modules
+docker compose exec simulados-app npm install
+docker compose exec simulados-app npm run build
 ```
 
 ### Logs e Debug
@@ -520,7 +531,7 @@ docker-compose logs -f simulados-vite
 
 **Logs do Laravel:**
 ```bash
-docker exec -it simulados-app tail -f storage/logs/laravel.log
+docker compose exec simulados-app tail -f storage/logs/laravel.log
 ```
 
 **Verificar status dos containers:**

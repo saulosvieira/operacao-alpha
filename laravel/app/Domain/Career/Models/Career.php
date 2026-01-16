@@ -5,11 +5,23 @@ namespace App\Domain\Career\Models;
 use App\Domain\Career\Models\Notice;
 use App\Domain\Exam\Models\Exam;
 use App\Domain\Approved\Models\Approved;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Career extends Model
 {
+    /** @use HasFactory<\Database\Factories\CareerFactory> */
+    use HasFactory;
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\CareerFactory::new();
+    }
+
     protected $table = 'careers';
 
     protected $fillable = [

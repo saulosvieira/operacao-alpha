@@ -4,6 +4,7 @@ namespace App\Domain\Auth\Models;
 
 use App\Domain\Exam\Models\UserAnswer;
 use App\Domain\Exam\Models\ExamResult;
+use App\Domain\Import\Models\ImportSession;
 use App\Domain\Ranking\Models\Ranking;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,6 +15,14 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -85,5 +94,10 @@ class User extends Authenticatable
     public function ranking()
     {
         return $this->hasOne(Ranking::class)->latest('data_calculo');
+    }
+
+    public function importSessions()
+    {
+        return $this->hasMany(ImportSession::class, 'created_by');
     }
 }

@@ -1,50 +1,61 @@
+# Build stage para frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app
+
+# Copia arquivos de dependências do Node.js
+COPY package.json package-lock.json* ./
+
+# Instala dependências Node.js
+RUN npm ci
+
+# Copia arquivos necessários para o build
+COPY resources/ resources/
+COPY public/ public/
+COPY vite.config.ts tailwind.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json ./
+
+# Build do frontend
+RUN npm run build
+
+# Stage principal
 FROM php:8.2-fpm
 
 # Instala dependências do sistema
 RUN apt-get update \
-    && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev zip git unzip curl \
+    && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev zip git unzip curl supervisor libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql pcntl \
+    && docker-php-ext-install gd pdo pdo_mysql pcntl zip \
     && pecl install redis \
     && docker-php-ext-enable redis
 
 # Instala Composer
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 
-# Instala Node.js e npm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
-
 WORKDIR /var/www/laravel
 
-# Copia arquivos de dependências primeiro (para cache do Docker)
+# Copia arquivos de dependências PHP
 COPY composer.json composer.lock ./
-COPY package.json ./
 
 # Instala dependências PHP
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Instala dependências Node.js
-RUN npm install --production
-
 # Copia o resto do código
 COPY . .
 
+# Copia os arquivos buildados do frontend
+COPY --from=frontend-builder /app/public/build/ ./public/build/
+
+# Remove arquivo hot se existir (evita modo desenvolvimento)
+RUN rm -f public/hot
+
 # Finaliza instalação do Composer
 RUN composer dump-autoload --optimize
-
-# Build do frontend para produção
-RUN npm run build
 
 # Configura permissões corretas
 RUN chown -R www-data:www-data /var/www/laravel \
     && chmod -R 755 /var/www/laravel/storage \
     && chmod -R 755 /var/www/laravel/bootstrap/cache \
-    && chmod -R 755 /var/www/laravel/public/build
-
-# Instala Supervisor
-RUN apt-get update && apt-get install -y supervisor
+    && chmod -R 755 /var/www/laravel/public
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 

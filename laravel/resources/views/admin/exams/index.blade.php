@@ -21,6 +21,9 @@
             <a href="{{ route('admin.exams.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Novo Simulado
             </a>
+            <a href="{{ route('admin.import.questions.index') }}" class="btn btn-success ml-2">
+                <i class="fas fa-file-import"></i> Importar Questões
+            </a>
         </div>
         <div class="card-body">
             <table class="table table-bordered table-striped">
