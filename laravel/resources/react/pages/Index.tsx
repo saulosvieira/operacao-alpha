@@ -49,7 +49,7 @@ export default function Index() {
             <img 
               src={logoOficial} 
               alt="Operação Alfa Logo" 
-              className="w-20 h-20 opacity-90"
+              className="w-32 opacity-90"
             />
           </div>
           <div>

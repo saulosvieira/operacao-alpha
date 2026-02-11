@@ -70,7 +70,7 @@ export default function Assinar() {
             <img 
               src={logoOficial} 
               alt="Operação Alfa Logo" 
-              className="w-8 h-8"
+              className="w-16"
             />
             <span className="font-bold text-foreground">OPERAÇÃO ALFA</span>
           </div>
@@ -80,11 +80,11 @@ export default function Assinar() {
       <div className="p-4 pb-20 max-w-md mx-auto space-y-8">
         {/* Hero */}
         <div className="text-center space-y-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary-600/20 rounded-2xl flex items-center justify-center mx-auto shadow-glow border border-primary/20">
+          <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary-600/20 rounded-2xl flex items-center justify-center mx-auto shadow-glow border border-primary/20">
             <img 
               src={logoOficial} 
               alt="Operação Alfa Logo" 
-              className="w-12 h-12 opacity-90"
+              className="w-24 opacity-90"
             />
           </div>
           <div>

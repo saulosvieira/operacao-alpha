@@ -18,7 +18,7 @@ export function TopBar() {
             <img 
               src={logoOficial} 
               alt="Operação Alfa Logo" 
-              className="w-8 h-8"
+              className="w-16"
             />
             <div className="flex flex-col">
               <span className="text-sm font-bold text-foreground leading-none">OPERAÇÃO</span>
