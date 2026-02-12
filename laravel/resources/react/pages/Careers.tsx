@@ -7,6 +7,53 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { careersService } from '@/services/careers';
 import type { Career } from '@/types';
 
+/**
+ * Extracts error message from API error response
+ * Prioritizes API message when available, falls back to default message
+ * @param error - Error object from API call
+ * @returns User-friendly error message
+ */
+function getErrorMessage(error: any): string {
+  // Priority: API message > Generic message
+  return error?.response?.data?.message || 'Erro ao carregar carreiras';
+}
+
+/**
+ * Formats the exam count text with proper singular/plural grammar
+ * @param count - Number of exams available
+ * @returns Formatted text string
+ */
+function formatSimuladosText(count: number): string {
+  if (count === 0) {
+    return '0 simulados (em breve)';
+  }
+  if (count === 1) {
+    return '1 simulado disponível';
+  }
+  return `${count} simulados disponíveis`;
+}
+
+/**
+ * Filters careers based on search term
+ * @param careers - Array of careers to filter
+ * @param searchTerm - Search term to filter by
+ * @returns Filtered array of careers, sorted alphabetically by name
+ */
+function filterCareers(careers: Career[], searchTerm: string): Career[] {
+  const filtered = !searchTerm
+    ? careers
+    : careers.filter(career => {
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return (
+          career.name.toLowerCase().includes(lowerSearchTerm) ||
+          career.description?.toLowerCase().includes(lowerSearchTerm)
+        );
+      });
+  
+  // Ensure alphabetical ordering using localeCompare for proper handling of special characters
+  return filtered.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }));
+}
+
 export default function Careers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [careers, setCareers] = useState<Career[]>([]);
@@ -21,7 +68,7 @@ export default function Careers() {
         const data = await careersService.listCareers();
         setCareers(data);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Erro ao carregar carreiras');
+        setError(getErrorMessage(err));
       } finally {
         setIsLoading(false);
       }
@@ -30,10 +77,7 @@ export default function Careers() {
     fetchCareers();
   }, []);
 
-  const filteredCareers = careers.filter(career =>
-    career.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    career.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCareers = filterCareers(careers, searchTerm);
 
   if (isLoading) {
     return (
@@ -102,7 +146,7 @@ export default function Careers() {
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Users size={12} />
-                          <span>Simulados disponíveis</span>
+                          <span>{formatSimuladosText(career.exams_count)}</span>
                         </div>
                       </div>
                     </div>
@@ -119,8 +163,8 @@ export default function Careers() {
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {searchTerm 
-                    ? `Tente ajustar sua busca por "${searchTerm}"`
-                    : 'Novas carreiras serão adicionadas em breve'
+                    ? `Não encontramos resultados para "${searchTerm}". Tente usar termos diferentes ou verifique a ortografia.`
+                    : 'Novas carreiras serão adicionadas em breve. Volte mais tarde para conferir as novidades!'
                   }
                 </p>
               </div>

@@ -49,6 +49,27 @@ final class CareerRepository
     }
 
     /**
+     * Find career by ID or slug
+     */
+    public function findByIdOrSlug(string $identifier): ?CareerData
+    {
+        // Try numeric ID first
+        if (is_numeric($identifier)) {
+            return $this->findActiveById((int) $identifier);
+        }
+        
+        // Try slug
+        $career = Career::where('slug', $identifier)
+            ->where('active', true)
+            ->withCount(['exams' => function ($query) {
+                $query->where('active', true);
+            }])
+            ->first();
+
+        return $career ? $this->toDTO($career) : null;
+    }
+
+    /**
      * Find active career by ID
      */
     public function findActiveById(int $id): ?CareerData

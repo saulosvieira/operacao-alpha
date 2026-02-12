@@ -5,12 +5,15 @@ namespace App\Domain\Exam\Models;
 use App\Domain\Auth\Models\User;
 use App\Domain\Exam\Models\Exam;
 use App\Domain\Exam\Models\UserAnswer;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attempt extends Model
 {
+    use HasFactory;
+
     protected $table = 'attempts';
 
     protected $fillable = [
@@ -30,6 +33,14 @@ class Attempt extends Model
         'correct_answers' => 'integer',
         'score' => 'decimal:2',
     ];
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\AttemptFactory::new();
+    }
 
     public function user(): BelongsTo
     {

@@ -96,11 +96,16 @@ function RankingTable({ entries, myPosition, isLoading }: RankingTableProps) {
                 </div>
                 <div>
                   <span className="font-medium text-foreground">
-                    {entry.partialName}
+                    {entry.partialName || entry.userName}
                   </span>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{entry.score}% acertos</span>
-                    <span>⏱ {formatTime(entry.averageTimeSeconds)}</span>
+                    {entry.averageTimeSeconds != null && (
+                      <span>⏱ {formatTime(entry.averageTimeSeconds)}</span>
+                    )}
+                    {entry.totalExams != null && (
+                      <span>{entry.totalExams} simulados</span>
+                    )}
                   </div>
                 </div>
               </div>

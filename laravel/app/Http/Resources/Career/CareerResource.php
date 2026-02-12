@@ -24,9 +24,11 @@ final class CareerResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'slug' => $this->slug,
             'active' => $this->active,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
+            'exams_count' => $this->examsCount,
         ];
     }
 }

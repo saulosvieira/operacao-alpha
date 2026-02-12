@@ -33,8 +33,9 @@ final class CareerController extends Controller
 
     /**
      * Get career details
+     * Accepts either numeric ID or slug
      */
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         $career = $this->getCareerDetailsAction->execute($id);
 
@@ -51,8 +52,9 @@ final class CareerController extends Controller
 
     /**
      * List all exams for a career
+     * Accepts either numeric ID or slug
      */
-    public function exams(int $id): JsonResponse
+    public function exams(string $id): JsonResponse
     {
         // First check if career exists
         $career = $this->getCareerDetailsAction->execute($id);
@@ -63,7 +65,9 @@ final class CareerController extends Controller
             ], 404);
         }
 
-        $exams = $this->listExamsByCareerAction->execute($id);
+        // Get the numeric ID from the career
+        $careerId = $career->id;
+        $exams = $this->listExamsByCareerAction->execute($careerId);
 
         return response()->json([
             'data' => $exams,

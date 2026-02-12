@@ -1,75 +1,111 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Play, Clock, FileText, Star } from 'lucide-react';
+import { ArrowLeft, Play, Clock, FileText, AlertCircle, Loader2 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { mockCarreiras, mockSimulados } from '@/mocks/data';
-import type { Carreira, Simulado } from '@/types';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { careersService } from '@/services/careers';
+import type { Career } from '@/types';
+
+/** Exam data as returned by the /careers/{id}/exams API endpoint */
+interface CareerExam {
+  id: number;
+  career_id: number;
+  title: string;
+  description?: string;
+  time_limit_minutes: number;
+  active: boolean;
+  questions_count: number;
+  is_free?: boolean;
+  feedback_mode?: string;
+}
 
 export default function CarreiraSimulados() {
   const { carreiraId } = useParams<{ carreiraId: string }>();
-  const [carreira, setCarreira] = useState<Carreira | null>(null);
-  const [simulados, setSimulados] = useState<Simulado[]>([]);
+  const [career, setCareer] = useState<Career | null>(null);
+  const [exams, setExams] = useState<CareerExam[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Buscar carreira
-      const carreiraEncontrada = mockCarreiras.find(c => c.id === carreiraId);
-      setCarreira(carreiraEncontrada || null);
+    const fetchData = async () => {
+      if (!carreiraId) return;
       
-      // Buscar simulados da carreira
-      const simuladosCarreira = mockSimulados.filter(s => s.carreiraId === carreiraId);
-      setSimulados(simuladosCarreira);
-      
-      setIsLoading(false);
-    }, 600);
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch career details
+        const careerData = await careersService.getCareer(carreiraId);
+        setCareer(careerData);
+        
+        // Fetch exams for this career
+        const examsData = await careersService.getCareerExams(carreiraId);
+        setExams(examsData);
+      } catch (err: any) {
+        console.error('Error fetching career data:', err);
+        setError(err?.response?.data?.message || 'Erro ao carregar dados da carreira');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchData();
   }, [carreiraId]);
 
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="p-4 space-y-4">
-          <div className="h-8 bg-muted rounded w-1/3 animate-pulse" />
-          <div className="h-10 bg-muted rounded animate-pulse" />
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="card-tactical p-4 space-y-3">
-              <div className="h-6 bg-muted rounded w-2/3 animate-pulse" />
-              <div className="h-4 bg-muted rounded animate-pulse" />
-              <div className="flex gap-2">
-                <div className="h-6 bg-muted rounded w-16 animate-pulse" />
-                <div className="h-6 bg-muted rounded w-20 animate-pulse" />
-              </div>
-            </div>
-          ))}
+        <div className="p-4 flex items-center justify-center min-h-[50vh]">
+          <div className="text-center space-y-4">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Carregando dados da carreira...</p>
+          </div>
         </div>
       </AppLayout>
     );
   }
 
-  if (!carreira) {
+  if (error || !career) {
     return (
       <AppLayout>
-        <div className="p-4 text-center py-12 space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">
-            Carreira não encontrada
-          </h2>
-          <p className="text-muted-foreground">
-            A carreira que você está procurando não existe.
-          </p>
+        <div className="p-4 space-y-6">
           <Link to="/carreiras">
-            <Button variant="outline">
+            <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2" size={16} />
               Voltar para Carreiras
             </Button>
           </Link>
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="text-center py-12 space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">
+              Carreira não encontrada
+            </h2>
+            <p className="text-muted-foreground">
+              A carreira que você está procurando não existe ou não está disponível.
+            </p>
+          </div>
         </div>
       </AppLayout>
     );
   }
+
+  // Calculate statistics from real data
+  const totalExams = exams.length;
+  const avgDuration = exams.length > 0 
+    ? Math.round(exams.reduce((sum, exam) => sum + exam.time_limit_minutes, 0) / exams.length)
+    : 0;
+  const avgQuestions = exams.length > 0
+    ? Math.round(exams.reduce((sum, exam) => sum + exam.questions_count, 0) / exams.length)
+    : 0;
 
   return (
     <AppLayout>
@@ -85,11 +121,11 @@ export default function CarreiraSimulados() {
           
           <div>
             <h1 className="text-2xl font-bold text-foreground mb-2">
-              {carreira.nome}
+              {career.name}
             </h1>
-            {carreira.descricao && (
+            {career.description && (
               <p className="text-muted-foreground">
-                {carreira.descricao}
+                {career.description}
               </p>
             )}
           </div>
@@ -98,15 +134,19 @@ export default function CarreiraSimulados() {
         {/* Estatísticas */}
         <div className="grid grid-cols-3 gap-4">
           <div className="card-tactical p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{simulados.length}</div>
+            <div className="text-2xl font-bold text-primary">{totalExams}</div>
             <div className="text-xs text-muted-foreground">Simulados</div>
           </div>
           <div className="card-tactical p-4 text-center">
-            <div className="text-2xl font-bold text-primary">45m</div>
+            <div className="text-2xl font-bold text-primary">
+              {avgDuration > 0 ? `${avgDuration}m` : '-'}
+            </div>
             <div className="text-xs text-muted-foreground">Duração Média</div>
           </div>
           <div className="card-tactical p-4 text-center">
-            <div className="text-2xl font-bold text-primary">20</div>
+            <div className="text-2xl font-bold text-primary">
+              {avgQuestions > 0 ? avgQuestions : '-'}
+            </div>
             <div className="text-xs text-muted-foreground">Questões</div>
           </div>
         </div>
@@ -117,38 +157,40 @@ export default function CarreiraSimulados() {
             Simulados Disponíveis
           </h2>
           
-          {simulados.length > 0 ? (
+          {exams.length > 0 ? (
             <div className="space-y-3">
-              {simulados.map((simulado) => (
-                <div key={simulado.id} className="card-tactical p-4">
+              {exams.map((exam) => (
+                <div key={exam.id} className="card-tactical p-4">
                   <div className="space-y-4">
                     {/* Header do Simulado */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-2">
-                          {simulado.titulo}
+                          {exam.title}
                         </h3>
+                        {exam.description && (
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {exam.description}
+                          </p>
+                        )}
                         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock size={14} />
-                            <span>{simulado.duracaoMin} min</span>
+                            <span>{exam.time_limit_minutes} min</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <FileText size={14} />
-                            <span>{simulado.numQuestoes} questões</span>
+                            <span>{exam.questions_count} questões</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Badge 
-                          variant={simulado.status === 'publicado' ? 'default' : 'secondary'}
-                        >
-                          {simulado.status === 'publicado' ? 'Disponível' : 'Em breve'}
+                        <Badge variant={exam.active ? 'default' : 'secondary'}>
+                          {exam.active ? 'Disponível' : 'Em breve'}
                         </Badge>
-                        {simulado.ordemAleatoria && (
+                        {exam.is_free && (
                           <Badge variant="outline" className="text-xs">
-                            <Star size={12} className="mr-1" />
-                            Ordem Aleatória
+                            Gratuito
                           </Badge>
                         )}
                       </div>
@@ -157,33 +199,31 @@ export default function CarreiraSimulados() {
                     {/* Informações do Simulado */}
                     <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Modo:</span>{' '}
+                        <span className="text-muted-foreground">Feedback:</span>{' '}
                         <span className="text-foreground font-medium">
-                          {simulado.modo === 'fixo' ? 'Questões Fixas' : 'Sorteio Aleatório'}
+                          {exam.feedback_mode === 'immediate' ? 'Imediato' : 'Ao Final'}
                         </span>
                       </div>
-                      {simulado.modo === 'sorteio' && (
-                        <div className="text-sm text-muted-foreground">
-                          As questões serão selecionadas aleatoriamente
-                        </div>
-                      )}
+                      <div className="text-sm text-muted-foreground">
+                        {exam.feedback_mode === 'immediate' 
+                          ? 'Você verá o resultado após cada questão'
+                          : 'Você verá o resultado apenas ao finalizar o simulado'
+                        }
+                      </div>
                     </div>
 
                     {/* Ações */}
                     <div className="flex gap-3">
-                      <Link to={`/simulados/${simulado.id}`} className="flex-1">
+                      <Link to={`/simulado/${exam.id}`} className="flex-1">
                         <Button 
                           variant="tactical" 
                           className="w-full"
-                          disabled={simulado.status !== 'publicado'}
+                          disabled={!exam.active}
                         >
                           <Play className="mr-2" size={16} />
-                          {simulado.status === 'publicado' ? 'Iniciar Simulado' : 'Em Breve'}
+                          {exam.active ? 'Iniciar Simulado' : 'Em Breve'}
                         </Button>
                       </Link>
-                      <Button variant="outline" size="default">
-                        Ver Detalhes
-                      </Button>
                     </div>
                   </div>
                 </div>

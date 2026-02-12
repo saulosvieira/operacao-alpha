@@ -11,7 +11,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const Cadastro = lazy(() => import("./pages/Cadastro"));
 const Simulados = lazy(() => import("./pages/Simulados"));
-const Carreiras = lazy(() => import("./pages/Carreiras"));
+const Carreiras = lazy(() => import("./pages/Careers"));
 const CarreiraSimulados = lazy(() => import("./pages/CarreiraSimulados"));
 const Ranking = lazy(() => import("./pages/Ranking"));
 const Desempenho = lazy(() => import("./pages/Desempenho"));

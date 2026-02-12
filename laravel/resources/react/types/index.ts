@@ -1,10 +1,36 @@
 // OPERAÇÃO ALFA - Type Definitions
 
 // Career Types
+/**
+ * Career interface representing a professional career with associated exams
+ * 
+ * This is the main Career type used throughout the application.
+ * It represents a career path (e.g., "Polícia Federal", "Exército") that
+ * groups related exams together.
+ * 
+ * @property {string} id - Unique identifier for the career
+ * @property {string} name - Display name of the career
+ * @property {string} [description] - Optional description providing details about the career
+ * @property {string} [slug] - URL-friendly slug for the career (e.g., "policia-federal")
+ * @property {number} exams_count - Number of active exams available for this career
+ * 
+ * @example
+ * ```typescript
+ * const career: Career = {
+ *   id: "1",
+ *   name: "Polícia Federal",
+ *   description: "Concurso para Agente da Polícia Federal",
+ *   slug: "policia-federal",
+ *   exams_count: 5
+ * };
+ * ```
+ */
 export interface Career {
-  id: string;
+  id: string | number;
   name: string;
   description?: string;
+  slug?: string;
+  exams_count: number;
 }
 
 // Answer Types
@@ -73,9 +99,12 @@ export type RankingType = 'daily' | 'weekly' | 'monthly';
 export interface RankingEntry {
   position: number;
   userId: string;
-  partialName: string;
+  userName: string;
+  partialName?: string;
   score: number;
-  averageTimeSeconds: number;
+  totalExams: number;
+  correctAnswers: number;
+  averageTimeSeconds?: number;
 }
 
 // User Types

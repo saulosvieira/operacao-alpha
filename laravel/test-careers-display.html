@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Careers Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .career-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .career-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .exam-count {
+            color: #666;
+            font-size: 14px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Careers Display Test</h1>
+    <div id="test-results"></div>
+    <h2>Live API Data</h2>
+    <div id="careers-list"></div>
+
+    <script>
+        // Test the formatSimuladosText function
+        function formatSimuladosText(count) {
+            if (count === 0) {
+                return '0 simulados (em breve)';
+            }
+            if (count === 1) {
+                return '1 simulado disponível';
+            }
+            return `${count} simulados disponíveis`;
+        }
+
+        // Run tests
+        function runTests() {
+            const tests = [
+                { count: 0, expected: '0 simulados (em breve)', description: 'Zero exams' },
+                { count: 1, expected: '1 simulado disponível', description: 'One exam (singular)' },
+                { count: 2, expected: '2 simulados disponíveis', description: 'Two exams (plural)' },
+                { count: 3, expected: '3 simulados disponíveis', description: 'Three exams (plural)' },
+                { count: 10, expected: '10 simulados disponíveis', description: 'Ten exams (plural)' }
+            ];
+
+            const resultsDiv = document.getElementById('test-results');
+            let allPassed = true;
+
+            tests.forEach(test => {
+                const result = formatSimuladosText(test.count);
+                const passed = result === test.expected;
+                allPassed = allPassed && passed;
+
+                const div = document.createElement('div');
+                div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                div.innerHTML = `
+                    <strong>${test.description}</strong><br>
+                    Input: ${test.count}<br>
+                    Expected: "${test.expected}"<br>
+                    Got: "${result}"<br>
+                    ${passed ? '✅ PASS' : '❌ FAIL'}
+                `;
+                resultsDiv.appendChild(div);
+            });
+
+            const summary = document.createElement('div');
+            summary.className = `test-result ${allPassed ? 'pass' : 'fail'}`;
+            summary.innerHTML = `<strong>${allPassed ? '✅ All tests passed!' : '❌ Some tests failed'}</strong>`;
+            resultsDiv.insertBefore(summary, resultsDiv.firstChild);
+        }
+
+        // Fetch and display real careers
+        async function loadCareers() {
+            try {
+                const response = await fetch('http://localhost:8090/api/careers');
+                const data = await response.json();
+                const careersList = document.getElementById('careers-list');
+
+                data.data.forEach(career => {
+                    const div = document.createElement('div');
+                    div.className = 'career-card';
+                    div.innerHTML = `
+                        <div class="career-name">${career.name}</div>
+                        <div class="exam-count">${formatSimuladosText(career.exams_count)}</div>
+                    `;
+                    careersList.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error loading careers:', error);
+                document.getElementById('careers-list').innerHTML = 
+                    '<div class="test-result fail">Error loading careers from API</div>';
+            }
+        }
+
+        // Run tests and load careers
+        runTests();
+        loadCareers();
+    </script>
+</body>
+</html>

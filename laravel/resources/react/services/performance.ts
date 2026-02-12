@@ -1,68 +1,53 @@
 import api from './api';
 
 export interface Statistics {
-  totalExams: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  averageScore: number;
-  averageTimeSeconds: number;
-  bestScore: number;
-  worstScore: number;
-  improvementRate: number;
-  byCareer: {
-    careerId: string;
-    careerName: string;
-    totalExams: number;
-    averageScore: number;
-  }[];
-  bySubject?: {
-    subject: string;
-    correctAnswers: number;
-    totalQuestions: number;
-    accuracy: number;
-  }[];
+  total_exams_completed: number;
+  average_score: number;
+  total_correct_answers: number;
+  total_questions: number;
+  accuracy_percentage: number;
+  total_time_spent_minutes: number;
+  strongest_career: string | null;
+  weakest_career: string | null;
+  career_breakdown: Array<{
+    career_name: string;
+    exams_completed: number;
+    average_score: number;
+    total_correct: number;
+  }>;
 }
 
 export interface HistoryEntry {
-  attemptId: string;
-  examId: string;
-  examTitle: string;
-  careerId: string;
-  careerName: string;
-  completedAt: string;
+  exam_id: string;
+  exam_title: string;
+  career_name: string;
   score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  durationSeconds: number;
-}
-
-export interface History {
-  entries: HistoryEntry[];
-  total: number;
-  page: number;
-  perPage: number;
+  correct_answers: number;
+  total_questions: number;
+  time_spent_minutes: number;
+  completed_at: string;
 }
 
 /**
  * Get user performance statistics
  */
-export const getStatistics = async (params?: {
-  careerId?: string;
-  startDate?: string;
-  endDate?: string;
-}): Promise<Statistics> => {
-  const response = await api.get<{ data: Statistics }>('/performance/statistics', { params });
+export const getStatistics = async (): Promise<Statistics> => {
+  const response = await api.get<{ data: Statistics }>('/performance/statistics');
   return response.data.data;
 };
 
 /**
  * Get user exam history
  */
-export const getHistory = async (params?: {
-  careerId?: string;
-  page?: number;
-  perPage?: number;
-}): Promise<History> => {
-  const response = await api.get<{ data: History }>('/performance/history', { params });
+export const getHistory = async (limit?: number): Promise<HistoryEntry[]> => {
+  const response = await api.get<{ data: HistoryEntry[] }>('/performance/history', {
+    params: { limit }
+  });
   return response.data.data;
+};
+
+// Export as default object for convenience
+export const performanceService = {
+  getStatistics,
+  getHistory,
 };

@@ -54,11 +54,11 @@ export const getMyPosition = async (params?: {
  */
 export const rankingService = {
   getRanking: async (type: 'daily' | 'weekly' | 'monthly') => {
-    const response = await api.get<{ data: RankingEntry[] }>('/ranking', { params: { type } });
-    return response.data.data;
+    const response = await api.get<{ data: Ranking }>('/ranking', { params: { type } });
+    return response.data.data.entries;
   },
   getMyPosition: async (type: 'daily' | 'weekly' | 'monthly') => {
-    const response = await api.get<{ data: number }>('/ranking/my-position', { params: { type } });
-    return response.data.data;
+    const response = await api.get<{ data: UserPosition }>('/ranking/my-position', { params: { type } });
+    return response.data.data.position;
   },
 };

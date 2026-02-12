@@ -196,3 +196,13 @@ export const finishAttempt = async (attemptId: string): Promise<ExamResult> => {
   const response = await api.post<{ data: ExamResult }>(`/exams/attempts/${attemptId}/finish`);
   return response.data.data;
 };
+
+// Export as service object for consistency
+export const examsService = {
+  listExams,
+  getExam,
+  startAttempt,
+  getAttempt,
+  submitAnswer,
+  finishAttempt,
+};

@@ -70,7 +70,6 @@ class RankingRepository
             ->select([
                 'exam_results.user_id',
                 DB::raw('users.name as user_name'),
-                DB::raw('users.avatar_url as user_avatar'),
                 DB::raw('MAX(exam_results.score) as score'),
                 DB::raw('MIN(exam_results.total_time_seconds) as best_time'),
                 DB::raw('COUNT(DISTINCT exam_results.exam_id) as total_exams'),
@@ -85,7 +84,7 @@ class RankingRepository
         }
 
         $allResults = $query
-            ->groupBy('exam_results.user_id', 'users.name', 'users.avatar_url')
+            ->groupBy('exam_results.user_id', 'users.name')
             ->orderByDesc('score')
             ->orderBy('best_time') // Ascending for tie-breaking (faster is better)
             ->get();

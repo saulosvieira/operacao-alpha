@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Performance;
 use App\Http\Controllers\Controller;
 use App\Domain\Performance\Actions\GetStatisticsAction;
 use App\Domain\Performance\Actions\GetHistoryAction;
+use App\Http\Resources\Performance\StatisticsResource;
+use App\Http\Resources\Performance\HistoryResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -16,7 +18,7 @@ class PerformanceController extends Controller
         $statistics = $action->execute($userId);
 
         return response()->json([
-            'data' => $statistics->toArray(),
+            'data' => (new StatisticsResource($statistics))->toArray($request),
         ]);
     }
 
@@ -31,7 +33,7 @@ class PerformanceController extends Controller
         $history = $action->execute($userId, $limit);
 
         return response()->json([
-            'data' => $history->map(fn($item) => $item->toArray())->values(),
+            'data' => HistoryResource::collection($history)->toArray($request),
         ]);
     }
 }

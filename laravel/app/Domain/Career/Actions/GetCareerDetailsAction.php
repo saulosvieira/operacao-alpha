@@ -16,9 +16,14 @@ final readonly class GetCareerDetailsAction
 
     /**
      * Execute the action to get career details
+     * Accepts either numeric ID or slug
      */
-    public function execute(int $careerId): ?CareerData
+    public function execute(int|string $identifier): ?CareerData
     {
-        return $this->repository->findActiveById($careerId);
+        if (is_int($identifier)) {
+            return $this->repository->findActiveById($identifier);
+        }
+        
+        return $this->repository->findByIdOrSlug($identifier);
     }
 }
