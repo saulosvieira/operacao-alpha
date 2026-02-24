@@ -19,9 +19,9 @@ readonly class AnswerData
             id: $data['id'],
             attemptId: $data['attempt_id'],
             questionId: $data['question_id'],
-            chosenAnswer: $data['chosen_answer'],
-            correct: $data['correct'],
-            timeSeconds: $data['time_seconds'],
+            chosenAnswer: $data['chosen_answer'] ?? $data['selected_option'] ?? '',
+            correct: $data['correct'] ?? $data['is_correct'] ?? false,
+            timeSeconds: $data['time_seconds'] ?? 0,
         );
     }
     

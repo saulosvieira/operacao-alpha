@@ -74,6 +74,12 @@ export default function ExecuteExam() {
           
           // Set timer from API (remaining time)
           if (attemptData.initialTimerSeconds !== undefined) {
+            // Check if timer has already expired
+            if (attemptData.initialTimerSeconds <= 0) {
+              toast.warning('O tempo desta tentativa já expirou.');
+              navigate(`/simulado/${examId}/resultado/${attemptId}`);
+              return;
+            }
             setTimerSeconds(attemptData.initialTimerSeconds);
           } else if (examData) {
             // Fallback to full duration

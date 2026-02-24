@@ -16,6 +16,8 @@ class UserAnswer extends Model
         'user_id',
         'attempt_id',
         'question_id',
+        'selected_option',
+        'is_correct',
         'chosen_answer',
         'correct',
         'time_seconds',
@@ -23,6 +25,7 @@ class UserAnswer extends Model
 
     protected $casts = [
         'correct' => 'boolean',
+        'is_correct' => 'boolean',
         'time_seconds' => 'integer',
     ];
 

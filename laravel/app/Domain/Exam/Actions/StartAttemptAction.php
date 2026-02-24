@@ -32,9 +32,11 @@ class StartAttemptAction
         
         if ($activeAttempt) {
             // Calculate remaining time based on when attempt started
+            // Note: findActiveByUserAndExam auto-finalizes expired attempts,
+            // so any attempt returned here is guaranteed to be valid
             $totalSeconds = $exam->time_limit_minutes * 60;
             $elapsedSeconds = now()->diffInSeconds($activeAttempt->startedAt);
-            $remainingSeconds = max(0, $totalSeconds - $elapsedSeconds);
+            $remainingSeconds = $totalSeconds - $elapsedSeconds;
             
             // Se já existe uma tentativa ativa para este simulado, retornar ela ao invés de criar nova
             return new StartAttemptResultData(

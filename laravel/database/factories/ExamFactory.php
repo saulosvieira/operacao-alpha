@@ -32,7 +32,7 @@ class ExamFactory extends Factory
             'time_limit_minutes' => fake()->numberBetween(60, 180),
             'active' => true,
             'is_free' => fake()->boolean(),
-            'feedback_mode' => fake()->randomElement(['immediate', 'end', 'none']),
+            'feedback_mode' => fake()->randomElement(['immediate', 'final']),
         ];
     }
 }
