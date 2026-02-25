@@ -22,8 +22,30 @@ class FinishAttemptAction
             throw new \Exception('Attempt not found');
         }
         
+        // Tentativa já finalizada (ex: expirou por tempo) — retorna o resultado existente
         if ($attempt->finishedAt) {
-            throw new \Exception('Attempt already finished');
+            $existing = $this->resultRepository->findByAttempt($attemptId);
+            
+            if ($existing) {
+                return $existing;
+            }
+            
+            // Resultado não encontrado (edge case): recalcular
+            $result = $this->calculateResult->execute($attemptId);
+            
+            // Criar resultado faltante
+            $this->resultRepository->create([
+                'attempt_id' => $attemptId,
+                'user_id' => $attempt->userId,
+                'exam_id' => $attempt->examId,
+                'total_questions' => $result->totalQuestions,
+                'correct_answers' => $result->totalCorrect,
+                'score' => $result->finalScore,
+                'total_time_seconds' => $attempt->durationSeconds ?? 0,
+                'finished_at' => $attempt->finishedAt,
+            ]);
+            
+            return $result;
         }
         
         $result = $this->calculateResult->execute($attemptId);

@@ -128,6 +128,12 @@ export interface FeedbackDataItem {
 export interface AttemptWithFeedback extends Attempt {
   feedbackData?: Record<string, FeedbackDataItem>;
   initialTimerSeconds?: number;
+  result?: {
+    totalQuestions: number;
+    totalCorrect: number;
+    finalScore: number;
+    totalTimeSeconds: number;
+  };
 }
 
 /**
@@ -150,10 +156,16 @@ export const getAttempt = async (attemptId: string): Promise<AttemptWithFeedback
       exam: Exam & { questions?: Question[] };
       feedbackData?: Record<string, FeedbackDataItem>;
       initialTimerSeconds?: number;
+      result?: {
+        totalQuestions: number;
+        totalCorrect: number;
+        finalScore: number;
+        totalTimeSeconds: number;
+      };
     }
   }>(`/exams/attempts/${attemptId}`);
   
-  const { attempt, exam, feedbackData, initialTimerSeconds } = response.data.data;
+  const { attempt, exam, feedbackData, initialTimerSeconds, result } = response.data.data;
   
   return {
     id: attempt.id,
@@ -168,6 +180,7 @@ export const getAttempt = async (attemptId: string): Promise<AttemptWithFeedback
     answers: attempt.answers,
     feedbackData,
     initialTimerSeconds,
+    result,
   };
 };
 

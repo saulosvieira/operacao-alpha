@@ -46,7 +46,7 @@ class AttemptResource extends JsonResource
             
             // Include answers map if available
             if ($resource->answers !== null) {
-                $data['answers'] = $resource->answers;
+                $data['answers'] = (object) $resource->answers;
             }
         } else {
             // Handle Eloquent Model (snake_case properties)

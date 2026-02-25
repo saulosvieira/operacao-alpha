@@ -66,3 +66,20 @@ export const getStatus = async (): Promise<SubscriptionStatus> => {
 export const cancel = async (): Promise<void> => {
   await api.post('/subscription/cancel');
 };
+
+/**
+ * Generate Edduz checkout URL for a paid plan
+ */
+export const getCheckoutUrl = async (planId: string): Promise<string> => {
+  const response = await api.post<{ checkout_url: string }>('/edduz/checkout', { plan_id: planId });
+  return response.data.checkout_url;
+};
+
+// Convenience object for components that prefer named imports
+export const subscriptionService = {
+  getPlans,
+  subscribe,
+  getStatus,
+  cancel,
+  getCheckoutUrl,
+};

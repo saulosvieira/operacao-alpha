@@ -8,6 +8,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\WebhookHistoryController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
@@ -120,6 +121,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/statistics', [\App\Http\Controllers\Admin\QuestionImportController::class, 'getImportStatistics'])
                     ->name('statistics');
             });
+
+        // Webhooks
+        Route::prefix('webhooks')->name('webhooks.')->group(function () {
+            Route::get('/edduz', [WebhookHistoryController::class, 'index'])->name('edduz.index');
+            Route::get('/edduz/{id}', [WebhookHistoryController::class, 'show'])->name('edduz.show');
+        });
     });
 });
 

@@ -352,6 +352,13 @@ return [
             'icon' => 'fas fa-file-import',
             'active' => ['admin/import', 'admin/import/*'],
         ],
+        ['header' => 'INTEGRAÇÕES'],
+        [
+            'text' => 'Webhooks Edduz',
+            'url' => 'admin/webhooks/edduz',
+            'icon' => 'fas fa-webhook',
+            'active' => ['admin/webhooks', 'admin/webhooks/*'],
+        ],
     ],
 
     /*

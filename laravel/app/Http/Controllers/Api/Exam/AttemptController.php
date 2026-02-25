@@ -42,7 +42,8 @@ class AttemptController extends Controller
         AttemptRepository $repository,
         GetExamDetailsAction $examAction,
         \App\Domain\Exam\Repositories\AnswerRepository $answerRepository,
-        \App\Domain\Exam\Repositories\QuestionRepository $questionRepository
+        \App\Domain\Exam\Repositories\QuestionRepository $questionRepository,
+        \App\Domain\Exam\Repositories\ResultRepository $resultRepository
     ): JsonResponse {
         $attempt = $repository->findById($id);
         
@@ -81,6 +82,14 @@ class AttemptController extends Controller
             'exam' => $examResource,
             'initialTimerSeconds' => $remainingSeconds,
         ];
+        
+        // If attempt is finished, include the exam result
+        if ($attempt->finishedAt) {
+            $result = $resultRepository->findByAttempt($id);
+            if ($result) {
+                $responseData['result'] = $result->toArray();
+            }
+        }
         
         // For immediate mode, include feedback data for answered questions
         if ($isImmediateMode && !$attempt->finishedAt) {

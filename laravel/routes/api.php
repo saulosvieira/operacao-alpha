@@ -39,5 +39,8 @@ require __DIR__.'/api/user.php';
 // Importar rotas de notifications
 require __DIR__.'/api/notifications.php';
 
+// Importar rotas da Edduz
+require __DIR__.'/api/edduz.php';
+
 // Importar rotas de quotes (comentado temporariamente - controller não existe)
 // require __DIR__.'/api/quotes.php';

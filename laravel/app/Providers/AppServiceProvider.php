@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Repositories\ClientRepository;
 use App\Services\ClientService;
+use App\Services\EdduzApiClient;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,6 +30,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ClientService::class, function ($app) {
             return new ClientService($app->make(ClientRepository::class));
         });
+
+        $this->app->singleton(EdduzApiClient::class, fn () => new EdduzApiClient(
+            config('services.edduz.api_url', ''),
+            config('services.edduz.api_key', ''),
+            config('services.edduz.webhook_token', ''),
+        ));
     }
 
     /**

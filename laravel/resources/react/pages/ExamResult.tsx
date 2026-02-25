@@ -26,12 +26,11 @@ export default function ExamResult() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Result data can come from location state (after finishing) or be fetched
-  const [result, setResult] = useState<ExamResultType | null>(location.state?.result || null);
+  const [result, setResult] = useState<ExamResultType | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, AnswerOption>>({});
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(!location.state?.result);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +48,6 @@ export default function ExamResult() {
         setIsLoading(true);
         const attemptData = await getAttempt(attemptId);
         
-        // Set questions and answers
         if (attemptData.questions) {
           setQuestions(attemptData.questions);
         }
@@ -58,8 +56,18 @@ export default function ExamResult() {
           setUserAnswers(attemptData.answers);
         }
         
-        // If we don't have result data from navigation, construct it from attempt
-        if (!result && attemptData.finishedAt) {
+        // Prefer result from API, fallback to location state, then construct from attempt
+        if (attemptData.result) {
+          setResult({
+            attemptId: attemptData.id,
+            totalQuestions: attemptData.result.totalQuestions,
+            correctAnswers: attemptData.result.totalCorrect,
+            finalScore: attemptData.result.finalScore,
+            totalTimeSeconds: attemptData.result.totalTimeSeconds,
+          });
+        } else if (location.state?.result) {
+          setResult(location.state.result);
+        } else if (attemptData.finishedAt) {
           setResult({
             attemptId: attemptData.id,
             totalQuestions: attemptData.questions?.length || 0,
@@ -79,7 +87,7 @@ export default function ExamResult() {
     };
 
     loadAttemptData();
-  }, [attemptId, result, navigate]);
+  }, [attemptId, navigate]);
 
   const toggleQuestion = (questionId: string) => {
     setExpandedQuestions(prev => {

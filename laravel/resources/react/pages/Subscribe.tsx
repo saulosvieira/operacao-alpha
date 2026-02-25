@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Check, Crown, Zap, Target, Shield, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuthStore } from '@/stores/authStore';
 import { subscriptionService } from '@/services/subscription';
@@ -66,21 +67,15 @@ export default function Subscribe() {
     setIsSubscribing(true);
     
     try {
-      await subscriptionService.subscribe(planId);
-      
-      toast({
-        title: 'Assinatura ativada com sucesso!',
-        description: 'Agora você tem acesso completo à Operação Alfa.',
-      });
-      
-      navigate('/simulados');
+      const checkoutUrl = await subscriptionService.getCheckoutUrl(planId);
+      // Redireciona para o checkout externo da Edduz
+      window.location.href = checkoutUrl;
     } catch (err: any) {
       toast({
         variant: 'destructive',
-        title: 'Erro ao processar assinatura',
+        title: 'Erro ao iniciar assinatura',
         description: err.response?.data?.message || 'Tente novamente mais tarde.',
       });
-    } finally {
       setIsSubscribing(false);
     }
   };

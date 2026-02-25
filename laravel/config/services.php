@@ -41,4 +41,10 @@ return [
         'private_key' => env('VAPID_PRIVATE_KEY'),
     ],
 
+    'edduz' => [
+        'api_url' => env('EDDUZ_API_URL'),
+        'api_key' => env('EDDUZ_API_KEY'),
+        'webhook_token' => env('EDDUZ_WEBHOOK_TOKEN'),
+    ],
+
 ];
