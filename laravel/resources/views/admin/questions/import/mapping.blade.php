@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Career Mapping - Question Import')
+@section('title', 'Mapeamento de Carreiras - Importação de Questões')
 
 @section('content_header')
-    <h1>Career Mapping</h1>
+    <h1>Mapeamento de Carreiras</h1>
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('admin.import.questions.index') }}">Import</a></li>
-        <li class="breadcrumb-item active">Career Mapping</li>
+        <li class="breadcrumb-item"><a href="{{ route('admin.import.questions.index') }}">Importação</a></li>
+        <li class="breadcrumb-item active">Mapeamento de Carreiras</li>
     </ol>
 @stop
 
@@ -20,19 +20,19 @@
                     <div class="progress-steps">
                         <div class="step completed">
                             <i class="fas fa-upload"></i>
-                            <span>Upload File</span>
+                            <span>Enviar Arquivo</span>
                         </div>
                         <div class="step active">
                             <i class="fas fa-map-marked-alt"></i>
-                            <span>Map Careers</span>
+                            <span>Mapear Carreiras</span>
                         </div>
                         <div class="step">
                             <i class="fas fa-eye"></i>
-                            <span>Preview</span>
+                            <span>Pré-visualização</span>
                         </div>
                         <div class="step">
                             <i class="fas fa-play"></i>
-                            <span>Import</span>
+                            <span>Importar</span>
                         </div>
                     </div>
                 </div>
@@ -43,21 +43,21 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-info-circle"></i>
-                        Import Session Information
+                        Informações da Sessão de Importação
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Filename:</strong> {{ $session->filename }}<br>
-                            <strong>Total Rows:</strong> {{ number_format($session->total_rows) }}<br>
+                            <strong>Arquivo:</strong> {{ $session->filename }}<br>
+                            <strong>Total de Linhas:</strong> {{ number_format($session->total_rows) }}<br>
                             <strong>Status:</strong> 
                             <span class="badge badge-info">{{ ucfirst($session->status) }}</span>
                         </div>
                         <div class="col-md-6">
-                            <strong>Created:</strong> {{ $session->created_at->format('Y-m-d H:i:s') }}<br>
-                            <strong>Expires:</strong> {{ $session->expires_at->format('Y-m-d H:i:s') }}<br>
-                            <strong>Created by:</strong> {{ $session->creator->name }}
+                            <strong>Criado em:</strong> {{ $session->created_at->format('Y-m-d H:i:s') }}<br>
+                            <strong>Expira em:</strong> {{ $session->expires_at->format('Y-m-d H:i:s') }}<br>
+                            <strong>Criado por:</strong> {{ $session->creator->name }}
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-map-marked-alt"></i>
-                        Map Career Abbreviations
+                        Mapear Abreviações de Carreiras
                     </h3>
                 </div>
                 <div class="card-body">
@@ -91,8 +91,8 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Instructions:</strong> Map each career abbreviation found in your Excel file to the corresponding career in the system. 
-                        All abbreviations must be mapped before proceeding to the preview.
+                        <strong>Instruções:</strong> Mapeie cada abreviação de carreira encontrada no seu arquivo Excel para a carreira correspondente no sistema. 
+                        Todas as abreviações devem ser mapeadas antes de prosseguir para a pré-visualização.
                     </div>
 
                     <form action="{{ route('admin.import.sessions.mapping.process', $session->id) }}" method="POST" id="mapping-form">
@@ -103,9 +103,9 @@
                                 <table class="table table-bordered table-striped">
                                     <thead class="thead-light">
                                         <tr>
-                                            <th width="30%">Career Abbreviation</th>
-                                            <th width="50%">Map to Career</th>
-                                            <th width="20%">Actions</th>
+                                            <th width="30%">Abreviação de Carreira</th>
+                                            <th width="50%">Mapear para Carreira</th>
+                                            <th width="20%">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -114,13 +114,13 @@
                                                 <td>
                                                     <strong>{{ $abbreviation }}</strong>
                                                     <br>
-                                                    <small class="text-muted">Found in Excel file</small>
+                                                    <small class="text-muted">Encontrado no arquivo Excel</small>
                                                 </td>
                                                 <td>
                                                     <select name="mappings[{{ $abbreviation }}]" 
                                                             class="form-control career-select @error('mappings.' . $abbreviation) is-invalid @enderror" 
                                                             required>
-                                                        <option value="">-- Select Career --</option>
+                                                        <option value="">-- Selecione uma Carreira --</option>
                                                         @foreach ($careers as $career)
                                                             <option value="{{ $career->id }}" 
                                                                     {{ old('mappings.' . $abbreviation) == $career->id ? 'selected' : '' }}>
@@ -136,7 +136,7 @@
                                                     <button type="button" class="btn btn-sm btn-info auto-suggest" 
                                                             data-abbreviation="{{ $abbreviation }}">
                                                         <i class="fas fa-magic"></i>
-                                                        Auto-suggest
+                                                        Sugerir automaticamente
                                                     </button>
                                                 </td>
                                             </tr>
@@ -150,17 +150,17 @@
                                     <div class="col-md-6">
                                         <button type="button" class="btn btn-secondary" onclick="history.back()">
                                             <i class="fas fa-arrow-left"></i>
-                                            Back to Upload
+                                            Voltar ao Envio
                                         </button>
                                         <button type="button" class="btn btn-warning ml-2" onclick="cancelImport()">
                                             <i class="fas fa-times"></i>
-                                            Cancel Import
+                                            Cancelar Importação
                                         </button>
                                     </div>
                                     <div class="col-md-6 text-right">
                                         <button type="submit" class="btn btn-primary" id="submit-btn">
                                             <i class="fas fa-arrow-right"></i>
-                                            Continue to Preview
+                                            Continuar para Pré-visualização
                                         </button>
                                     </div>
                                 </div>
@@ -168,11 +168,11 @@
                         @else
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                No career abbreviations found in the Excel file. Please check your file format.
+                                Nenhuma abreviação de carreira encontrada no arquivo Excel. Por favor, verifique o formato do seu arquivo.
                             </div>
                             <a href="{{ route('admin.import.questions.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i>
-                                Back to Upload
+                                Voltar ao Envio
                             </a>
                         @endif
                     </form>
@@ -284,7 +284,7 @@ $(document).ready(function() {
                 select.removeClass('border-success');
             }, 2000);
         } else {
-            alert('No suitable match found for "' + abbreviation + '". Please select manually.');
+            alert('Nenhuma correspondência adequada encontrada para "' + abbreviation + '". Por favor, selecione manualmente.');
         }
     });
     
@@ -302,11 +302,11 @@ $(document).ready(function() {
         
         if (hasEmptyMappings) {
             e.preventDefault();
-            alert('Please map all career abbreviations before continuing.');
+            alert('Por favor, mapeie todas as abreviações de carreiras antes de continuar.');
             return false;
         }
         
-        $('#submit-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+        $('#submit-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processando...');
     });
     
     // Clear validation errors on change
@@ -353,7 +353,7 @@ function calculateSimilarity(str1, str2) {
 }
 
 function cancelImport() {
-    if (confirm('Are you sure you want to cancel this import? All progress will be lost.')) {
+    if (confirm('Tem certeza que deseja cancelar esta importação? Todo o progresso será perdido.')) {
         window.location.href = '{{ route("admin.import.sessions.cancel", $session->id) }}';
     }
 }
