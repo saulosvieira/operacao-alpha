@@ -19,7 +19,7 @@ final class NoticeRepository
     {
         return Notice::where('career_id', $careerId)
             ->where('active', true)
-            ->orderBy('exam_date', 'desc')
+            ->orderBy('publication_date', 'desc')
             ->get()
             ->map(fn (Notice $notice) => $this->toDTO($notice));
     }
@@ -32,7 +32,7 @@ final class NoticeRepository
     public function getAllActive(): Collection
     {
         return Notice::where('active', true)
-            ->orderBy('exam_date', 'desc')
+            ->orderBy('publication_date', 'desc')
             ->get()
             ->map(fn (Notice $notice) => $this->toDTO($notice));
     }
@@ -57,7 +57,7 @@ final class NoticeRepository
             careerId: $notice->career_id,
             title: $notice->title,
             description: $notice->description,
-            examDate: $notice->exam_date?->toDateString(),
+            examDate: $notice->publication_date?->toDateString(),
             registrationStart: $notice->registration_start?->toDateString(),
             registrationEnd: $notice->registration_end?->toDateString(),
             pdfUrl: $notice->pdf_url,

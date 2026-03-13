@@ -39,7 +39,7 @@ final class GetNoticeForEditAction
             careerId: $notice->career_id,
             title: $notice->title,
             description: $notice->description,
-            examDate: $notice->exam_date?->toIso8601String(),
+            examDate: $notice->publication_date?->toIso8601String(),
             registrationStart: $notice->registration_start?->toIso8601String(),
             registrationEnd: $notice->registration_end?->toIso8601String(),
             pdfUrl: $notice->pdf_url,

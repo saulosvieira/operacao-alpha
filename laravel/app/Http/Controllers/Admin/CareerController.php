@@ -9,15 +9,21 @@ use App\Domain\Career\Actions\Admin\CreateCareerAction;
 use App\Domain\Career\Actions\Admin\UpdateCareerAction;
 use App\Domain\Career\Actions\Admin\DeleteCareerAction;
 use App\Domain\Career\Models\Career;
+use App\Domain\Shared\DTOs\ListFilterData;
 use Illuminate\Http\Request;
 
 class CareerController extends Controller
 {
-    public function index(ListCareersForAdminAction $action)
+    public function index(Request $request, ListCareersForAdminAction $action)
     {
-        $careers = $action->execute();
-            
-        return view('admin.careers.index', compact('careers'));
+        $filter = new ListFilterData(
+            search: $request->input('search'),
+            perPage: $request->input('per_page', 15)
+        );
+
+        $careers = $action->execute($filter);
+
+        return view('admin.careers.index', compact('careers', 'filter'));
     }
     
     public function create()

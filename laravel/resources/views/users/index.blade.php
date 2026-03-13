@@ -22,13 +22,17 @@
     @endif
 
     <div class="card">
-        <div class="card-header">
+        @component('admin.components.search-filter', [
+            'route' => route('admin.users.index'),
+            'placeholder' => 'Buscar por nome ou e-mail...',
+            'filter' => $filter ?? null
+        ])
             <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Novo Usuário
             </a>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
+        @endcomponent
+        <div class="card-body p-0">
+            <table class="table table-bordered table-striped mb-0">
                 <thead>
                     <tr>
                         <th width="80">ID</th>

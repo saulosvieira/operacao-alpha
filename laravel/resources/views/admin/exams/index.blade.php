@@ -17,16 +17,20 @@
         </div>
     @endif
     <div class="card">
-        <div class="card-header">
+        @component('admin.components.search-filter', [
+            'route' => route('admin.exams.index'),
+            'placeholder' => 'Buscar por título, descrição ou carreira...',
+            'filter' => $filter ?? null
+        ])
             <a href="{{ route('admin.exams.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Novo Simulado
             </a>
             <a href="{{ route('admin.import.questions.index') }}" class="btn btn-success ml-2">
                 <i class="fas fa-file-import"></i> Importar Questões
             </a>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
+        @endcomponent
+        <div class="card-body p-0">
+            <table class="table table-bordered table-striped mb-0">
                 <thead>
                     <tr>
                         <th width="80">ID</th>

@@ -7,22 +7,31 @@ namespace App\Domain\Exam\Actions\Admin;
 use App\Domain\Career\DTOs\CareerData;
 use App\Domain\Exam\DTOs\ExamData;
 use App\Domain\Exam\Models\Exam;
+use App\Domain\Shared\DTOs\ListFilterData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 final class ListExamsForAdminAction
 {
     /**
      * Execute the action to list exams for admin panel
      *
-     * @param int $perPage Number of items per page
+     * @param ListFilterData $filter Dados do filtro
      * @return LengthAwarePaginator<ExamData>
      */
-    public function execute(int $perPage = 15): LengthAwarePaginator
+    public function execute(ListFilterData $filter): LengthAwarePaginator
     {
-        return Exam::with('career')
-            ->withCount('questions')
+        $query = Exam::with('career')
+            ->withCount('questions');
+
+        // Aplica filtro de busca
+        if ($filter->hasSearch()) {
+            $query = $this->applySearch($query, $filter->search);
+        }
+
+        return $query
             ->orderBy('created_at', 'desc')
-            ->paginate($perPage)
+            ->paginate($filter->perPage)
             ->through(function (Exam $exam) {
                 $careerData = null;
                 if ($exam->career) {
@@ -50,5 +59,24 @@ final class ListExamsForAdminAction
                     isFree: $exam->is_free,
                 );
             });
+    }
+
+    /**
+     * Aplica filtro de busca nos campos exibidos
+     */
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        $searchLower = mb_strtolower(trim($search));
+
+        return $query->where(function (Builder $q) use ($searchLower) {
+            // Campos da tabela exams
+            $q->orWhereRaw('LOWER(title) LIKE ?', ['%' . $searchLower . '%'])
+              ->orWhereRaw('LOWER(description) LIKE ?', ['%' . $searchLower . '%']);
+
+            // Campos do relacionamento career
+            $q->orWhereHas('career', function (Builder $cq) use ($searchLower) {
+                $cq->whereRaw('LOWER(name) LIKE ?', ['%' . $searchLower . '%']);
+            });
+        });
     }
 }

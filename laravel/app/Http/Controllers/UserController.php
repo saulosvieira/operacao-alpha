@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Domain\Auth\Models\User;
 use App\Domain\Auth\Repositories\UserRepository;
+use App\Domain\Shared\DTOs\ListFilterData;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserController extends Controller
 {
@@ -15,23 +17,36 @@ class UserController extends Controller
         $this->repository = $repository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $filters = request()->only(['name', 'email']);
-        
-        $query = User::query();
-        
-        if (!empty($filters['name'])) {
-            $query->where('name', 'like', '%' . $filters['name'] . '%');
-        }
-        
-        if (!empty($filters['email'])) {
-            $query->where('email', 'like', '%' . $filters['email'] . '%');
-        }
-        
-        $users = $query->paginate(15);
+        $filter = new ListFilterData(
+            search: $request->input('search'),
+            perPage: $request->input('per_page', 15)
+        );
 
-        return view('users.index', compact('users'));
+        $query = User::query();
+
+        // Aplica filtro de busca unificado
+        if ($filter->hasSearch()) {
+            $query = $this->applySearch($query, $filter->search);
+        }
+
+        $users = $query->paginate($filter->perPage);
+
+        return view('users.index', compact('users', 'filter'));
+    }
+
+    /**
+     * Aplica filtro de busca nos campos exibidos
+     */
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        $searchLower = mb_strtolower(trim($search));
+
+        return $query->where(function (Builder $q) use ($searchLower) {
+            $q->orWhereRaw('LOWER(name) LIKE ?', ['%' . $searchLower . '%'])
+              ->orWhereRaw('LOWER(email) LIKE ?', ['%' . $searchLower . '%']);
+        });
     }
 
     public function create()

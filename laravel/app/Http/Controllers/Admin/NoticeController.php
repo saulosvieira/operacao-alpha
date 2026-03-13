@@ -10,15 +10,21 @@ use App\Domain\Career\Actions\Admin\CreateNoticeAction;
 use App\Domain\Career\Actions\Admin\UpdateNoticeAction;
 use App\Domain\Career\Actions\Admin\DeleteNoticeAction;
 use App\Domain\Career\Models\Notice;
+use App\Domain\Shared\DTOs\ListFilterData;
 use Illuminate\Http\Request;
 
 class NoticeController extends Controller
 {
-    public function index(ListNoticesForAdminAction $action)
+    public function index(Request $request, ListNoticesForAdminAction $action)
     {
-        $notices = $action->execute();
-            
-        return view('admin.notices.index', compact('notices'));
+        $filter = new ListFilterData(
+            search: $request->input('search'),
+            perPage: $request->input('per_page', 15)
+        );
+
+        $notices = $action->execute($filter);
+
+        return view('admin.notices.index', compact('notices', 'filter'));
     }
     
     public function create(ListActiveCareersAction $action)

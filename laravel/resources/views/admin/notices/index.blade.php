@@ -22,13 +22,17 @@
     @endif
 
     <div class="card">
-        <div class="card-header">
+        @component('admin.components.search-filter', [
+            'route' => route('admin.notices.index'),
+            'placeholder' => 'Buscar por título, descrição ou carreira...',
+            'filter' => $filter ?? null
+        ])
             <a href="{{ route('admin.notices.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Novo Edital
             </a>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
+        @endcomponent
+        <div class="card-body p-0">
+            <table class="table table-bordered table-striped mb-0">
                 <thead>
                     <tr>
                         <th width="80">ID</th>

@@ -10,15 +10,21 @@ use App\Domain\Exam\Actions\Admin\UpdateExamAction;
 use App\Domain\Exam\Actions\Admin\DeleteExamAction;
 use App\Domain\Career\Actions\Admin\ListActiveCareersAction;
 use App\Domain\Exam\Models\Exam;
+use App\Domain\Shared\DTOs\ListFilterData;
 use Illuminate\Http\Request;
 
 class ExamController extends Controller
 {
-    public function index(ListExamsForAdminAction $action)
+    public function index(Request $request, ListExamsForAdminAction $action)
     {
-        $exams = $action->execute();
-            
-        return view('admin.exams.index', compact('exams'));
+        $filter = new ListFilterData(
+            search: $request->input('search'),
+            perPage: $request->input('per_page', 15)
+        );
+
+        $exams = $action->execute($filter);
+
+        return view('admin.exams.index', compact('exams', 'filter'));
     }
     
     public function create(ListActiveCareersAction $action)
