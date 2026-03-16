@@ -8,6 +8,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\AttemptController;
+use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\WebhookHistoryController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
@@ -126,6 +128,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('webhooks')->name('webhooks.')->group(function () {
             Route::get('/edduz', [WebhookHistoryController::class, 'index'])->name('edduz.index');
             Route::get('/edduz/{id}', [WebhookHistoryController::class, 'show'])->name('edduz.show');
+        });
+
+        // Tentativas
+        Route::prefix('attempts')->name('attempts.')->group(function () {
+            Route::get('/', [AttemptController::class, 'index'])->name('index');
+            Route::get('/export', [AttemptController::class, 'export'])->name('export');
+            Route::get('/export/count', [AttemptController::class, 'exportCount'])->name('export.count');
+            Route::get('/{attempt}', [AttemptController::class, 'show'])->name('show');
+        });
+
+        // Reclamações
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [ComplaintController::class, 'index'])->name('index');
+            Route::post('/', [ComplaintController::class, 'store'])->name('store');
+            Route::patch('/{complaint}/status', [ComplaintController::class, 'updateStatus'])->name('update-status');
         });
     });
 });

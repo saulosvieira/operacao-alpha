@@ -352,6 +352,18 @@ return [
             'icon' => 'fas fa-file-import',
             'active' => ['admin/import', 'admin/import/*'],
         ],
+        [
+            'text' => 'Tentativas',
+            'url' => 'admin/attempts',
+            'icon' => 'fas fa-user-check',
+            'active' => ['admin/attempts', 'admin/attempts/*'],
+        ],
+        [
+            'text' => 'Reclamações',
+            'url' => 'admin/complaints',
+            'icon' => 'fas fa-flag',
+            'active' => ['admin/complaints', 'admin/complaints/*'],
+        ],
         ['header' => 'INTEGRAÇÕES'],
         [
             'text' => 'Webhooks Edduz',
