@@ -64,6 +64,8 @@ class QuestionResource extends JsonResource
             ],
             'correctAnswer' => $this->when($this->showAnswer, $this->resource->correct_answer),
             'explanation' => $this->when($this->showAnswer, $this->resource->explanation),
+            'supportText' => $this->resource->support_text,
+            'supportPdfUrl' => $this->resource->support_pdf_url,
         ];
     }
 

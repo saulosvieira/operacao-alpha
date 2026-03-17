@@ -40,6 +40,8 @@ readonly class QuestionFormData
         public bool $removeOptionEImage,
         public string $correctAnswer,
         public ?string $explanation,
+        public ?string $supportText,
+        public ?string $supportPdfUrl,
     ) {}
 
     /**
@@ -75,6 +77,8 @@ readonly class QuestionFormData
             removeOptionEImage: (bool) $request->input('remove_option_e_image', false),
             correctAnswer: $request->input('correct_answer'),
             explanation: $request->input('explanation'),
+            supportText: $request->input('support_text'),
+            supportPdfUrl: $request->input('support_pdf_url'),
         );
     }
 
@@ -93,6 +97,8 @@ readonly class QuestionFormData
             'option_e' => $this->optionE,
             'correct_answer' => $this->correctAnswer,
             'explanation' => $this->explanation,
+            'support_text' => $this->supportText,
+            'support_pdf_url' => $this->supportPdfUrl,
         ];
     }
 }

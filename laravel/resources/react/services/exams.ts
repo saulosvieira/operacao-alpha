@@ -28,6 +28,8 @@ export interface Question {
   options: QuestionOption[];
   correctAnswer?: 'A' | 'B' | 'C' | 'D' | 'E'; // Optional - only included based on feedback mode and attempt state
   explanation?: string; // Optional - only included when correctAnswer is included
+  supportText?: string | null;
+  supportPdfUrl?: string | null;
 }
 
 export interface Attempt {

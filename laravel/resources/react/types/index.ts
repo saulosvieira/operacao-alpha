@@ -51,6 +51,8 @@ export interface Question {
   options: Option[];
   correctAnswer?: AnswerOption; // Optional - only included based on feedback mode and attempt state
   explanation?: string; // Optional - only included when correctAnswer is included
+  supportText?: string | null;
+  supportPdfUrl?: string | null;
 }
 
 // Exam Types

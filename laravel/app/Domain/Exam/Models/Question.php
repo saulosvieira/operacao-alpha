@@ -29,6 +29,8 @@ class Question extends Model
         'option_e_image',
         'correct_answer',
         'explanation',
+        'support_text',
+        'support_pdf_url',
     ];
 
     protected $casts = [

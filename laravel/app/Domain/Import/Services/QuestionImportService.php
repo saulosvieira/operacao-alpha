@@ -398,6 +398,10 @@ final class QuestionImportService
                     if ($result['success']) {
                         $successful++;
                         $successDetails[] = $result['details'];
+                        // Collect warnings from successful imports (e.g. invalid URL set to null)
+                        if (!empty($result['warnings'])) {
+                            $errors = array_merge($errors, $result['warnings']);
+                        }
                     } else {
                         $failed++;
                         $errors = array_merge($errors, $result['errors']);
@@ -524,6 +528,29 @@ final class QuestionImportService
             // Get next question number
             $questionNumber = $this->getNextQuestionNumber($exam);
 
+            // Validate support_pdf_url if provided
+            $warnings = [];
+            $supportPdfUrl = $validation['data']['support_pdf_url'] ?? null;
+
+            if ($supportPdfUrl !== null && $supportPdfUrl !== '') {
+                if (!filter_var($supportPdfUrl, FILTER_VALIDATE_URL)) {
+                    $warnings[] = [
+                        'row_number' => $rowNumber,
+                        'type' => ImportErrorHandler::ERROR_TYPE_VALIDATION,
+                        'message' => "Linha {$rowNumber}: URL inválida no campo link_pdf_apoio ('{$supportPdfUrl}'). O campo foi importado como nulo.",
+                        'data' => $questionData,
+                    ];
+                    $supportPdfUrl = null;
+
+                    Log::info('Invalid support_pdf_url set to null during import', [
+                        'row_number' => $rowNumber,
+                        'original_url' => $validation['data']['support_pdf_url'],
+                    ]);
+                }
+            } else {
+                $supportPdfUrl = null;
+            }
+
             // Create question
             $question = Question::create([
                 'exam_id' => $exam->id,
@@ -536,6 +563,8 @@ final class QuestionImportService
                 'option_e' => $validation['data']['option_e'],
                 'correct_answer' => $validation['data']['correct_answer'],
                 'explanation' => $validation['data']['explanation'] ?: null,
+                'support_text' => $validation['data']['support_text'] ?? null,
+                'support_pdf_url' => $supportPdfUrl,
             ]);
 
             return [
@@ -547,6 +576,7 @@ final class QuestionImportService
                     'question_number' => $questionNumber,
                     'row_number' => $rowNumber,
                 ],
+                'warnings' => $warnings,
             ];
 
         } catch (\Exception $e) {

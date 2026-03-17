@@ -13,6 +13,8 @@ readonly class QuestionData
         public array $options,
         public ?string $correctAnswer,
         public ?string $explanation,
+        public ?string $supportText,
+        public ?string $supportPdfUrl,
     ) {}
     
     public static function fromArray(array $data): self
@@ -49,6 +51,8 @@ readonly class QuestionData
             options: $options,
             correctAnswer: $data['correct_answer'] ?? null,
             explanation: $data['explanation'] ?? null,
+            supportText: $data['support_text'] ?? null,
+            supportPdfUrl: $data['support_pdf_url'] ?? null,
         );
     }
     
@@ -63,6 +67,8 @@ readonly class QuestionData
             'options' => $this->options,
             'correctAnswer' => $this->correctAnswer,
             'explanation' => $this->explanation,
+            'supportText' => $this->supportText,
+            'supportPdfUrl' => $this->supportPdfUrl,
         ];
     }
 }

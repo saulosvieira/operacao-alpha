@@ -119,6 +119,30 @@
                     @error('explanation')<span class="invalid-feedback">{{ $message }}</span>@enderror
                     <small class="text-muted">Explicação exibida após o usuário responder a questão.</small>
                 </div>
+
+                {{-- Support Text --}}
+                <div class="form-group">
+                    <label for="support_text">Texto de Apoio (opcional)</label>
+                    <textarea class="form-control @error('support_text') is-invalid @enderror" 
+                              id="support_text" 
+                              name="support_text" 
+                              rows="3">{{ old('support_text') }}</textarea>
+                    @error('support_text')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                    <small class="text-muted">Texto complementar exibido ao aluno em um modal durante o simulado.</small>
+                </div>
+
+                {{-- Support PDF URL --}}
+                <div class="form-group">
+                    <label for="support_pdf_url">Link do PDF de Apoio (opcional)</label>
+                    <input type="text" 
+                           class="form-control @error('support_pdf_url') is-invalid @enderror" 
+                           id="support_pdf_url" 
+                           name="support_pdf_url" 
+                           value="{{ old('support_pdf_url') }}" 
+                           placeholder="https://exemplo.com/material.pdf">
+                    @error('support_pdf_url')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                    <small class="text-muted">URL pública para download do PDF de apoio.</small>
+                </div>
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>

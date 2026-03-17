@@ -92,6 +92,8 @@
                                         <th>correta</th>
                                         <th>comentario</th>
                                         <th>nivel_dificuldade</th>
+                                        <th>texto_apoio</th>
+                                        <th>link_pdf_apoio</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -108,6 +110,8 @@
                                         <td>A</td>
                                         <td>A missão foi anulada de evidência...</td>
                                         <td>Médio</td>
+                                        <td>Conforme o Art. 5º da CF/88, todos são iguais perante a lei...</td>
+                                        <td>https://exemplo.com/material-apoio.pdf</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -56,6 +56,8 @@ class UpdateQuestionRequest extends FormRequest
             'remove_option_e_image' => 'nullable|boolean',
             'correct_answer' => 'required|string|in:A,B,C,D,E',
             'explanation' => 'nullable|string|max:5000',
+            'support_text' => 'nullable|string',
+            'support_pdf_url' => 'nullable|url|max:500',
         ];
     }
 
@@ -83,6 +85,7 @@ class UpdateQuestionRequest extends FormRequest
             'option_c_image.max' => 'A imagem da alternativa C deve ter no máximo 2MB.',
             'option_d_image.max' => 'A imagem da alternativa D deve ter no máximo 2MB.',
             'option_e_image.max' => 'A imagem da alternativa E deve ter no máximo 2MB.',
+            'support_pdf_url.url' => 'A URL informada para o PDF de apoio é inválida.',
         ];
     }
 }

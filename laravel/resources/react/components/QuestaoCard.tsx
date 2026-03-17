@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { BookOpen, Download, Loader2 } from 'lucide-react';
 import type { Question, AnswerOption } from '@/types';
+import { SupportTextModal } from './SupportTextModal';
 
 interface QuestaoCardProps {
   question: Question;
@@ -42,6 +45,38 @@ export function QuestaoCard({
   
   // In immediate mode, lock the question after answering (even if we don't have feedback data)
   const isLocked = feedbackMode === 'immediate' && showFeedback;
+
+  const [isSupportTextOpen, setIsSupportTextOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPdf = async (url: string) => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const filename = url.split('/').pop() || 'material-apoio.pdf';
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Fallback: try anchor with download attribute directly
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = url.split('/').pop() || 'material-apoio.pdf';
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
   
   return (
     <article className="card-tactical p-6 space-y-4">
@@ -49,6 +84,33 @@ export function QuestaoCard({
         <h2 className="text-lg font-semibold text-foreground">
           Questão {questionNumber}
         </h2>
+        <div className="flex items-center gap-2">
+          {question.supportText && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSupportTextOpen(true)}
+            >
+              <BookOpen className="h-4 w-4 mr-1" />
+              Material de Apoio
+            </Button>
+          )}
+          {question.supportPdfUrl && (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={isDownloading}
+              onClick={() => handleDownloadPdf(question.supportPdfUrl!)}
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-1" />
+              )}
+              Baixar PDF
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="space-y-4">
@@ -158,6 +220,14 @@ export function QuestaoCard({
           </div>
         )}
       </div>
+
+      {question.supportText && (
+        <SupportTextModal
+          text={question.supportText}
+          isOpen={isSupportTextOpen}
+          onClose={() => setIsSupportTextOpen(false)}
+        />
+      )}
     </article>
   );
 }
