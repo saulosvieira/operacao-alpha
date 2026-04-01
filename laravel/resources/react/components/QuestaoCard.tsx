@@ -92,7 +92,7 @@ export function QuestaoCard({
               onClick={() => setIsSupportTextOpen(true)}
             >
               <BookOpen className="h-4 w-4 mr-1" />
-              Material de Apoio
+              Complemento
             </Button>
           )}
           {question.supportPdfUrl && (

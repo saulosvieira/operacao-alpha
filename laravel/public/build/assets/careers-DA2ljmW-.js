@@ -1,1 +1,0 @@
-import{d as a}from"./main-B3sF7Khx.js";const r=async()=>(await a.get("/careers")).data.data,t=async e=>(await a.get(`/careers/${e}`)).data.data,n=async e=>(await a.get(`/careers/${e}/exams`)).data.data,o={listCareers:r,getCareer:t,getCareerExams:n};export{o as c};

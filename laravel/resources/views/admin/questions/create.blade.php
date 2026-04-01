@@ -122,13 +122,13 @@
 
                 {{-- Support Text --}}
                 <div class="form-group">
-                    <label for="support_text">Texto de Apoio (opcional)</label>
+                    <label for="support_text">Complemento da Questão (opcional)</label>
                     <textarea class="form-control @error('support_text') is-invalid @enderror" 
                               id="support_text" 
                               name="support_text" 
-                              rows="3">{{ old('support_text') }}</textarea>
+                              rows="6">{{ old('support_text') }}</textarea>
                     @error('support_text')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                    <small class="text-muted">Texto complementar exibido ao aluno em um modal durante o simulado.</small>
+                    <small class="text-muted">Texto complementar exibido ao aluno com linhas numeradas. Cada linha (Enter) será numerada automaticamente, permitindo referenciar linhas específicas no enunciado (ex: "Na linha 10...").</small>
                 </div>
 
                 {{-- Support PDF URL --}}
