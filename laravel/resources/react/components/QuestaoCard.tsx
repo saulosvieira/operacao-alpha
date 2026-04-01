@@ -186,19 +186,9 @@ export function QuestaoCard({
           })}
         </div>
 
-        {/* Explanation - shown when feedback is visible */}
-        {shouldShowCorrectAnswer && explanation && (
-          <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
-            <h3 className="font-semibold text-foreground mb-2">Explicação:</h3>
-            <p className="text-muted-foreground text-sm">
-              {explanation}
-            </p>
-          </div>
-        )}
-
-        {/* Immediate mode feedback indicator */}
+        {/* Immediate mode feedback indicator with explanation */}
         {feedbackMode === 'immediate' && isAnswered && shouldShowCorrectAnswer && (
-          <div className={`mt-4 p-3 rounded-lg border ${
+          <div className={`mt-4 p-4 rounded-lg border ${
             selectedAnswer === correctAnswer 
               ? 'bg-green-50 border-green-600 text-green-900' 
               : 'bg-red-50 border-red-600 text-red-900'
@@ -206,7 +196,22 @@ export function QuestaoCard({
             <p className="font-semibold text-sm">
               {selectedAnswer === correctAnswer 
                 ? '✓ Resposta correta!' 
-                : '✗ Resposta incorreta'}
+                : `✗ Resposta incorreta. Resposta correta: ${correctAnswer}`}
+            </p>
+            {explanation && (
+              <p className="mt-2 text-sm opacity-90">
+                {explanation}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Explanation - shown on final mode results */}
+        {feedbackMode !== 'immediate' && shouldShowCorrectAnswer && explanation && (
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
+            <h3 className="font-semibold text-foreground mb-2">Explicação:</h3>
+            <p className="text-muted-foreground text-sm">
+              {explanation}
             </p>
           </div>
         )}

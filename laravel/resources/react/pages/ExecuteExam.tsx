@@ -317,26 +317,6 @@ export default function ExecuteExam() {
           </Alert>
         )}
 
-        {/* Immediate feedback alert */}
-        {questionFeedback && exam.feedbackMode === 'immediate' && (
-          <Alert variant={questionFeedback.isCorrect ? 'default' : 'destructive'}>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {questionFeedback.isCorrect ? (
-                <span className="text-green-600 font-semibold">Correto!</span>
-              ) : (
-                <>
-                  <span className="text-red-600 font-semibold">Incorreto.</span>
-                  {' '}Resposta correta: {questionFeedback.correctAnswer}
-                </>
-              )}
-              {questionFeedback.explanation && (
-                <p className="mt-2 text-sm">{questionFeedback.explanation}</p>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
         {/* Current question */}
         {currentQuestionObj && (
           <QuestaoCard
