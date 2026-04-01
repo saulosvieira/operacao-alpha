@@ -1,1 +1,0 @@
-import{b as e,d as s}from"./react-vendor-BUma0tgb.js";import{m as u}from"./main-Bd_qO3rJ.js";var c=s[" useId ".trim().toString()]||(()=>{}),d=0;function f(t){const[r,a]=e.useState(c());return u(()=>{a(o=>o??String(d++))},[t]),t||(r?`radix-${r}`:"")}export{f as u};
