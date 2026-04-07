@@ -170,6 +170,40 @@
                     @error('support_pdf_url')<span class="invalid-feedback">{{ $message }}</span>@enderror
                     <small class="text-muted">URL pública para download do PDF de apoio.</small>
                 </div>
+
+                <hr>
+                <h5>Informações da Prova</h5>
+
+                {{-- Year and Exam Board --}}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="year">Ano da Prova (opcional)</label>
+                            <input type="number" 
+                                   class="form-control @error('year') is-invalid @enderror" 
+                                   id="year" 
+                                   name="year" 
+                                   value="{{ old('year', $question->year) }}" 
+                                   min="1900" 
+                                   max="2100"
+                                   placeholder="Ex: 2024">
+                            @error('year')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="exam_board">Banca Examinadora (opcional)</label>
+                            <input type="text" 
+                                   class="form-control @error('exam_board') is-invalid @enderror" 
+                                   id="exam_board" 
+                                   name="exam_board" 
+                                   value="{{ old('exam_board', $question->exam_board) }}" 
+                                   placeholder="Ex: CESPE, FCC, FGV, VUNESP"
+                                   maxlength="100">
+                            @error('exam_board')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Atualizar</button>

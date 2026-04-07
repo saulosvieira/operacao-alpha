@@ -565,6 +565,8 @@ final class QuestionImportService
                 'explanation' => $validation['data']['explanation'] ?: null,
                 'support_text' => $validation['data']['support_text'] ?? null,
                 'support_pdf_url' => $supportPdfUrl,
+                'year' => !empty($validation['data']['year']) ? (int) $validation['data']['year'] : null,
+                'exam_board' => $validation['data']['exam_board'] ?? null,
             ]);
 
             return [

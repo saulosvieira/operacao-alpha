@@ -187,8 +187,9 @@ class QuestionImportController extends Controller
                 } elseif ($option === 'existing' && !empty($existingExamMappings[$careerId])) {
                     // Use existing exam
                     $examMappings[$careerId] = $existingExamMappings[$careerId];
+                } elseif ($option === 'existing' && empty($existingExamMappings[$careerId])) {
+                    return back()->withErrors(['error' => 'Selecione um simulado de destino para todas as carreiras antes de importar.']);
                 }
-                // If no option selected or empty, the import service will use default exam
             }
 
             $result = $this->importService->executeImport($session, $examMappings);
@@ -261,7 +262,7 @@ class QuestionImportController extends Controller
         $exams = Exam::where('career_id', $careerId)
             ->where('active', true)
             ->withCount('questions')
-            ->orderBy('title')
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($exam) {
                 return [

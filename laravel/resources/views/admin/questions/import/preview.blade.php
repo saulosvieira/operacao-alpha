@@ -687,6 +687,22 @@ $(document).ready(function() {
             }
         });
         
+        // Validate existing exam selection
+        $('.exam-option-radio:checked').each(function() {
+            const careerId = $(this).data('career-id');
+            const option = $(this).val();
+            
+            if (option === 'existing') {
+                const examSelect = $(`select[name="exam_mappings[${careerId}]"]`);
+                if (!examSelect.val()) {
+                    alert('Por favor, selecione um simulado de destino para todas as carreiras com "Adicionar a simulado existente" selecionado.');
+                    examSelect.focus();
+                    valid = false;
+                    return false;
+                }
+            }
+        });
+        
         if (!valid) return false;
         
         if (!confirm('Tem certeza que deseja iniciar a importação? Este processo não pode ser desfeito.')) {
@@ -817,6 +833,8 @@ function loadAllExamOptions() {
                 response.exams.forEach(function(exam) {
                     select.append(`<option value="${exam.id}">${exam.title} (${exam.question_count} questões)</option>`);
                 });
+                // Auto-select the first (most recent) exam
+                select.find('option:eq(1)').prop('selected', true);
             } else {
                 select.html('<option value="" disabled>Nenhum simulado ativo - crie um novo abaixo</option>');
                 // Auto-select "create new" option if no exams exist

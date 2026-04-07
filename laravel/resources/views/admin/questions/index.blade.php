@@ -34,6 +34,8 @@
                     <tr>
                         <th width="80">Nº</th>
                         <th>Enunciado</th>
+                        <th width="80">Ano</th>
+                        <th width="120">Banca</th>
                         <th width="100">Resposta</th>
                         <th width="100">Imagem</th>
                         <th width="150">Ações</th>
@@ -44,6 +46,8 @@
                         <tr>
                             <td class="text-center">{{ $question->question_number }}</td>
                             <td>{{ Str::limit($question->statement, 100) }}</td>
+                            <td class="text-center">{{ $question->year ?? '-' }}</td>
+                            <td class="text-center">{{ $question->exam_board ?? '-' }}</td>
                             <td class="text-center">
                                 <span class="badge badge-success">{{ $question->correct_answer }}</span>
                             </td>
@@ -73,7 +77,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">Nenhuma questão cadastrada</td>
+                            <td colspan="7" class="text-center">Nenhuma questão cadastrada</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -81,9 +81,25 @@ export function QuestaoCard({
   return (
     <article className="card-tactical p-6 space-y-4">
       <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">
-          Questão {questionNumber}
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-foreground">
+            Questão {questionNumber}
+          </h2>
+          {(question.year || question.examBoard) && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {question.examBoard && (
+                <span className="px-2 py-0.5 rounded-full bg-muted border border-border">
+                  {question.examBoard}
+                </span>
+              )}
+              {question.year && (
+                <span className="px-2 py-0.5 rounded-full bg-muted border border-border">
+                  {question.year}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {question.supportText && (
             <Button

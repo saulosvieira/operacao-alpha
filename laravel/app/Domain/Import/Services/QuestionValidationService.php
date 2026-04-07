@@ -146,6 +146,10 @@ final class QuestionValidationService
             'correct_answer' => strtoupper(trim($questionData['correct_answer'] ?? '')),
             'explanation' => $this->cleanText($questionData['explanation'] ?? ''),
             'career_abbreviation' => strtoupper(trim($questionData['career_abbreviation'] ?? '')),
+            'support_text' => $this->cleanText($questionData['support_text'] ?? ''),
+            'support_pdf_url' => trim($questionData['support_pdf_url'] ?? ''),
+            'year' => !empty($questionData['year']) ? (int) $questionData['year'] : null,
+            'exam_board' => $this->cleanText($questionData['exam_board'] ?? ''),
         ];
     }
 

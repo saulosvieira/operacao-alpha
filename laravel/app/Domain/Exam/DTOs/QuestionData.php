@@ -15,6 +15,8 @@ readonly class QuestionData
         public ?string $explanation,
         public ?string $supportText,
         public ?string $supportPdfUrl,
+        public ?int $year,
+        public ?string $examBoard,
     ) {}
     
     public static function fromArray(array $data): self
@@ -53,6 +55,8 @@ readonly class QuestionData
             explanation: $data['explanation'] ?? null,
             supportText: $data['support_text'] ?? null,
             supportPdfUrl: $data['support_pdf_url'] ?? null,
+            year: isset($data['year']) ? (int) $data['year'] : null,
+            examBoard: $data['exam_board'] ?? null,
         );
     }
     
@@ -69,6 +73,8 @@ readonly class QuestionData
             'explanation' => $this->explanation,
             'supportText' => $this->supportText,
             'supportPdfUrl' => $this->supportPdfUrl,
+            'year' => $this->year,
+            'examBoard' => $this->examBoard,
         ];
     }
 }

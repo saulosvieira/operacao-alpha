@@ -45,6 +45,8 @@ class ExcelQuestionImport implements ToCollection, WithHeadingRow, SkipsOnFailur
         'nivel_dificuldade' => 'difficulty_level',
         'texto_apoio' => 'support_text',
         'link_pdf_apoio' => 'support_pdf_url',
+        'ano' => 'year',
+        'banca' => 'exam_board',
     ];
 
     public function __construct()

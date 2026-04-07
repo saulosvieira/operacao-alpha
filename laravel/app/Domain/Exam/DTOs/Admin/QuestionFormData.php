@@ -42,6 +42,8 @@ readonly class QuestionFormData
         public ?string $explanation,
         public ?string $supportText,
         public ?string $supportPdfUrl,
+        public ?int $year,
+        public ?string $examBoard,
     ) {}
 
     /**
@@ -79,6 +81,8 @@ readonly class QuestionFormData
             explanation: $request->input('explanation'),
             supportText: $request->input('support_text'),
             supportPdfUrl: $request->input('support_pdf_url'),
+            year: $request->input('year') ? (int) $request->input('year') : null,
+            examBoard: $request->input('exam_board'),
         );
     }
 
@@ -99,6 +103,8 @@ readonly class QuestionFormData
             'explanation' => $this->explanation,
             'support_text' => $this->supportText,
             'support_pdf_url' => $this->supportPdfUrl,
+            'year' => $this->year,
+            'exam_board' => $this->examBoard,
         ];
     }
 }

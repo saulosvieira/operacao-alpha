@@ -58,6 +58,8 @@ class UpdateQuestionRequest extends FormRequest
             'explanation' => 'nullable|string|max:5000',
             'support_text' => 'nullable|string',
             'support_pdf_url' => 'nullable|url|max:500',
+            'year' => 'nullable|integer|min:1900|max:2100',
+            'exam_board' => 'nullable|string|max:100',
         ];
     }
 

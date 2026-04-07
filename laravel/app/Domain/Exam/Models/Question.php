@@ -31,10 +31,13 @@ class Question extends Model
         'explanation',
         'support_text',
         'support_pdf_url',
+        'year',
+        'exam_board',
     ];
 
     protected $casts = [
         'question_number' => 'integer',
+        'year' => 'integer',
     ];
 
     public function exam(): BelongsTo

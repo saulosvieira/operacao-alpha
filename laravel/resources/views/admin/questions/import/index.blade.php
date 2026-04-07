@@ -94,6 +94,8 @@
                                         <th>nivel_dificuldade</th>
                                         <th>texto_apoio</th>
                                         <th>link_pdf_apoio</th>
+                                        <th>ano</th>
+                                        <th>banca</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -112,6 +114,8 @@
                                         <td>Médio</td>
                                         <td>Conforme o Art. 5º da CF/88, todos são iguais perante a lei...</td>
                                         <td>https://exemplo.com/material-apoio.pdf</td>
+                                        <td>2024</td>
+                                        <td>CESPE</td>
                                     </tr>
                                 </tbody>
                             </table>

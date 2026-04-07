@@ -53,6 +53,8 @@ export interface Question {
   explanation?: string; // Optional - only included when correctAnswer is included
   supportText?: string | null;
   supportPdfUrl?: string | null;
+  year?: number | null;
+  examBoard?: string | null;
 }
 
 // Exam Types
