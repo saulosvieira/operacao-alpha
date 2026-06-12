@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Notification\FcmNotificationController;
 use App\Http\Controllers\Api\Notification\NotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,5 +29,13 @@ Route::prefix('notifications')->group(function () {
         Route::post('/send', [NotificationController::class, 'send'])
             ->middleware('can:admin')
             ->name('api.notifications.send');
+
+        // FCM (Firebase Cloud Messaging) routes
+        Route::prefix('fcm')->group(function () {
+            Route::post('/subscribe', [FcmNotificationController::class, 'subscribe'])
+                ->name('api.notifications.fcm.subscribe');
+            Route::post('/unsubscribe', [FcmNotificationController::class, 'unsubscribe'])
+                ->name('api.notifications.fcm.unsubscribe');
+        });
     });
 });

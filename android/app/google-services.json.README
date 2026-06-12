@@ -1,0 +1,17 @@
+# google-services.json
+
+Este arquivo é necessário para o Firebase Cloud Messaging funcionar no aplicativo.
+
+## Como obter
+
+1. Acesse o Firebase Console: https://console.firebase.google.com/
+2. Selecione (ou crie) o projeto Firebase para "Operação Alfa"
+3. Adicione um app Android com o pacote `br.com.operacaoalfa`
+4. Baixe o arquivo `google-services.json`
+5. Coloque o arquivo neste diretório: `android/app/google-services.json`
+
+## Importante
+
+- O arquivo `google-services.json` contém credenciais e NÃO deve ser commitado no repositório
+- Cada desenvolvedor deve obter o arquivo do Firebase Console ou do administrador do projeto
+- Sem este arquivo, o build falhará com erro do plugin `com.google.gms.google-services`

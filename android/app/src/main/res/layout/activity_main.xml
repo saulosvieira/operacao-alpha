@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    MainActivity layout with three layers stacked in a FrameLayout:
+    1. WebView (base layer) - loads the frontend web app
+    2. Splash screen (overlay) - shown while WebView loads initial content (Req 1.6)
+    3. Offline error screen (overlay) - shown on network errors (Req 6.1, 6.2)
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Layer 1: WebView — loads the frontend React app -->
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Layer 2: Splash Screen — visible during initial page load (Req 1.6) -->
+    <LinearLayout
+        android:id="@+id/splashScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <!-- App icon -->
+        <ImageView
+            android:id="@+id/splashIcon"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <!-- App name -->
+        <TextView
+            android:id="@+id/splashAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/app_name"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Loading indicator -->
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/splashProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorOnPrimary"
+            app:trackThickness="3dp" />
+
+    </LinearLayout>
+
+    <!-- Layer 3: Offline Error Screen — shown on network failure (Req 6.1, 6.2) -->
+    <LinearLayout
+        android:id="@+id/offlineScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <!-- Offline icon -->
+        <ImageView
+            android:id="@+id/offlineIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@string/offline_icon_description"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:tint="?attr/colorPrimary"
+            tools:ignore="UseAppTint" />
+
+        <!-- Offline title -->
+        <TextView
+            android:id="@+id/offlineTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/offline_title"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Offline message -->
+        <TextView
+            android:id="@+id/offlineMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/offline_message"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="16sp" />
+
+        <!-- Retry button (Req 6.2) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/retry_button"
+            app:icon="@android:drawable/ic_menu_rotate"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Operação Alfa</string>
+    <string name="base_url">https://operacaoalfa.com.br</string>
+
+    <!-- Offline screen strings (Req 6.1, 6.2) -->
+    <string name="offline_title">Sem conexão com a internet</string>
+    <string name="offline_message">Verifique sua conexão de rede e tente novamente.</string>
+    <string name="retry_button">Tentar Novamente</string>
+    <string name="offline_icon_description">Ícone de erro de conexão</string>
+</resources>

@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'validate.file.upload' => \App\Http\Middleware\ValidateFileUpload::class,
+            'api.min.version' => \App\Http\Middleware\ApiMinVersion::class,
+        ]);
+
+        // Append X-API-Min-Version header to all API responses
+        $middleware->api(append: [
+            \App\Http\Middleware\ApiMinVersion::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

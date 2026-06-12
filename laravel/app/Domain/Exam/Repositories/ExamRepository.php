@@ -4,6 +4,7 @@ namespace App\Domain\Exam\Repositories;
 
 use App\Domain\Exam\Models\Exam;
 use App\Domain\Exam\DTOs\ExamData;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class ExamRepository
@@ -18,6 +19,29 @@ class ExamRepository
             ->map(function ($exam) use ($self) {
                 return $self->toDTO($exam);
             });
+    }
+
+    /**
+     * Paginate all active exams.
+     */
+    public function paginate(int $page = 1, int $perPage = 20): LengthAwarePaginator
+    {
+        return Exam::with('career')
+            ->where('active', true)
+            ->orderBy('created_at', 'desc')
+            ->paginate(perPage: $perPage, page: $page);
+    }
+
+    /**
+     * Paginate active exams filtered by career.
+     */
+    public function paginateByCareer(string $careerId, int $page = 1, int $perPage = 20): LengthAwarePaginator
+    {
+        return Exam::with('career')
+            ->where('career_id', $careerId)
+            ->where('active', true)
+            ->orderBy('created_at', 'desc')
+            ->paginate(perPage: $perPage, page: $page);
     }
     
     public function findById(string $id): ?ExamData

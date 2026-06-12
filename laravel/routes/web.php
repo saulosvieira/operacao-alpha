@@ -149,6 +149,46 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Rotas .well-known (App Links / Universal Links)
+|--------------------------------------------------------------------------
+|
+| Servem os arquivos de verificação para Android App Links (assetlinks.json)
+| e iOS Universal Links (apple-app-site-association) sem extensão .json na URL.
+| Ambos servidos com Content-Type: application/json conforme Requisito 11.6.
+|
+*/
+
+Route::get('/.well-known/assetlinks.json', [\App\Http\Controllers\WellKnownController::class, 'assetLinks'])
+    ->name('well-known.assetlinks');
+
+Route::get('/.well-known/apple-app-site-association', [\App\Http\Controllers\WellKnownController::class, 'appleAppSiteAssociation'])
+    ->name('well-known.apple-app-site-association');
+
+/*
+|--------------------------------------------------------------------------
+| Página Pública de Exclusão de Conta (Google Play / LGPD)
+|--------------------------------------------------------------------------
+|
+| URL pública, estável e sem parâmetros de sessão para solicitação de
+| exclusão de conta. Exigida pela política do Google Play desde 2024.
+| Requisito 20.6 do App_Flutter.
+|
+*/
+
+Route::prefix('conta')->name('conta.')->group(function () {
+    Route::get('/excluir', [
+        \App\Http\Controllers\AccountDeletionController::class,
+        'show',
+    ])->name('excluir');
+
+    Route::post('/excluir', [
+        \App\Http\Controllers\AccountDeletionController::class,
+        'process',
+    ])->name('excluir.process');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Rotas do PWA (React SPA)
 |--------------------------------------------------------------------------
 | 
@@ -160,7 +200,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // Rota catch-all para o PWA React (deve ser a última)
 Route::get('/{any}', function () {
     return view('app'); // View Blade que carrega o React
-})->where('any', '^(?!admin|api).*$')->name('pwa');
+})->where('any', '^(?!admin|api|conta).*$')->name('pwa');
 
 // Rota alternativa para servir arquivos do storage em DirectAdmin
 // Usa /files/ ao invés de /storage/ para evitar conflito com Apache

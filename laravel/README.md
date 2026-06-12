@@ -354,6 +354,45 @@ Cada feature no Domain segue a estrutura:
 - `PUT /api/user/profile` - Atualizar perfil
 - `DELETE /api/user/account` - Excluir conta
 
+## Versionamento do App Mobile (Flutter)
+
+O backend envia o header `X-API-Min-Version` em todas as respostas autenticadas da API. O app Flutter compara esse valor com sua versão instalada e, caso esteja abaixo, exibe uma tela de atualização obrigatória (Force Update).
+
+### Como funciona
+
+- A versão mínima é lida de `config('mobile.min_version')`, que por sua vez vem da env var `MOBILE_MIN_VERSION`.
+- O valor segue semver: `MAJOR.MINOR.PATCH` (ex: `1.0.0`, `1.2.0`, `2.0.0`).
+- Na primeira publicação do app Flutter, o valor padrão é `1.0.0` — ou seja, nenhum usuário é bloqueado.
+
+### Quando fazer bump
+
+Atualize `MOBILE_MIN_VERSION` quando uma nova versão do app Flutter for **obrigatória** — por exemplo:
+- Mudança de contrato na API que versões antigas não suportam.
+- Correção crítica de segurança no app.
+- Remoção de endpoint que versões antigas ainda usam.
+
+### Processo de bump
+
+1. Publique a nova versão do app Flutter nas lojas (Google Play / App Store).
+2. Aguarde que a maioria dos usuários atualize (opcionalmente, monitore métricas de adoção).
+3. Atualize a env var no servidor:
+   ```env
+   MOBILE_MIN_VERSION=1.2.0
+   ```
+4. Limpe o cache de configuração (se estiver em uso):
+   ```bash
+   php artisan config:clear
+   ```
+5. A partir deste ponto, usuários com versão inferior a `1.2.0` verão a tela de Force Update.
+
+### Onde configurar
+
+| Ambiente | Localização |
+|----------|-------------|
+| Local | `laravel/.env` |
+| Docker | `laravel/.env` ou variável no `docker-compose.yml` |
+| Produção | Variável de ambiente do servidor / painel de deploy |
+
 ## Desenvolvimento
 
 ### Adicionando Nova Feature

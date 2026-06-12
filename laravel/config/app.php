@@ -123,4 +123,29 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | App Links / Universal Links Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configurações para verificação de deep links no Android (App Links)
+    | e iOS (Universal Links). Requisito 11.6 do flutter-hybrid-app spec.
+    |
+    | ANDROID_ASSET_LINKS_SHA256:
+    |   SHA-256 fingerprint do certificado de release do app Flutter.
+    |   Obter via: keytool -list -v -keystore <release.keystore> -alias <alias>
+    |
+    | APPLE_TEAM_ID:
+    |   Apple Developer Team ID (10 caracteres alfanuméricos).
+    |   Encontrar em: https://developer.apple.com/account → Membership details
+    |
+    */
+
+    'android_asset_links_sha256' => env(
+        'ANDROID_ASSET_LINKS_SHA256',
+        'AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99'
+    ),
+
+    'apple_team_id' => env('APPLE_TEAM_ID', 'TEAM_ID_HERE'),
+
 ];

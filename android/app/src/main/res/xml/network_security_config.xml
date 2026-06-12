@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Configuration (Req 7.6, 7.7)
+    - Produção: HTTPS obrigatório para todos os domínios
+    - Domínio operacaoalfa.com.br configurado com certificados do sistema
+    - Debug: permite cleartext (HTTP) para 10.0.2.2 (emulador Android)
+      e aceita certificados de usuário (para proxies de debug como Charles)
+-->
+<network-security-config>
+
+    <!-- Configuração base: bloqueia cleartext (HTTP) por padrão (Req 7.7) -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Domínio de produção: HTTPS obrigatório com certificados do sistema (Req 7.7) -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">operacaoalfa.com.br</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!--
+        Emulador Android: 10.0.2.2 é o alias para localhost do host.
+        Permite HTTP para desenvolvimento local. Este IP não é roteável
+        em dispositivos reais, então não representa risco em produção. (Req 7.6)
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+
+    <!-- Debug: aceita certificados de usuário (proxies de debug) (Req 7.6) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user" />
+            <certificates src="system" />
+        </trust-anchors>
+    </debug-overrides>
+
+</network-security-config>

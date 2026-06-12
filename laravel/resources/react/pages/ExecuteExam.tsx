@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { QuestaoCard } from '@/components/QuestaoCard';
 import { Timer } from '@/components/Timer';
@@ -11,9 +11,31 @@ import { ChevronLeft, ChevronRight, Flag, AlertCircle, Loader2 } from 'lucide-re
 import type { AnswerOption, Question, Exam } from '@/types';
 import { toast } from 'sonner';
 
+/**
+ * Checks if the page is loaded in embedded mode (inside native app WebView).
+ * When embedded=1 is in the query string, navigation chrome is hidden and
+ * exam completion is communicated via postMessage to the native bridge.
+ */
+function useIsEmbedded(): boolean {
+  const [searchParams] = useSearchParams();
+  return searchParams.get('embedded') === '1';
+}
+
+/**
+ * Wrapper that conditionally shows AppLayout (with nav) or a plain container
+ * (for embedded/native app mode without any navigation chrome).
+ */
+function ExamWrapper({ isEmbedded, children }: { isEmbedded: boolean; children: React.ReactNode }) {
+  if (isEmbedded) {
+    return <div className="min-h-screen bg-background">{children}</div>;
+  }
+  return <AppLayout>{children}</AppLayout>;
+}
+
 export default function ExecuteExam() {
   const { examId, attemptId } = useParams();
   const navigate = useNavigate();
+  const isEmbedded = useIsEmbedded();
   const { 
     currentAttempt, 
     startAttempt,
@@ -222,10 +244,20 @@ export default function ExecuteExam() {
       // Clean up localStorage
       localStorage.removeItem(getStorageKey(currentAttempt.id));
       toast.success('Simulado finalizado!');
-      // Navigate to results page with result data
-      navigate(`/simulado/${examId}/resultado/${currentAttempt.id}`, {
-        state: { result }
-      });
+
+      if (isEmbedded) {
+        // Notify native app via postMessage bridge
+        window.postMessage(JSON.stringify({
+          type: 'examFinished',
+          examId: examId,
+          attemptId: currentAttempt.id,
+        }), '*');
+      } else {
+        // Navigate to results page with result data
+        navigate(`/simulado/${examId}/resultado/${currentAttempt.id}`, {
+          state: { result }
+        });
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Erro ao finalizar simulado');
     }
@@ -238,20 +270,20 @@ export default function ExecuteExam() {
 
   if (isInitializing) {
     return (
-      <AppLayout>
+      <ExamWrapper isEmbedded={isEmbedded}>
         <div className="p-4 flex items-center justify-center min-h-[50vh]">
           <div className="text-center space-y-4">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
             <p className="text-muted-foreground">Carregando simulado...</p>
           </div>
         </div>
-      </AppLayout>
+      </ExamWrapper>
     );
   }
 
   if (!currentAttempt || questions.length === 0 || !exam) {
     return (
-      <AppLayout>
+      <ExamWrapper isEmbedded={isEmbedded}>
         <div className="p-4">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -266,7 +298,7 @@ export default function ExecuteExam() {
             Voltar para Simulados
           </Button>
         </div>
-      </AppLayout>
+      </ExamWrapper>
     );
   }
 
@@ -284,7 +316,7 @@ export default function ExecuteExam() {
   });
 
   return (
-    <AppLayout>
+    <ExamWrapper isEmbedded={isEmbedded}>
       <div className="p-4 space-y-4">
         {/* Header with timer and progress */}
         <header className="card-tactical p-4">
@@ -373,6 +405,6 @@ export default function ExecuteExam() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </ExamWrapper>
   );
 }
