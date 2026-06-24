@@ -34,6 +34,10 @@ test('Property 1: userId e planId são passados corretamente para createCheckout
         /** @var EdduzApiClient&MockInterface $clientMock */
         $clientMock = Mockery::mock(EdduzApiClient::class);
         $clientMock
+            ->shouldReceive('isConfigured')
+            ->once()
+            ->andReturn(true);
+        $clientMock
             ->shouldReceive('createCheckoutSession')
             ->once()
             ->withArgs(function (string $uid, string $pid) use (&$capturedUserId, &$capturedPlanId) {
@@ -60,6 +64,33 @@ test('Property 1: userId e planId são passados corretamente para createCheckout
 
         Mockery::close();
     }
+});
+
+test('Property 10: rejeita checkout quando integração Edduz não está configurada', function () {
+    $faker = Faker::create();
+    $userId = (string) $faker->numberBetween(1, 999999);
+    $planId = 'monthly';
+
+    $clientMock = Mockery::mock(EdduzApiClient::class);
+    $clientMock
+        ->shouldReceive('isConfigured')
+        ->once()
+        ->andReturn(false);
+    $clientMock->shouldNotReceive('createCheckoutSession');
+
+    $subscriptionRepoMock = Mockery::mock(SubscriptionRepository::class);
+
+    $action = new GenerateCheckoutUrlAction($clientMock, $subscriptionRepoMock);
+
+    try {
+        $action->execute($userId, $planId);
+    } catch (\InvalidArgumentException $e) {
+        expect($e->getMessage())->toContain('Integração Edduz não está configurada');
+        Mockery::close();
+        return;
+    }
+
+    $this->fail('Deveria ter lançado InvalidArgumentException quando a integração não está configurada.');
 });
 
 test('Property 1: planos gratuitos (free/gratuito) são rejeitados com InvalidArgumentException', function () {

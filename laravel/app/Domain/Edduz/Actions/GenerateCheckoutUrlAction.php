@@ -27,6 +27,12 @@ class GenerateCheckoutUrlAction
             );
         }
 
+        if (! $this->client->isConfigured()) {
+            throw new \InvalidArgumentException(
+                'Integração Edduz não está configurada. Verifique EDDUZ_API_URL, EDDUZ_API_KEY e EDDUZ_WEBHOOK_TOKEN.'
+            );
+        }
+
         try {
             return $this->client->createCheckoutSession($userId, $planId);
         } catch (\Throwable $e) {
