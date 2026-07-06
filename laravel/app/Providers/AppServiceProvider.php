@@ -32,9 +32,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(EdduzApiClient::class, fn () => new EdduzApiClient(
-            config('services.edduz.api_url', ''),
-            config('services.edduz.api_key', ''),
-            config('services.edduz.webhook_token', ''),
+            (string) config('services.edduz.api_url', ''),
+            (string) config('services.edduz.api_key', ''),
+            (string) config('services.edduz.webhook_token', ''),
         ));
     }
 

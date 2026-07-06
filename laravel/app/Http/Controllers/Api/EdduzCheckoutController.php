@@ -6,6 +6,7 @@ use App\Domain\Edduz\Actions\GenerateCheckoutUrlAction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EdduzCheckoutController extends Controller
 {
@@ -29,7 +30,14 @@ class EdduzCheckoutController extends Controller
         } catch (\InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'Erro ao gerar URL de checkout.'], 502);
+            Log::error('Falha inesperada ao gerar URL de checkout.', [
+                'user_id' => $request->user()?->id,
+                'plan_id' => $request->input('plan_id'),
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['message' => $e->getMessage()], 502);
         }
     }
 }
