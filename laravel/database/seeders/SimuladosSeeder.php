@@ -142,7 +142,7 @@ class SimuladosSeeder extends Seeder
                         'time_limit_minutes' => 60,
                         'active' => true,
                         'is_free' => $version <= 2, // Primeiros 2 de cada matéria são gratuitos
-                        'feedback_mode' => 'after_finish',
+                        'feedback_mode' => 'final',
                     ]);
 
                     $totalExams++;
