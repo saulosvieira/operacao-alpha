@@ -109,7 +109,7 @@ class PerformanceRepository
                 'score' => $attempt->score ?? 0.0,
                 'correct_answers' => $attempt->correct_answers ?? 0,
                 'total_questions' => $totalQuestions,
-                'time_spent_minutes' => round($attempt->duration_seconds / 60),
+                'time_spent_minutes' => $attempt->duration_seconds ? round($attempt->duration_seconds / 60) : 0,
                 'completed_at' => $attempt->finished_at->toIso8601String(),
             ]);
         });

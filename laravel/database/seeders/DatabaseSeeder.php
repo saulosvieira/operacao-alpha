@@ -48,6 +48,9 @@ class DatabaseSeeder extends Seeder
             
             // Step 9: Create approved list (independent)
             ApprovedSeeder::class,
+            
+            // Step 10: Import simulados from Excel files (depends on careers)
+            SimuladosSeeder::class,
         ]);
     }
 }
