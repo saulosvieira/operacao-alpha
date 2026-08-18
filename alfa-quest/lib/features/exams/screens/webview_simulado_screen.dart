@@ -60,6 +60,7 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
 
   void _initController() {
     final sessionManager = ref.read(sessionManagerProvider);
+    final authManager = ref.read(authManagerProvider);
 
     _targetUrl =
         '${AppConfig.apiBaseUrl}/simulado/${widget.examId}/tentativa/${widget.attemptId}';
@@ -75,20 +76,24 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       onPageFinished: (url) async {
         debugPrint('[WebView] Page finished: $url');
 
-        // After the page loads, inject token and force the React app to recognize it
+        // After the page loads, inject token + user and force the React app to recognize it
         if (!_tokenInjected) {
           _tokenInjected = true;
           final token = await sessionManager.getToken();
           if (token != null) {
-            debugPrint('[WebView] Injecting token and reloading...');
-            // Set token in localStorage and reload the page
-            // The React app will read it on next initialization
+            debugPrint('[WebView] Injecting token + user and reloading...');
+            // Build user JSON from current auth state
+            final user = authManager.currentState.user;
+            final userJson = user != null
+                ? '{"id":"${user.id}","name":"${user.name}","email":"${user.email}","role":"${user.role ?? 'user'}","subscriptionStatus":"${user.subscriptionStatus.name}"}'
+                : '{"id":"0","name":"User","email":"user@app","role":"user","subscriptionStatus":"trial"}';
+
             await ctrl.runJavaScript('''
               (function() {
-                localStorage.setItem('auth_token', '$token');
-                // Force reload to let React re-initialize with the token
-                if (!localStorage.getItem('_token_injected')) {
-                  localStorage.setItem('_token_injected', 'true');
+                if (!localStorage.getItem('_app_injected')) {
+                  localStorage.setItem('auth_token', '$token');
+                  localStorage.setItem('operacao-alfa-user', '$userJson');
+                  localStorage.setItem('_app_injected', 'true');
                   window.location.reload();
                 }
               })();
