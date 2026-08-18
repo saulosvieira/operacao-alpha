@@ -70,38 +70,30 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
 
     ctrl.setJavaScriptMode(JavaScriptMode.unrestricted);
     ctrl.setNavigationDelegate(NavigationDelegate(
-      onPageStarted: (url) {
+      onPageStarted: (url) async {
         if (mounted) setState(() { _isLoading = true; _hasError = false; });
-      },
-      onPageFinished: (url) async {
-        debugPrint('[WebView] Page finished: $url');
 
-        // After the page loads, inject token + user and force the React app to recognize it
+        // Inject token BEFORE the page's JavaScript runs
+        // onPageStarted fires when navigation starts - origin is set but JS hasn't executed yet
         if (!_tokenInjected) {
           _tokenInjected = true;
           final token = await sessionManager.getToken();
           if (token != null) {
-            debugPrint('[WebView] Injecting token + user and reloading...');
-            // Build user JSON from current auth state
             final user = authManager.currentState.user;
             final userJson = user != null
                 ? '{"id":"${user.id}","name":"${user.name}","email":"${user.email}","role":"${user.role ?? 'user'}","subscriptionStatus":"${user.subscriptionStatus.name}"}'
                 : '{"id":"0","name":"User","email":"user@app","role":"user","subscriptionStatus":"trial"}';
 
+            debugPrint('[WebView] Injecting session before React loads...');
             await ctrl.runJavaScript('''
-              (function() {
-                if (!localStorage.getItem('_app_injected')) {
-                  localStorage.setItem('auth_token', '$token');
-                  localStorage.setItem('operacao-alfa-user', '$userJson');
-                  localStorage.setItem('_app_injected', 'true');
-                  window.location.reload();
-                }
-              })();
+              localStorage.setItem('auth_token', '$token');
+              localStorage.setItem('operacao-alfa-user', '$userJson');
             ''');
-            return;
           }
         }
-
+      },
+      onPageFinished: (url) async {
+        debugPrint('[WebView] Page finished: $url');
         if (mounted) setState(() => _isLoading = false);
 
         // Detect resultado URL -> exam finished
@@ -119,12 +111,6 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       },
       onNavigationRequest: (request) {
         final uri = Uri.parse(request.url);
-        // Block navigation to login page - we handle auth ourselves
-        if (uri.path == '/login' && isHostFromDomain(uri)) {
-          debugPrint('[WebView] Blocked redirect to login, injecting token...');
-          _injectTokenAndReload(ctrl, sessionManager);
-          return NavigationDecision.prevent;
-        }
         if (!isHostFromDomain(uri) && !request.url.startsWith('about:') && !request.url.startsWith('data:')) {
           debugPrint('[WebView] Blocked external navigation: ${request.url}');
           return NavigationDecision.prevent;
@@ -140,16 +126,6 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
     // Load the simulado URL directly
     debugPrint('[WebView] Loading: $_targetUrl');
     ctrl.loadRequest(Uri.parse(_targetUrl!));
-  }
-
-  Future<void> _injectTokenAndReload(WebViewController ctrl, dynamic sessionManager) async {
-    final token = await sessionManager.getToken();
-    if (token != null) {
-      await ctrl.runJavaScript('''
-        localStorage.setItem('auth_token', '$token');
-        window.location.href = '${_targetUrl!}';
-      ''');
-    }
   }
 
   void _onExamFinished(ExamFinishedEvent event) {
