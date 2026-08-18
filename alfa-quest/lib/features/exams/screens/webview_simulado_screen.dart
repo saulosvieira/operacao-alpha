@@ -73,7 +73,7 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
         if (mounted) setState(() { _isLoading = true; _hasError = false; });
       },
       onPageFinished: (url) async {
-        // Inject token on first page load, then reload with auth
+        // Step 1: We loaded a blank page on the domain, inject token then navigate
         if (!_tokenInjected) {
           _tokenInjected = true;
           final token = await sessionManager.getToken();
@@ -81,10 +81,10 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
             await ctrl.runJavaScript(
               sessionManager.getTokenInjectionJs(token),
             );
-            // Reload so the React PWA picks up the token from localStorage
-            await ctrl.loadRequest(Uri.parse(_targetUrl!));
-            return;
           }
+          // Now navigate to the actual simulado URL
+          await ctrl.loadRequest(Uri.parse(_targetUrl!));
+          return;
         }
 
         if (mounted) setState(() => _isLoading = false);
@@ -116,9 +116,10 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       onMessageReceived: (message) => _bridge.handleMessage(message.message),
     );
 
-    // Load the target URL
-    debugPrint('[WebView] Loading: $_targetUrl');
-    ctrl.loadRequest(Uri.parse(_targetUrl!));
+    // First load a minimal page on the same domain to set localStorage
+    // The React app serves any path, so /favicon.ico or similar light page works
+    debugPrint('[WebView] Loading blank page to inject token...');
+    ctrl.loadRequest(Uri.parse('${AppConfig.apiBaseUrl}/favicon.ico'));
   }
 
   void _onExamFinished(ExamFinishedEvent event) {
