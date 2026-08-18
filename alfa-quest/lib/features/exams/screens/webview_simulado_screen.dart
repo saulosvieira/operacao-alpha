@@ -73,16 +73,18 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
         if (mounted) setState(() { _isLoading = true; _hasError = false; });
       },
       onPageFinished: (url) async {
-        // Step 1: We loaded a blank page on the domain, inject token then navigate
+        // Step 1: blank page loaded, inject token then navigate to simulado
         if (!_tokenInjected) {
           _tokenInjected = true;
           final token = await sessionManager.getToken();
           if (token != null) {
+            debugPrint('[WebView] Injecting token into localStorage...');
             await ctrl.runJavaScript(
-              sessionManager.getTokenInjectionJs(token),
+              "window.localStorage.setItem('auth_token', '$token');",
             );
           }
           // Now navigate to the actual simulado URL
+          debugPrint('[WebView] Navigating to: $_targetUrl');
           await ctrl.loadRequest(Uri.parse(_targetUrl!));
           return;
         }
@@ -104,7 +106,7 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       },
       onNavigationRequest: (request) {
         final uri = Uri.parse(request.url);
-        if (!isHostFromDomain(uri) && !request.url.startsWith('about:')) {
+        if (!isHostFromDomain(uri) && !request.url.startsWith('about:') && !request.url.startsWith('data:')) {
           debugPrint('[WebView] Blocked external navigation: ${request.url}');
           return NavigationDecision.prevent;
         }
@@ -116,10 +118,13 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       onMessageReceived: (message) => _bridge.handleMessage(message.message),
     );
 
-    // First load a minimal page on the same domain to set localStorage
-    // The React app serves any path, so /favicon.ico or similar light page works
-    debugPrint('[WebView] Loading blank page to inject token...');
-    ctrl.loadRequest(Uri.parse('${AppConfig.apiBaseUrl}/favicon.ico'));
+    // Load a minimal HTML page with baseUrl set to our domain
+    // This establishes the origin for localStorage without triggering the React SPA
+    debugPrint('[WebView] Loading blank page with domain origin to inject token...');
+    ctrl.loadHtmlString(
+      '<html><body></body></html>',
+      baseUrl: AppConfig.apiBaseUrl,
+    );
   }
 
   void _onExamFinished(ExamFinishedEvent event) {
