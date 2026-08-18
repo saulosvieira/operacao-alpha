@@ -96,11 +96,57 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
         debugPrint('[WebView] Page finished: $url');
         if (mounted) setState(() => _isLoading = false);
 
-        // Detect resultado URL -> exam finished
         final uri = Uri.tryParse(url);
-        if (uri != null && isResultadoPath(uri.path)) {
+        if (uri == null) return;
+
+        // Inject URL change observer to catch React Router client-side navigation
+        if (_tokenInjected) {
+          await ctrl.runJavaScript('''
+            (function() {
+              if (window._appNavObserverSet) return;
+              window._appNavObserverSet = true;
+              
+              // Override pushState/replaceState to detect React Router navigation
+              var origPush = history.pushState;
+              var origReplace = history.replaceState;
+              
+              function checkPath(path) {
+                var isSimulado = /^\\/simulado\\/[^/]+\\/(tentativa|executar)\\/[^/]+/.test(path);
+                var isResultado = /^\\/simulado\\/[^/]+\\/resultado\\/[^/]+/.test(path);
+                if (!isSimulado && !isResultado && path !== '/') {
+                  // Notify Flutter to exit WebView
+                  if (window.${WebViewBridge.channelName}) {
+                    ${WebViewBridge.channelName}.postMessage(JSON.stringify({type: "requestExit"}));
+                  }
+                }
+              }
+              
+              history.pushState = function() {
+                origPush.apply(this, arguments);
+                checkPath(window.location.pathname);
+              };
+              history.replaceState = function() {
+                origReplace.apply(this, arguments);
+                checkPath(window.location.pathname);
+              };
+            })();
+          ''');
+        }
+
+        // Detect resultado URL -> exam finished, go back to Flutter
+        if (isResultadoPath(uri.path)) {
           _onExamFinished(ExamFinishedEvent(
               examId: widget.examId, attemptId: widget.attemptId));
+          return;
+        }
+
+        // If navigated away from simulado flow (tentativa/resultado), return to Flutter
+        if (isHostFromDomain(uri) &&
+            !isTentativaPath(uri.path) &&
+            !isResultadoPath(uri.path) &&
+            _tokenInjected) {
+          debugPrint('[WebView] Left simulado flow, returning to app: ${uri.path}');
+          if (mounted) context.go(RoutePaths.simulados);
         }
       },
       onWebResourceError: (error) {
@@ -113,6 +159,20 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
         final uri = Uri.parse(request.url);
         if (!isHostFromDomain(uri) && !request.url.startsWith('about:') && !request.url.startsWith('data:')) {
           debugPrint('[WebView] Blocked external navigation: ${request.url}');
+          return NavigationDecision.prevent;
+        }
+        // Block navigation away from simulado flow (e.g. /simulados, /desempenho, /login)
+        if (isHostFromDomain(uri) &&
+            !isTentativaPath(uri.path) &&
+            !isResultadoPath(uri.path) &&
+            _tokenInjected) {
+          debugPrint('[WebView] Blocked PWA navigation outside simulado: ${uri.path}');
+          // Return to Flutter app
+          if (mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) context.go(RoutePaths.simulados);
+            });
+          }
           return NavigationDecision.prevent;
         }
         return NavigationDecision.navigate;
@@ -134,7 +194,11 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
     if (mounted) context.go(RoutePaths.simulados);
   }
 
-  void _onRequestExit() => _showExitDialog();
+  void _onRequestExit() {
+    // Called by React Router navigation observer when leaving simulado flow
+    debugPrint('[WebView] requestExit received - returning to app');
+    if (mounted) context.go(RoutePaths.simulados);
+  }
 
   Future<void> _showExitDialog() async {
     final confirm = await showDialog<bool>(
