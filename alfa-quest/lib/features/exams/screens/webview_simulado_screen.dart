@@ -69,24 +69,32 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
 
     ctrl.setJavaScriptMode(JavaScriptMode.unrestricted);
     ctrl.setNavigationDelegate(NavigationDelegate(
-      onPageStarted: (_) {
+      onPageStarted: (url) {
         if (mounted) setState(() { _isLoading = true; _hasError = false; });
       },
       onPageFinished: (url) async {
-        // Step 1: blank page loaded, inject token then navigate to simulado
+        debugPrint('[WebView] Page finished: $url');
+
+        // After the page loads, inject token and force the React app to recognize it
         if (!_tokenInjected) {
           _tokenInjected = true;
           final token = await sessionManager.getToken();
           if (token != null) {
-            debugPrint('[WebView] Injecting token into localStorage...');
-            await ctrl.runJavaScript(
-              "window.localStorage.setItem('auth_token', '$token');",
-            );
+            debugPrint('[WebView] Injecting token and reloading...');
+            // Set token in localStorage and reload the page
+            // The React app will read it on next initialization
+            await ctrl.runJavaScript('''
+              (function() {
+                localStorage.setItem('auth_token', '$token');
+                // Force reload to let React re-initialize with the token
+                if (!localStorage.getItem('_token_injected')) {
+                  localStorage.setItem('_token_injected', 'true');
+                  window.location.reload();
+                }
+              })();
+            ''');
+            return;
           }
-          // Now navigate to the actual simulado URL
-          debugPrint('[WebView] Navigating to: $_targetUrl');
-          await ctrl.loadRequest(Uri.parse(_targetUrl!));
-          return;
         }
 
         if (mounted) setState(() => _isLoading = false);
@@ -106,6 +114,12 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       },
       onNavigationRequest: (request) {
         final uri = Uri.parse(request.url);
+        // Block navigation to login page - we handle auth ourselves
+        if (uri.path == '/login' && isHostFromDomain(uri)) {
+          debugPrint('[WebView] Blocked redirect to login, injecting token...');
+          _injectTokenAndReload(ctrl, sessionManager);
+          return NavigationDecision.prevent;
+        }
         if (!isHostFromDomain(uri) && !request.url.startsWith('about:') && !request.url.startsWith('data:')) {
           debugPrint('[WebView] Blocked external navigation: ${request.url}');
           return NavigationDecision.prevent;
@@ -118,13 +132,19 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
       onMessageReceived: (message) => _bridge.handleMessage(message.message),
     );
 
-    // Load a minimal HTML page with baseUrl set to our domain
-    // This establishes the origin for localStorage without triggering the React SPA
-    debugPrint('[WebView] Loading blank page with domain origin to inject token...');
-    ctrl.loadHtmlString(
-      '<html><body></body></html>',
-      baseUrl: AppConfig.apiBaseUrl,
-    );
+    // Load the simulado URL directly
+    debugPrint('[WebView] Loading: $_targetUrl');
+    ctrl.loadRequest(Uri.parse(_targetUrl!));
+  }
+
+  Future<void> _injectTokenAndReload(WebViewController ctrl, dynamic sessionManager) async {
+    final token = await sessionManager.getToken();
+    if (token != null) {
+      await ctrl.runJavaScript('''
+        localStorage.setItem('auth_token', '$token');
+        window.location.href = '${_targetUrl!}';
+      ''');
+    }
   }
 
   void _onExamFinished(ExamFinishedEvent event) {
