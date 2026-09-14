@@ -14,19 +14,27 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$HistoryItem {
+// O backend de histórico (HistoryResource) não fornece attemptId;
+// fica opcional para permitir navegação apenas quando disponível.
   @JsonKey(name: 'attemptId')
-  String get attemptId;
+  String? get attemptId;
   @JsonKey(name: 'examId')
   String get examId;
   @JsonKey(name: 'examTitle')
   String get examTitle;
+  @JsonKey(name: 'careerName')
+  String? get careerName;
   AttemptStatus get status;
-  @JsonKey(name: 'startedAt')
-  DateTime get startedAt;
-  @JsonKey(name: 'finishedAt')
-  DateTime? get finishedAt;
+  @JsonKey(name: 'completedAt')
+  DateTime? get completedAt;
   @JsonKey(name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
   double? get accuracyPercentage;
+  @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+  int? get correctAnswers;
+  @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+  int? get totalQuestions;
+  @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+  int? get timeSpentMinutes;
 
   /// Create a copy of HistoryItem
   /// with the given fields replaced by the non-null parameter values.
@@ -48,23 +56,39 @@ mixin _$HistoryItem {
             (identical(other.examId, examId) || other.examId == examId) &&
             (identical(other.examTitle, examTitle) ||
                 other.examTitle == examTitle) &&
+            (identical(other.careerName, careerName) ||
+                other.careerName == careerName) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.startedAt, startedAt) ||
-                other.startedAt == startedAt) &&
-            (identical(other.finishedAt, finishedAt) ||
-                other.finishedAt == finishedAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt) &&
             (identical(other.accuracyPercentage, accuracyPercentage) ||
-                other.accuracyPercentage == accuracyPercentage));
+                other.accuracyPercentage == accuracyPercentage) &&
+            (identical(other.correctAnswers, correctAnswers) ||
+                other.correctAnswers == correctAnswers) &&
+            (identical(other.totalQuestions, totalQuestions) ||
+                other.totalQuestions == totalQuestions) &&
+            (identical(other.timeSpentMinutes, timeSpentMinutes) ||
+                other.timeSpentMinutes == timeSpentMinutes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, attemptId, examId, examTitle,
-      status, startedAt, finishedAt, accuracyPercentage);
+  int get hashCode => Object.hash(
+      runtimeType,
+      attemptId,
+      examId,
+      examTitle,
+      careerName,
+      status,
+      completedAt,
+      accuracyPercentage,
+      correctAnswers,
+      totalQuestions,
+      timeSpentMinutes);
 
   @override
   String toString() {
-    return 'HistoryItem(attemptId: $attemptId, examId: $examId, examTitle: $examTitle, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, accuracyPercentage: $accuracyPercentage)';
+    return 'HistoryItem(attemptId: $attemptId, examId: $examId, examTitle: $examTitle, careerName: $careerName, status: $status, completedAt: $completedAt, accuracyPercentage: $accuracyPercentage, correctAnswers: $correctAnswers, totalQuestions: $totalQuestions, timeSpentMinutes: $timeSpentMinutes)';
   }
 }
 
@@ -75,14 +99,20 @@ abstract mixin class $HistoryItemCopyWith<$Res> {
       _$HistoryItemCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(name: 'attemptId') String attemptId,
+      {@JsonKey(name: 'attemptId') String? attemptId,
       @JsonKey(name: 'examId') String examId,
       @JsonKey(name: 'examTitle') String examTitle,
+      @JsonKey(name: 'careerName') String? careerName,
       AttemptStatus status,
-      @JsonKey(name: 'startedAt') DateTime startedAt,
-      @JsonKey(name: 'finishedAt') DateTime? finishedAt,
+      @JsonKey(name: 'completedAt') DateTime? completedAt,
       @JsonKey(name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-      double? accuracyPercentage});
+      double? accuracyPercentage,
+      @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+      int? correctAnswers,
+      @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+      int? totalQuestions,
+      @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+      int? timeSpentMinutes});
 }
 
 /// @nodoc
@@ -97,19 +127,22 @@ class _$HistoryItemCopyWithImpl<$Res> implements $HistoryItemCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? attemptId = null,
+    Object? attemptId = freezed,
     Object? examId = null,
     Object? examTitle = null,
+    Object? careerName = freezed,
     Object? status = null,
-    Object? startedAt = null,
-    Object? finishedAt = freezed,
+    Object? completedAt = freezed,
     Object? accuracyPercentage = freezed,
+    Object? correctAnswers = freezed,
+    Object? totalQuestions = freezed,
+    Object? timeSpentMinutes = freezed,
   }) {
     return _then(_self.copyWith(
-      attemptId: null == attemptId
+      attemptId: freezed == attemptId
           ? _self.attemptId
           : attemptId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       examId: null == examId
           ? _self.examId
           : examId // ignore: cast_nullable_to_non_nullable
@@ -118,22 +151,34 @@ class _$HistoryItemCopyWithImpl<$Res> implements $HistoryItemCopyWith<$Res> {
           ? _self.examTitle
           : examTitle // ignore: cast_nullable_to_non_nullable
               as String,
+      careerName: freezed == careerName
+          ? _self.careerName
+          : careerName // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as AttemptStatus,
-      startedAt: null == startedAt
-          ? _self.startedAt
-          : startedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      finishedAt: freezed == finishedAt
-          ? _self.finishedAt
-          : finishedAt // ignore: cast_nullable_to_non_nullable
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       accuracyPercentage: freezed == accuracyPercentage
           ? _self.accuracyPercentage
           : accuracyPercentage // ignore: cast_nullable_to_non_nullable
               as double?,
+      correctAnswers: freezed == correctAnswers
+          ? _self.correctAnswers
+          : correctAnswers // ignore: cast_nullable_to_non_nullable
+              as int?,
+      totalQuestions: freezed == totalQuestions
+          ? _self.totalQuestions
+          : totalQuestions // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeSpentMinutes: freezed == timeSpentMinutes
+          ? _self.timeSpentMinutes
+          : timeSpentMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -232,15 +277,21 @@ extension HistoryItemPatterns on HistoryItem {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: 'attemptId') String attemptId,
+            @JsonKey(name: 'attemptId') String? attemptId,
             @JsonKey(name: 'examId') String examId,
             @JsonKey(name: 'examTitle') String examTitle,
+            @JsonKey(name: 'careerName') String? careerName,
             AttemptStatus status,
-            @JsonKey(name: 'startedAt') DateTime startedAt,
-            @JsonKey(name: 'finishedAt') DateTime? finishedAt,
+            @JsonKey(name: 'completedAt') DateTime? completedAt,
             @JsonKey(
                 name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-            double? accuracyPercentage)?
+            double? accuracyPercentage,
+            @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+            int? correctAnswers,
+            @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+            int? totalQuestions,
+            @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+            int? timeSpentMinutes)?
         $default, {
     required TResult orElse(),
   }) {
@@ -251,10 +302,13 @@ extension HistoryItemPatterns on HistoryItem {
             _that.attemptId,
             _that.examId,
             _that.examTitle,
+            _that.careerName,
             _that.status,
-            _that.startedAt,
-            _that.finishedAt,
-            _that.accuracyPercentage);
+            _that.completedAt,
+            _that.accuracyPercentage,
+            _that.correctAnswers,
+            _that.totalQuestions,
+            _that.timeSpentMinutes);
       case _:
         return orElse();
     }
@@ -276,15 +330,21 @@ extension HistoryItemPatterns on HistoryItem {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: 'attemptId') String attemptId,
+            @JsonKey(name: 'attemptId') String? attemptId,
             @JsonKey(name: 'examId') String examId,
             @JsonKey(name: 'examTitle') String examTitle,
+            @JsonKey(name: 'careerName') String? careerName,
             AttemptStatus status,
-            @JsonKey(name: 'startedAt') DateTime startedAt,
-            @JsonKey(name: 'finishedAt') DateTime? finishedAt,
+            @JsonKey(name: 'completedAt') DateTime? completedAt,
             @JsonKey(
                 name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-            double? accuracyPercentage)
+            double? accuracyPercentage,
+            @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+            int? correctAnswers,
+            @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+            int? totalQuestions,
+            @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+            int? timeSpentMinutes)
         $default,
   ) {
     final _that = this;
@@ -294,10 +354,13 @@ extension HistoryItemPatterns on HistoryItem {
             _that.attemptId,
             _that.examId,
             _that.examTitle,
+            _that.careerName,
             _that.status,
-            _that.startedAt,
-            _that.finishedAt,
-            _that.accuracyPercentage);
+            _that.completedAt,
+            _that.accuracyPercentage,
+            _that.correctAnswers,
+            _that.totalQuestions,
+            _that.timeSpentMinutes);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -318,15 +381,21 @@ extension HistoryItemPatterns on HistoryItem {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            @JsonKey(name: 'attemptId') String attemptId,
+            @JsonKey(name: 'attemptId') String? attemptId,
             @JsonKey(name: 'examId') String examId,
             @JsonKey(name: 'examTitle') String examTitle,
+            @JsonKey(name: 'careerName') String? careerName,
             AttemptStatus status,
-            @JsonKey(name: 'startedAt') DateTime startedAt,
-            @JsonKey(name: 'finishedAt') DateTime? finishedAt,
+            @JsonKey(name: 'completedAt') DateTime? completedAt,
             @JsonKey(
                 name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-            double? accuracyPercentage)?
+            double? accuracyPercentage,
+            @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+            int? correctAnswers,
+            @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+            int? totalQuestions,
+            @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+            int? timeSpentMinutes)?
         $default,
   ) {
     final _that = this;
@@ -336,10 +405,13 @@ extension HistoryItemPatterns on HistoryItem {
             _that.attemptId,
             _that.examId,
             _that.examTitle,
+            _that.careerName,
             _that.status,
-            _that.startedAt,
-            _that.finishedAt,
-            _that.accuracyPercentage);
+            _that.completedAt,
+            _that.accuracyPercentage,
+            _that.correctAnswers,
+            _that.totalQuestions,
+            _that.timeSpentMinutes);
       case _:
         return null;
     }
@@ -350,20 +422,28 @@ extension HistoryItemPatterns on HistoryItem {
 @JsonSerializable()
 class _HistoryItem implements HistoryItem {
   const _HistoryItem(
-      {@JsonKey(name: 'attemptId') required this.attemptId,
+      {@JsonKey(name: 'attemptId') this.attemptId,
       @JsonKey(name: 'examId') required this.examId,
       @JsonKey(name: 'examTitle') required this.examTitle,
+      @JsonKey(name: 'careerName') this.careerName,
       this.status = AttemptStatus.finished,
-      @JsonKey(name: 'startedAt') required this.startedAt,
-      @JsonKey(name: 'finishedAt') this.finishedAt,
+      @JsonKey(name: 'completedAt') this.completedAt,
       @JsonKey(name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-      this.accuracyPercentage});
+      this.accuracyPercentage,
+      @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+      this.correctAnswers,
+      @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+      this.totalQuestions,
+      @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+      this.timeSpentMinutes});
   factory _HistoryItem.fromJson(Map<String, dynamic> json) =>
       _$HistoryItemFromJson(json);
 
+// O backend de histórico (HistoryResource) não fornece attemptId;
+// fica opcional para permitir navegação apenas quando disponível.
   @override
   @JsonKey(name: 'attemptId')
-  final String attemptId;
+  final String? attemptId;
   @override
   @JsonKey(name: 'examId')
   final String examId;
@@ -371,17 +451,26 @@ class _HistoryItem implements HistoryItem {
   @JsonKey(name: 'examTitle')
   final String examTitle;
   @override
+  @JsonKey(name: 'careerName')
+  final String? careerName;
+  @override
   @JsonKey()
   final AttemptStatus status;
   @override
-  @JsonKey(name: 'startedAt')
-  final DateTime startedAt;
-  @override
-  @JsonKey(name: 'finishedAt')
-  final DateTime? finishedAt;
+  @JsonKey(name: 'completedAt')
+  final DateTime? completedAt;
   @override
   @JsonKey(name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
   final double? accuracyPercentage;
+  @override
+  @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+  final int? correctAnswers;
+  @override
+  @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+  final int? totalQuestions;
+  @override
+  @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+  final int? timeSpentMinutes;
 
   /// Create a copy of HistoryItem
   /// with the given fields replaced by the non-null parameter values.
@@ -408,23 +497,39 @@ class _HistoryItem implements HistoryItem {
             (identical(other.examId, examId) || other.examId == examId) &&
             (identical(other.examTitle, examTitle) ||
                 other.examTitle == examTitle) &&
+            (identical(other.careerName, careerName) ||
+                other.careerName == careerName) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.startedAt, startedAt) ||
-                other.startedAt == startedAt) &&
-            (identical(other.finishedAt, finishedAt) ||
-                other.finishedAt == finishedAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt) &&
             (identical(other.accuracyPercentage, accuracyPercentage) ||
-                other.accuracyPercentage == accuracyPercentage));
+                other.accuracyPercentage == accuracyPercentage) &&
+            (identical(other.correctAnswers, correctAnswers) ||
+                other.correctAnswers == correctAnswers) &&
+            (identical(other.totalQuestions, totalQuestions) ||
+                other.totalQuestions == totalQuestions) &&
+            (identical(other.timeSpentMinutes, timeSpentMinutes) ||
+                other.timeSpentMinutes == timeSpentMinutes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, attemptId, examId, examTitle,
-      status, startedAt, finishedAt, accuracyPercentage);
+  int get hashCode => Object.hash(
+      runtimeType,
+      attemptId,
+      examId,
+      examTitle,
+      careerName,
+      status,
+      completedAt,
+      accuracyPercentage,
+      correctAnswers,
+      totalQuestions,
+      timeSpentMinutes);
 
   @override
   String toString() {
-    return 'HistoryItem(attemptId: $attemptId, examId: $examId, examTitle: $examTitle, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, accuracyPercentage: $accuracyPercentage)';
+    return 'HistoryItem(attemptId: $attemptId, examId: $examId, examTitle: $examTitle, careerName: $careerName, status: $status, completedAt: $completedAt, accuracyPercentage: $accuracyPercentage, correctAnswers: $correctAnswers, totalQuestions: $totalQuestions, timeSpentMinutes: $timeSpentMinutes)';
   }
 }
 
@@ -437,14 +542,20 @@ abstract mixin class _$HistoryItemCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'attemptId') String attemptId,
+      {@JsonKey(name: 'attemptId') String? attemptId,
       @JsonKey(name: 'examId') String examId,
       @JsonKey(name: 'examTitle') String examTitle,
+      @JsonKey(name: 'careerName') String? careerName,
       AttemptStatus status,
-      @JsonKey(name: 'startedAt') DateTime startedAt,
-      @JsonKey(name: 'finishedAt') DateTime? finishedAt,
+      @JsonKey(name: 'completedAt') DateTime? completedAt,
       @JsonKey(name: 'accuracyPercentage', fromJson: _nullableDoubleFromJson)
-      double? accuracyPercentage});
+      double? accuracyPercentage,
+      @JsonKey(name: 'correctAnswers', fromJson: _nullableIntFromJson)
+      int? correctAnswers,
+      @JsonKey(name: 'totalQuestions', fromJson: _nullableIntFromJson)
+      int? totalQuestions,
+      @JsonKey(name: 'timeSpentMinutes', fromJson: _nullableIntFromJson)
+      int? timeSpentMinutes});
 }
 
 /// @nodoc
@@ -459,19 +570,22 @@ class __$HistoryItemCopyWithImpl<$Res> implements _$HistoryItemCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? attemptId = null,
+    Object? attemptId = freezed,
     Object? examId = null,
     Object? examTitle = null,
+    Object? careerName = freezed,
     Object? status = null,
-    Object? startedAt = null,
-    Object? finishedAt = freezed,
+    Object? completedAt = freezed,
     Object? accuracyPercentage = freezed,
+    Object? correctAnswers = freezed,
+    Object? totalQuestions = freezed,
+    Object? timeSpentMinutes = freezed,
   }) {
     return _then(_HistoryItem(
-      attemptId: null == attemptId
+      attemptId: freezed == attemptId
           ? _self.attemptId
           : attemptId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       examId: null == examId
           ? _self.examId
           : examId // ignore: cast_nullable_to_non_nullable
@@ -480,22 +594,34 @@ class __$HistoryItemCopyWithImpl<$Res> implements _$HistoryItemCopyWith<$Res> {
           ? _self.examTitle
           : examTitle // ignore: cast_nullable_to_non_nullable
               as String,
+      careerName: freezed == careerName
+          ? _self.careerName
+          : careerName // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as AttemptStatus,
-      startedAt: null == startedAt
-          ? _self.startedAt
-          : startedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      finishedAt: freezed == finishedAt
-          ? _self.finishedAt
-          : finishedAt // ignore: cast_nullable_to_non_nullable
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       accuracyPercentage: freezed == accuracyPercentage
           ? _self.accuracyPercentage
           : accuracyPercentage // ignore: cast_nullable_to_non_nullable
               as double?,
+      correctAnswers: freezed == correctAnswers
+          ? _self.correctAnswers
+          : correctAnswers // ignore: cast_nullable_to_non_nullable
+              as int?,
+      totalQuestions: freezed == totalQuestions
+          ? _self.totalQuestions
+          : totalQuestions // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeSpentMinutes: freezed == timeSpentMinutes
+          ? _self.timeSpentMinutes
+          : timeSpentMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }

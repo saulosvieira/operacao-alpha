@@ -52,9 +52,31 @@ class PerformanceRepository {
   Future<List<HistoryItem>> _fetchHistory() async {
     final response = await _api.get<Map<String, dynamic>>('/api/performance/history');
     final data = response.data!;
-    final items = (data['data'] as List? ?? []).map((e) => HistoryItem.fromJson(e as Map<String, dynamic>)).toList();
+    final rawList = data['data'] as List? ?? const [];
+    final items = rawList
+        .map((e) => HistoryItem.fromJson(_normalizeHistory(e as Map<String, dynamic>)))
+        .toList();
     await _cache.write('perf:history', {'items': items.map((e) => e.toJson()).toList()});
     return items;
+  }
+
+  /// O backend (HistoryResource) envia snake_case e usa 'score' como
+  /// percentual de acerto e 'completed_at' como data de conclusao.
+  /// Convertemos para as chaves esperadas pelo modelo HistoryItem.
+  Map<String, dynamic> _normalizeHistory(Map<String, dynamic> raw) {
+    return <String, dynamic>{
+      // Preserva chaves originais; as normalizadas abaixo tem precedencia.
+      ...raw,
+      if (raw['attempt_id'] != null) 'attemptId': raw['attempt_id'].toString(),
+      if (raw['exam_id'] != null) 'examId': raw['exam_id'].toString(),
+      if (raw['exam_title'] != null) 'examTitle': raw['exam_title'],
+      if (raw['career_name'] != null) 'careerName': raw['career_name'],
+      if (raw['completed_at'] != null) 'completedAt': raw['completed_at'],
+      if (raw['score'] != null) 'accuracyPercentage': raw['score'],
+      if (raw['correct_answers'] != null) 'correctAnswers': raw['correct_answers'],
+      if (raw['total_questions'] != null) 'totalQuestions': raw['total_questions'],
+      if (raw['time_spent_minutes'] != null) 'timeSpentMinutes': raw['time_spent_minutes'],
+    };
   }
 
   Future<void> _revalidateHistory() async {

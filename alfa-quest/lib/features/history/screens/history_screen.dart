@@ -51,10 +51,15 @@ class HistoryScreen extends ConsumerWidget {
                           color: item.status == AttemptStatus.finished ? AppColors.primary : Colors.orange,
                         ),
                         onTap: () {
-                          if (item.status == AttemptStatus.finished) {
-                            context.push(RoutePaths.examResultado(item.examId, item.attemptId));
+                          final attemptId = item.attemptId;
+                          if (attemptId == null) {
+                            // Backend de historico nao fornece attemptId;
+                            // abre o detalhe do simulado.
+                            context.push(RoutePaths.examDetail(item.examId));
+                          } else if (item.status == AttemptStatus.finished) {
+                            context.push(RoutePaths.examResultado(item.examId, attemptId));
                           } else {
-                            context.push(RoutePaths.tentativa(item.examId, item.attemptId));
+                            context.push(RoutePaths.tentativa(item.examId, attemptId));
                           }
                         },
                       ),

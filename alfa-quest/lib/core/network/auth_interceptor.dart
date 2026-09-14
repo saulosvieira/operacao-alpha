@@ -9,7 +9,6 @@ class AuthInterceptor extends Interceptor {
     '/api/login',
     '/api/register',
     '/api/careers',
-    '/api/plans',
   ];
 
   AuthInterceptor({required this.tokenReader});
