@@ -26,9 +26,29 @@ class RankingRepository {
   Future<List<RankingEntry>> _fetchWeekly() async {
     final response = await _api.get<Map<String, dynamic>>('/api/ranking', queryParameters: {'type': 'weekly'});
     final data = response.data!;
-    final items = (data['data'] as List? ?? []).map((e) => RankingEntry.fromJson(e as Map<String, dynamic>)).toList();
+    // O backend (Laravel JsonResource) retorna:
+    //   { "data": { "type": "weekly", "entries": [ ... ], ... } }
+    // Toleramos variacoes: data.entries, data (lista direta) ou data.data lista.
+    final rawList = _extractEntries(data);
+    final items = rawList
+        .map((e) => RankingEntry.fromJson(e as Map<String, dynamic>))
+        .toList();
     await _cache.write('ranking:weekly', {'items': items.map((e) => e.toJson()).toList()});
     return items;
+  }
+
+  /// Extrai a lista de entradas de ranking tolerando diferentes formatos de
+  /// envelope de resposta.
+  List<dynamic> _extractEntries(Map<String, dynamic> data) {
+    final inner = data['data'];
+    if (inner is Map<String, dynamic>) {
+      final entries = inner['entries'];
+      if (entries is List) return entries;
+    }
+    if (inner is List) return inner;
+    final entries = data['entries'];
+    if (entries is List) return entries;
+    return const [];
   }
 
   Future<void> _revalidateWeekly() async {
@@ -48,7 +68,12 @@ class RankingRepository {
   Future<MyRankingPosition?> _fetchPosition() async {
     try {
       final response = await _api.get<Map<String, dynamic>>('/api/ranking/my-position');
-      final pos = MyRankingPosition.fromJson(response.data!);
+      final body = response.data!;
+      // Backend retorna { "data": { position, score, ... } }.
+      final inner = body['data'];
+      if (inner == null) return null;
+      final json = inner is Map<String, dynamic> ? inner : body;
+      final pos = MyRankingPosition.fromJson(json);
       await _cache.write('ranking:my_position', pos.toJson());
       return pos;
     } on NotFoundException {

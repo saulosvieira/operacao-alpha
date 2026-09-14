@@ -1,7 +1,7 @@
 name: alfa_quest
 description: Operação Alfa - App de simulados para concursos
 publish_to: 'none'
-version: 1.0.0+5
+version: 1.0.0+9
 
 environment:
   sdk: '>=3.5.0 <4.0.0'

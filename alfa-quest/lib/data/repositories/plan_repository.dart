@@ -25,9 +25,24 @@ class PlanRepository {
   Future<List<Plan>> _fetchPlans() async {
     final response = await _api.get<Map<String, dynamic>>('/api/plans');
     final data = response.data!;
-    final items = (data['data'] as List? ?? []).map((e) => Plan.fromJson(e as Map<String, dynamic>)).toList();
+    final rawList = data['data'] as List? ?? data['plans'] as List? ?? const [];
+    final items = rawList
+        .map((e) => Plan.fromJson(_normalizePlan(e as Map<String, dynamic>)))
+        .toList();
     await _cache.write('plans:list', {'items': items.map((e) => e.toJson()).toList()});
     return items;
+  }
+
+  /// Normaliza o JSON de um plano vindo do backend, que usa snake_case
+  /// (duration_days) e pode enviar id numerico, para o formato esperado
+  /// pelo modelo Plan (durationDays, id String).
+  Map<String, dynamic> _normalizePlan(Map<String, dynamic> raw) {
+    return <String, dynamic>{
+      ...raw,
+      if (raw['id'] != null) 'id': raw['id'].toString(),
+      if (raw['durationDays'] == null && raw['duration_days'] != null)
+        'durationDays': raw['duration_days'],
+    };
   }
 
   Future<void> _revalidatePlans() async {
@@ -36,7 +51,14 @@ class PlanRepository {
 
   Future<CheckoutResponse> startCheckout(String planId) async {
     final response = await _api.post<Map<String, dynamic>>('/api/edduz/checkout', data: {'plan_id': planId});
-    return CheckoutResponse.fromJson(response.data!);
+    final body = response.data!;
+    // Backend retorna { "checkout_url": "..." }; o modelo espera "checkoutUrl".
+    final normalized = <String, dynamic>{
+      ...body,
+      if (body['checkoutUrl'] == null && body['checkout_url'] != null)
+        'checkoutUrl': body['checkout_url'],
+    };
+    return CheckoutResponse.fromJson(normalized);
   }
 
   Future<void> cancelSubscription() async {

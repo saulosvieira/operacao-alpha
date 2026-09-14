@@ -22,7 +22,7 @@ class UserRepository {
 
   Future<User> _fetchMe() async {
     final response = await _api.get<Map<String, dynamic>>('/api/me');
-    final user = User.fromJson(response.data!);
+    final user = User.fromJson(_unwrapUser(response.data!));
     await _cache.write('user:me', user.toJson());
     return user;
   }
@@ -43,7 +43,7 @@ class UserRepository {
 
   Future<User> _fetchProfile() async {
     final response = await _api.get<Map<String, dynamic>>('/api/user/profile');
-    final user = User.fromJson(response.data!);
+    final user = User.fromJson(_unwrapUser(response.data!));
     await _cache.write('user:profile', user.toJson());
     return user;
   }
@@ -54,10 +54,24 @@ class UserRepository {
 
   Future<User> updateProfile(Map<String, dynamic> changes) async {
     final response = await _api.put<Map<String, dynamic>>('/api/user/profile', data: changes);
-    final user = User.fromJson(response.data!);
+    final user = User.fromJson(_unwrapUser(response.data!));
     await _cache.write('user:profile', user.toJson());
     await _cache.write('user:me', user.toJson());
     return user;
+  }
+
+  /// Desembrulha o objeto de usuario dos diferentes envelopes usados pelo
+  /// backend Laravel:
+  ///   /api/me            -> { "user": { ... } }
+  ///   /api/user/profile  -> { "data": { ... } }
+  ///   updateProfile      -> { "message": ..., "data": { ... } }
+  /// Como fallback, aceita o objeto ja no nivel de topo.
+  Map<String, dynamic> _unwrapUser(Map<String, dynamic> body) {
+    final data = body['data'];
+    if (data is Map<String, dynamic>) return data;
+    final user = body['user'];
+    if (user is Map<String, dynamic>) return user;
+    return body;
   }
 
   Future<void> changePassword({required String currentPassword, required String newPassword, required String confirmPassword}) async {

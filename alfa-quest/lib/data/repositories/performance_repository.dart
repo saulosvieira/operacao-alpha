@@ -23,7 +23,12 @@ class PerformanceRepository {
 
   Future<PerformanceStatistics> _fetchStats() async {
     final response = await _api.get<Map<String, dynamic>>('/api/performance/statistics');
-    final stats = PerformanceStatistics.fromJson(response.data!);
+    final body = response.data!;
+    // Backend retorna { "data": { ...estatisticas... } }.
+    final json = body['data'] is Map<String, dynamic>
+        ? body['data'] as Map<String, dynamic>
+        : body;
+    final stats = PerformanceStatistics.fromJson(json);
     await _cache.write('perf:statistics', stats.toJson());
     return stats;
   }

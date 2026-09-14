@@ -91,6 +91,10 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
             ''');
           }
         }
+
+        // Flag "modo app embarcado" o mais cedo possivel, para que o web
+        // possa esconder sua propria navegacao. Independe do token.
+        await ctrl.runJavaScript(_appEmbeddedFlagJs);
       },
       onPageFinished: (url) async {
         debugPrint('[WebView] Page finished: $url');
@@ -131,6 +135,11 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
               };
             })();
           ''');
+
+          // Reforca o modo app e esconde a navegacao da versao web
+          // (header/menu/sidebar). Reaplica em re-renders do React.
+          await ctrl.runJavaScript(_appEmbeddedFlagJs);
+          await ctrl.runJavaScript(_hideWebChromeJs);
         }
 
         // Detect resultado URL -> exam finished, go back to Flutter
@@ -231,6 +240,65 @@ class _WebViewSimuladoScreenState extends ConsumerState<WebViewSimuladoScreen> {
     connectivity.status.removeListener(_onConnectivityChanged);
     super.dispose();
   }
+
+  /// JS injetado o mais cedo possivel: marca o documento como "app embarcado"
+  /// para que a versao web possa esconder a propria navegacao via CSS proprio.
+  static const String _appEmbeddedFlagJs = '''
+    (function() {
+      try {
+        document.documentElement.classList.add('app-embedded');
+        document.documentElement.setAttribute('data-app-embedded', '1');
+        localStorage.setItem('app_embedded', '1');
+      } catch (e) {}
+    })();
+  ''';
+
+  /// JS que esconde o "chrome" da versao web (header/menu/sidebar/bottom-nav)
+  /// dentro do fluxo de simulado, mantendo apenas o conteudo. Usa um <style>
+  /// dedicado e um MutationObserver para reaplicar em re-renders do React.
+  static const String _hideWebChromeJs = '''
+    (function() {
+      if (window._appHideChromeSet) return;
+      window._appHideChromeSet = true;
+      var STYLE_ID = 'app-embedded-hide-chrome';
+      function ensureStyle() {
+        if (document.getElementById(STYLE_ID)) return;
+        var css = [
+          'html.app-embedded header,',
+          'html.app-embedded nav,',
+          'html.app-embedded aside,',
+          'html.app-embedded [role="navigation"],',
+          'html.app-embedded [class*="sidebar"],',
+          'html.app-embedded [class*="Sidebar"],',
+          'html.app-embedded [class*="navbar"],',
+          'html.app-embedded [class*="Navbar"],',
+          'html.app-embedded [class*="app-bar"],',
+          'html.app-embedded [class*="AppBar"],',
+          'html.app-embedded [class*="bottom-nav"],',
+          'html.app-embedded [class*="BottomNav"],',
+          'html.app-embedded [class*="menu"][class*="lateral"] {',
+          '  display: none !important;',
+          '  visibility: hidden !important;',
+          '}'
+        ].join('\\n');
+        var style = document.createElement('style');
+        style.id = STYLE_ID;
+        style.type = 'text/css';
+        style.appendChild(document.createTextNode(css));
+        (document.head || document.documentElement).appendChild(style);
+      }
+      ensureStyle();
+      try {
+        var obs = new MutationObserver(function() {
+          if (!document.documentElement.classList.contains('app-embedded')) {
+            document.documentElement.classList.add('app-embedded');
+          }
+          ensureStyle();
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+      } catch (e) {}
+    })();
+  ''';
 
   @override
   Widget build(BuildContext context) {
