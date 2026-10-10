@@ -26,7 +26,7 @@ class ForceUpdateScreen extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => launchUrl(
-                      Uri.parse('https://play.google.com/store/apps/details?id=br.com.operacaoalfa.app'),
+                      Uri.parse('https://play.google.com/store/apps/details?id=br.com.operacaoalfa'),
                       mode: LaunchMode.externalApplication,
                     ),
                     child: const Text('Atualizar agora'),

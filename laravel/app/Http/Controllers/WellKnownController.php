@@ -41,7 +41,7 @@ class WellKnownController extends Controller
                 'relation' => ['delegate_permission/common.handle_all_urls'],
                 'target' => [
                     'namespace' => 'android_app',
-                    'package_name' => 'br.com.operacaoalfa.app',
+                    'package_name' => 'br.com.operacaoalfa',
                     'sha256_cert_fingerprints' => [
                         // TODO: Substituir pelo SHA-256 real do certificado de release
                         // Obter via: keytool -list -v -keystore <release.keystore> -alias <alias>

@@ -24,7 +24,7 @@ flutter pub get
 flutter run --flavor homolog \
   --dart-define=ENV=homolog \
   --dart-define=API_BASE_URL=https://operacao-alfa.homolog.mydev.com.br \
-  --dart-define=APP_VERSION=1.0.0+5
+  --dart-define=APP_VERSION=1.0.1+11
 ```
 
 ### Produção
@@ -33,7 +33,7 @@ flutter run --flavor homolog \
 flutter build appbundle --flavor prod \
   --dart-define=ENV=prod \
   --dart-define=API_BASE_URL=https://operacaoalfa.com.br \
-  --dart-define=APP_VERSION=1.0.0+5
+  --dart-define=APP_VERSION=1.0.1+11
 ```
 
 ### APK (debug)
@@ -42,7 +42,7 @@ flutter build appbundle --flavor prod \
 flutter build apk --flavor prod \
   --dart-define=ENV=prod \
   --dart-define=API_BASE_URL=https://operacaoalfa.com.br \
-  --dart-define=APP_VERSION=1.0.0+5
+  --dart-define=APP_VERSION=1.0.1+11
 ```
 
 ## Arquitetura
@@ -108,7 +108,7 @@ Para iOS, colocar GoogleService-Info.plist em:
 
 ## Package
 
-- Android: `br.com.operacaoalfa.app`
+- Android: `br.com.operacaoalfa`
 - iOS Bundle ID: `br.com.operacaoalfa.app`
-- versionCode: 5 (Play Store tem 4)
-- versionName: 1.0.0
+- versionCode: 12 (Play Store tem 4)
+- versionName: 1.0.1

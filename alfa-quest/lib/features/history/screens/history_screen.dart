@@ -54,12 +54,13 @@ class HistoryScreen extends ConsumerWidget {
                           final attemptId = item.attemptId;
                           if (attemptId == null) {
                             // Backend de historico nao fornece attemptId;
-                            // abre o detalhe do simulado.
-                            context.push(RoutePaths.examDetail(item.examId));
+                            // abre o detalhe do simulado. Usa go() para evitar
+                            // empilhar pagina duplicada (colisao de page key).
+                            context.go(RoutePaths.examDetail(item.examId));
                           } else if (item.status == AttemptStatus.finished) {
-                            context.push(RoutePaths.examResultado(item.examId, attemptId));
+                            context.go(RoutePaths.examResultado(item.examId, attemptId));
                           } else {
-                            context.push(RoutePaths.tentativa(item.examId, attemptId));
+                            context.go(RoutePaths.tentativa(item.examId, attemptId));
                           }
                         },
                       ),

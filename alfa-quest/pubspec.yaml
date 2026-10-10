@@ -1,7 +1,7 @@
 name: alfa_quest
 description: Operação Alfa - App de simulados para concursos
 publish_to: 'none'
-version: 1.0.0+9
+version: 1.0.1+12
 
 environment:
   sdk: '>=3.5.0 <4.0.0'
@@ -44,8 +44,15 @@ dev_dependencies:
   riverpod_generator: ^2.6.5
   custom_lint: ^0.7.5
   riverpod_lint: ^2.6.5
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/logo-small.png
+  remove_alpha_ios: true

@@ -138,6 +138,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: () => context.go(RoutePaths.register),
                     child: const Text('Criar conta'),
                   ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Versão ${AppConfig.versionName}',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  ),
                 ],
               ),
             ),

@@ -1,4 +1,4 @@
-package br.com.operacaoalfa.app
+package br.com.operacaoalfa
 
 import io.flutter.embedding.android.FlutterActivity
 

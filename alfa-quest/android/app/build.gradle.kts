@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "br.com.operacaoalfa.app"
+    namespace = "br.com.operacaoalfa"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,11 +30,23 @@ android {
     }
 
     defaultConfig {
-        applicationId = "br.com.operacaoalfa.app"
+        applicationId = "br.com.operacaoalfa"
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("homolog") {
+            dimension = "environment"
+            applicationIdSuffix = ".homolog"
+            versionNameSuffix = "-homolog"
+        }
+        create("prod") {
+            dimension = "environment"
+        }
     }
 
     signingConfigs {

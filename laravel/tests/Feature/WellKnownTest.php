@@ -45,7 +45,7 @@ class WellKnownTest extends TestCase
         $this->assertCount(1, $data);
         $this->assertEquals(['delegate_permission/common.handle_all_urls'], $data[0]['relation']);
         $this->assertEquals('android_app', $data[0]['target']['namespace']);
-        $this->assertEquals('br.com.operacaoalfa.app', $data[0]['target']['package_name']);
+        $this->assertEquals('br.com.operacaoalfa', $data[0]['target']['package_name']);
         $this->assertIsArray($data[0]['target']['sha256_cert_fingerprints']);
         $this->assertNotEmpty($data[0]['target']['sha256_cert_fingerprints']);
     }
