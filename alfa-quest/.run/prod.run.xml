@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="prod" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="additionalArgs" value="--dart-define=ENV=prod --dart-define=API_BASE_URL=https://operacaoalfa.com.br --dart-define=APP_VERSION=1.0.1+12" />
+    <option name="buildFlavor" value="prod" />
+    <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />
+    <method v="2" />
+  </configuration>
+</component>
